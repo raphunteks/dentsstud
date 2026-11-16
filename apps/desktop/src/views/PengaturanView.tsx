@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { invoke } from '../bridge';
+import { get, invoke, mutate } from '../bridge';
 import { Button, Card, Pill, errMsg } from '../components/UI';
 import type { Dash, OfflineStatus, SessionUser } from '../types';
 
@@ -171,6 +171,45 @@ export function PengaturanView({ user, dash, offline }: PengaturanViewProps) {
                 )}
               </div>
             )}
+          </Card>
+
+          <Card className="p-6 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h2 className="font-display text-base font-semibold text-text">
+                  Connect Claude via OAuth (9Router)
+                </h2>
+                <p className="text-xs text-muted leading-relaxed mt-1">
+                  Hubungkan akun Claude Pro/Team langsung lewat OAuth browser tanpa input API key manual.
+                </p>
+              </div>
+              <Button
+                size="sm"
+                onClick={async () => {
+                  try {
+                    const redirectUri = window.location.origin.includes('localhost')
+                      ? 'http://localhost:3000/callback'
+                      : 'https://motion.dentsweb.my.id/callback';
+                    const res = await mutate<{ authorizeUrl: string }>('POST', '/ai/connections/start', {
+                      provider: 'anthropic',
+                      method: 'OAUTH_PKCE',
+                      redirectUri,
+                    });
+                    if (res?.authorizeUrl) {
+                      try {
+                        await invoke('shell:open-external', { url: res.authorizeUrl });
+                      } catch {
+                        window.open(res.authorizeUrl, '_blank');
+                      }
+                    }
+                  } catch (err: any) {
+                    alert(`Gagal memulai OAuth: ${err?.message || 'Error'}`);
+                  }
+                }}
+              >
+                Connect Claude via OAuth
+              </Button>
+            </div>
           </Card>
         </div>
       )}

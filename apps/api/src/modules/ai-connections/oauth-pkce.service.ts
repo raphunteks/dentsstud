@@ -50,7 +50,7 @@ export class OAuthPkceService {
       authorizeUrl: 'https://claude.ai/oauth/authorize',
       tokenUrl: 'https://console.anthropic.com/v1/oauth/token',
       scopes: ['user:profile'],
-      redirectUri: `${this.env.WEB_ORIGIN}/settings/claude/callback`,
+      redirectUri: `${this.env.WEB_ORIGIN}/callback`,
     };
     const raw = env.OAUTH_PROVIDERS_JSON;
     const list = raw ? z.array(OAuthProviderConfig).parse(JSON.parse(raw)) : [];

@@ -13,7 +13,7 @@ import { SuaraView } from './views/SuaraView';
 import { PengaturanView } from './views/PengaturanView';
 import { BantuanView } from './views/BantuanView';
 import { FolderImportView, LocalRenderView, OfflineProjectsView } from './views/DesktopEngineViews';
-import { AdminLicensesView, AdminMembersView, AdminSystemView } from './views/SuperadminViews';
+import { AdminAIProvidersView, AdminLicensesView, AdminMembersView, AdminSystemView } from './views/SuperadminViews';
 import type { Dash, Info, NavTab, OfflineStatus, SessionUser } from './types';
 
 export function App() {
@@ -158,6 +158,9 @@ function StudioShell({ user, info, offline }: { user: SessionUser; info?: Info; 
             )}
             {currentTab === 'admin-system' && (
               <AdminSystemView />
+            )}
+            {currentTab === 'admin-ai-providers' && (
+              <AdminAIProvidersView />
             )}
           </div>
         </main>

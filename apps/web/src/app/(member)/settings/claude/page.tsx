@@ -53,7 +53,7 @@ export default function ClaudeSettingsPage() {
         json: {
           provider: 'anthropic',
           method: 'OAUTH_PKCE',
-          redirectUri: `${window.location.origin}/settings/claude/callback`,
+          redirectUri: `${window.location.origin}/callback`,
         },
       }),
     onSuccess: (r) => {

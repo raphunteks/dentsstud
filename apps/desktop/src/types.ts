@@ -111,4 +111,5 @@ export type NavTab =
   | 'import-folder'
   | 'admin-members'
   | 'admin-licenses'
+  | 'admin-ai-providers'
   | 'admin-system';
