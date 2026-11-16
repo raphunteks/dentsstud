@@ -107,25 +107,30 @@ function Shell({ info, children }: { info?: Info; children: ReactNode }) {
   const toggleTheme = () => setTheme((t) => (t === 'light' ? 'dark' : 'light'));
 
   return (
-    <div className="min-h-dvh">
+    <div className="min-h-dvh flex flex-col">
       <UpdateBanner />
-      <header className="flex items-center justify-between border-b border-line px-6 py-3.5 pl-24" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
+      <header
+        className={clsx(
+          'flex items-center justify-between border-b border-line px-4 sm:px-6 py-3 transition-all select-none',
+          info?.platform === 'darwin' ? 'pl-20 sm:pl-24' : 'pl-4 sm:pl-6'
+        )}
+        style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
+      >
         <Mark />
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
           <button
             type="button"
             onClick={toggleTheme}
             aria-label="Ganti tema"
             title={theme === 'light' ? 'Ganti ke tema gelap' : 'Ganti ke tema terang'}
-            className="flex size-7 items-center justify-center rounded-lg border border-line bg-surface text-xs text-muted transition hover:bg-surface-2 hover:text-text cursor-pointer"
-            style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+            className="flex size-8 items-center justify-center rounded-lg border border-line bg-surface text-xs text-muted transition hover:bg-surface-2 hover:text-text cursor-pointer"
           >
             {theme === 'light' ? '🌙' : '☀️'}
           </button>
-          <span className="num text-xs text-muted">v{info?.version} · {info?.platform}/{info?.arch}</span>
+          <span className="num hidden sm:inline text-xs text-muted">v{info?.version} · {info?.platform}/{info?.arch}</span>
         </div>
       </header>
-      <main className="mx-auto max-w-[1100px] px-6 py-8">{children}</main>
+      <main className="mx-auto w-full max-w-[1100px] flex-1 px-4 sm:px-6 py-6 sm:py-8">{children}</main>
     </div>
   );
 }
@@ -178,8 +183,8 @@ function Login({ info }: { info?: Info }) {
 
   return (
     <Shell info={info}>
-      <div className="mx-auto max-w-[440px] pt-4">
-        <Card className="p-7 shadow-lg border-line/80">
+      <div className="mx-auto w-full max-w-[440px] px-2 sm:px-0 pt-2 sm:pt-6">
+        <Card className="p-5 sm:p-7 shadow-lg border-line/80">
           {!challenge ? (
             <div>
               <div className="mb-6 flex rounded-[10px] border border-line bg-surface-2 p-1">
@@ -301,25 +306,39 @@ function Home({ user, info }: { user: SessionUser; info?: Info }) {
     );
   return (
     <Shell info={info}>
-      <nav aria-label="Menu desktop" className="mb-6 flex gap-1">{tabs.map(([k, l]) => <button key={k} onClick={() => setTab(k)} aria-current={tab === k} className={clsx('h-9 rounded-lg px-3 text-sm', tab === k ? 'bg-surface-2 font-medium' : 'text-muted')}>{l}</button>)}</nav>
+      <nav aria-label="Menu desktop" className="mb-6 flex flex-wrap gap-1.5 overflow-x-auto pb-1">
+        {tabs.map(([k, l]) => (
+          <button
+            key={k}
+            onClick={() => setTab(k)}
+            aria-current={tab === k}
+            className={clsx(
+              'h-9 rounded-lg px-3.5 text-sm transition-colors cursor-pointer',
+              tab === k ? 'bg-surface-2 font-medium text-text shadow-sm' : 'text-muted hover:text-text hover:bg-surface-2/60'
+            )}
+          >
+            {l}
+          </button>
+        ))}
+      </nav>
       <div className="flex flex-wrap items-end justify-between gap-4 pb-6">
         <div>
           <p className="text-xs uppercase tracking-[0.14em] text-muted">Desktop · {user.role}</p>
-          <h1 className="font-display text-3xl font-medium tracking-[-0.02em]">Halo, {user.displayName}</h1>
+          <h1 className="font-display text-2xl sm:text-3xl font-medium tracking-[-0.02em]">Halo, {user.displayName}</h1>
         </div>
         <button className={ghost} onClick={() => logout.mutate()}>Keluar</button>
       </div>
       {dash.isError && <p className="mb-4 text-sm text-bad">{errMsg(dash.error)}</p>}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[['Siap upload', s?.readyToUpload], ['Sedang diproduksi', s?.inProduction], ['Diunggah', s?.uploaded], ['Gagal', s?.failed]].map(([k, v]) => (
-          <Card key={String(k)}>
-            <p className="text-sm text-muted">{k}</p>
-            <p className="num mt-3 text-3xl">{v ?? '—'}</p>
+          <Card key={String(k)} className="p-4 sm:p-5">
+            <p className="text-xs sm:text-sm text-muted">{k}</p>
+            <p className="num mt-2 sm:mt-3 text-2xl sm:text-3xl font-medium">{v ?? '—'}</p>
           </Card>
         ))}
       </div>
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <Card>
+      <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+        <Card className="p-4 sm:p-5">
           <h2 className="font-display text-lg font-medium">Lisensi perangkat ini</h2>
           <p className="mt-3 flex flex-wrap gap-2 text-sm">
             Server: <Pill ok={dash.data?.license.status === 'ACTIVE'}>{dash.data?.license.status ?? '…'}</Pill>
@@ -331,16 +350,16 @@ function Home({ user, info }: { user: SessionUser; info?: Info }) {
           {activate.isError && <p role="alert" className="mt-2 text-sm text-bad">{errMsg(activate.error)}</p>}
           {activate.isSuccess && <p className="mt-2 text-sm text-ok">Perangkat aktif. Bukti offline berlaku sampai {new Date(activate.data.offlineUntil).toLocaleString('id-ID')}.</p>}
         </Card>
-        <Card>
+        <Card className="p-4 sm:p-5">
           <h2 className="font-display text-lg font-medium">Claude Code (lokal)</h2>
-          <p className="mt-3 text-sm">
+          <p className="mt-3 flex flex-wrap gap-1.5 text-sm">
             {detect.isLoading ? 'Mendeteksi…' : detect.data?.installed ? <Pill ok>Terpasang {detect.data.version}</Pill> : <Pill ok={false}>Tidak ditemukan</Pill>}{' '}
             · status server <Pill ok={dash.data?.ai.status === 'CONNECTED'}>{dash.data?.ai.status ?? '…'}</Pill>
           </p>
           {!detect.data?.installed && !detect.isLoading && (
             <p className="mt-2 text-sm text-muted">Pasang Claude Code resmi dari Anthropic, login di terminal, lalu deteksi ulang.</p>
           )}
-          <div className="mt-4 flex gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             <button className={ghost} onClick={() => detect.refetch()}>Deteksi ulang</button>
             <button className={primary} disabled={!detect.data?.installed || test.isPending} onClick={() => test.mutate()}>
               {test.isPending ? 'Menunggu jawaban…' : 'Tes jawab'}
