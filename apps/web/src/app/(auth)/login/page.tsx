@@ -1,0 +1,66 @@
+'use client';
+import Link from 'next/link';
+import { useState } from 'react';
+import { LoginInput } from '@dentweb/shared-types';
+import { api, ApiError } from '@/lib/api';
+import { fieldErrors } from '@/lib/form';
+import { Button, Field, Input } from '@/components/ui';
+import { OtpStep } from '@/components/auth/otp-step';
+
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
+  const [challenge, setChallenge] = useState<string | null>(null);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    const parsed = LoginInput.safeParse({ email, password });
+    if (!parsed.success) {
+      setErrors(fieldErrors(parsed.error));
+      return;
+    }
+    setBusy(true);
+    setErrors({});
+    try {
+      const r = await api<{ challengeId: string }>('/auth/login', { method: 'POST', json: parsed.data });
+      setChallenge(r.challengeId);
+    } catch (err) {
+      setErrors({ form: err instanceof ApiError ? err.message : 'Tidak dapat masuk' });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (challenge) return <OtpStep challengeId={challenge} email={email} onBack={() => setChallenge(null)} />;
+
+  return (
+    <form onSubmit={submit} className="grid gap-5" noValidate>
+      <div>
+        <h1 className="font-display text-3xl font-medium ">Masuk</h1>
+        <p className="mt-2 text-sm text-muted">Setelah password benar, kami kirim kode OTP ke email Anda.</p>
+      </div>
+      {errors.form && (
+        <p role="alert" className="rounded-[10px] border border-bad/30 bg-bad/5 px-3 py-2 text-sm text-bad">
+          {errors.form}
+        </p>
+      )}
+      <Field id="email" label="Email" error={errors.email}>
+        <Input id="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} invalid={!!errors.email} />
+      </Field>
+      <Field id="password" label="Password" error={errors.password}>
+        <Input id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} invalid={!!errors.password} />
+      </Field>
+      <Button type="submit" loading={busy} className="h-11">
+        Lanjut
+      </Button>
+      <p className="text-sm text-muted">
+        Belum punya akun?{' '}
+        <Link href="/register" className="font-medium text-text underline underline-offset-4">
+          Daftar
+        </Link>
+      </p>
+    </form>
+  );
+}

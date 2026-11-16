@@ -1,0 +1,45 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_USER: dentweb, POSTGRES_PASSWORD: dentweb, POSTGRES_DB: dentweb_test }
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U dentweb" --health-interval 5s --health-retries 10
+      redis:
+        image: redis:7
+        ports: ["6379:6379"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r --filter "./packages/*" build
+      - run: pnpm typecheck
+      - run: pnpm --filter @dentweb/api test
+        env: { TEST_DATABASE_URL: "postgresql://dentweb:dentweb@localhost:5432/dentweb_test", REDIS_URL: "redis://localhost:6379" }
+      - run: pnpm --filter @dentweb/web build
+  desktop:
+    strategy: { matrix: { os: [macos-latest, windows-latest] } }
+    runs-on: ${{ matrix.os }}
+    if: github.ref_type == 'tag'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @dentweb/shared-types build
+      - run: pnpm --filter @dentweb/desktop ${{ matrix.os == 'macos-latest' && 'dist:mac' || 'dist:win' }}
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      - uses: actions/upload-artifact@v4
+        with: { name: desktop-${{ matrix.os }}, path: apps/desktop/release/**/*.{dmg,exe,blockmap} }

@@ -1,0 +1,6 @@
+# api.<your-domain> → API container (TLS automatic). Web is on Vercel.
+{$API_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:4000
+	header -Server
+}

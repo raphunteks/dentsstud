@@ -1,0 +1,43 @@
+appId: studio.dentweb.desktop
+productName: DENTWEB STUDIO
+copyright: DENTWEB STUDIO — lisensi nonkomersial
+directories:
+  output: release/${version}
+  buildResources: build
+files:
+  - dist/**/*
+  - package.json
+  - "!**/*.map"
+asar: true
+asarUnpack:
+  - "**/node_modules/@remotion/**"
+protocols:
+  - name: DENTWEB STUDIO
+    schemes: [dentweb]
+mac:
+  category: public.app-category.video
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  # Signing + notarization: set CSC_LINK/CSC_KEY_PASSWORD and APPLE_ID/APPLE_APP_SPECIFIC_PASSWORD/APPLE_TEAM_ID.
+  notarize: false
+dmg:
+  artifactName: DENTWEB-STUDIO-${version}-${arch}.dmg
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  artifactName: DENTWEB-STUDIO-Setup-${version}.${ext}
+  # Signing: set WIN_CSC_LINK / WIN_CSC_KEY_PASSWORD.
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: false
+linux:
+  target: [dir]
+publish: null

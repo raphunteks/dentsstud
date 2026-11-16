@@ -1,0 +1,11 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+onlyBuiltDependencies:
+  - "@prisma/engines"
+  - "prisma"
+  - "@swc/core"
+  - "electron"
+  - "esbuild"
+  - "better-sqlite3"
+  - "@node-rs/argon2"

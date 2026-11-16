@@ -1,0 +1,49 @@
+# VPS stack: API (+ production engine + scheduler) and Remotion render workers. Web runs on Vercel; Redis on Upstash; Postgres managed or local below.
+name: dentweb
+services:
+  api:
+    build: { context: ../.., dockerfile: infrastructure/docker/api.Dockerfile }
+    env_file: ../../.env
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+    ports: ["127.0.0.1:4000:4000"]
+    volumes: ["storage:/app/.data/storage"]
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy, required: false }
+
+  render-worker:
+    build: { context: ../.., dockerfile: infrastructure/docker/render-worker.Dockerfile }
+    env_file: ../../.env
+    environment:
+      API_INTERNAL_URL: http://api:4000
+      WORKER_NAME: vps-render-1
+    restart: unless-stopped
+    depends_on: [api]
+    deploy:
+      resources:
+        limits: { cpus: "4", memory: 6g }
+    shm_size: 1gb
+
+  migrate:
+    build: { context: ../.., dockerfile: infrastructure/docker/api.Dockerfile }
+    env_file: ../../.env
+    command: ["node", "-e", "import('drizzle-orm/node-postgres/migrator').then(async ({migrate})=>{const {createDatabase}=await import('@dentweb/database');const db=createDatabase(undefined,1);await migrate(db,{migrationsFolder:'/app/db/migrations'});await db.$$client.end();console.log('migrated')})"]
+    profiles: ["ops"]
+
+  # Optional local Postgres on the VPS (skip if DATABASE_URL points to Neon).
+  postgres:
+    image: postgres:16-alpine
+    profiles: ["local-db"]
+    environment:
+      POSTGRES_USER: dentweb
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: dentweb
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U dentweb"], interval: 10s, retries: 5 }
+    restart: unless-stopped
+
+volumes:
+  pgdata: {}
+  storage: {}

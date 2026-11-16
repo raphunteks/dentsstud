@@ -1,0 +1,17 @@
+# Keputusan arsitektur (ADR ringkas)
+
+1. **ORM: Drizzle 0.45 (bukan Prisma).** Prisma 7 membutuhkan binary schema-engine yang diunduh saat runtime/CI; Drizzle murni TypeScript, migrasi SQL eksplisit, tanpa binary — lebih aman untuk Vercel, Docker, dan lingkungan terbatas. Spesifikasi v1.1 mengizinkan "Prisma atau Drizzle".
+2. **Status/role = VARCHAR + CHECK**, bukan enum Postgres, sesuai kontrak skema v1.1.
+3. **Login = password (Argon2id) + OTP email (SMTP)**. OTP 6 digit, HMAC-SHA256, TTL 10 menit, maks 5 percobaan, cooldown kirim ulang 60 dtk, sekali pakai. Pesan error tidak membocorkan keberadaan akun.
+4. **Sesi opaque** (hash SHA-256 di DB). Web: cookie httpOnly `dw_sid` + refresh `dw_rt` (path `/api/v1/auth`) + petunjuk `dw_auth`. Desktop: bearer token disimpan via `safeStorage` (Keychain/DPAPI) di main process, tidak pernah di renderer. Refresh token sekali pakai (rotasi).
+5. **Web memanggil API lewat rewrite Next.js** (`/api/v1/*` → VPS) agar cookie tetap first-party di Vercel.
+6. **Claude**: tidak memakai OAuth Claude.ai konsumen / client ID pihak lain (9Router hanya referensi pola). Jalur nyata: (a) API key Anthropic milik member, divalidasi ke `/v1/models`, disimpan AES-256-GCM; (b) Claude Code resmi di desktop, dideteksi lokal, diuji dengan inference nyata via stdin. Engine OAuth PKCE S256 generik tersedia untuk provider yang benar-benar mendaftarkan client ke DENTWEB (`OAUTH_PROVIDERS_JSON`); tanpa itu statusnya `UNSUPPORTED`.
+7. **Lisensi offline**: JWT EdDSA (Ed25519) berisi lisensi+perangkat+entitlement, masa berlaku = grace period setting; diverifikasi desktop dengan public key.
+8. **Desktop**: `contextIsolation`, `sandbox`, `nodeIntegration:false`, renderer dari protokol `app://dentweb` dengan CSP ketat dan proteksi traversal, IPC allowlist + validasi Zod + cek origin pengirim, navigasi & window baru diblokir.
+9. **SQLite lokal = `node:sqlite`** (bawaan Node di Electron 45) — tanpa native addon/rebuild.
+10. **Produksi multi-agent berjalan di API** (BullMQ `dw-production`, `PRODUCTION_WORKER=true`), bukan di render worker. Setiap tahap (RESEARCH → SCRIPT → FACT_CHECK → MOTION → QC → SOCIAL) disimpan sebagai `production_stage_runs` sehingga "Lanjutkan" meneruskan dari checkpoint. Keluaran agen divalidasi skema Zod; keluaran tidak valid diminta ulang, tidak pernah dikarang engine.
+11. **Riset memakai tool resmi Anthropic `web_search_20250305`**; bila ditolak organisasi member, riset tetap jalan tanpa web search dan klaim tanpa sumber ditandai `UNVERIFIED` (bukan diam-diam dianggap benar). Klaim `CONTRADICTED` memicu satu revisi naskah; bila tetap bertentangan produksi gagal.
+12. **Render worker tidak menyentuh DB**: hanya `/internal/*` + `WORKER_TOKEN`. Semua antrean memakai `QUEUE_PREFIX` agar lingkungan yang berbagi Redis (mis. Upstash dev/prod) tidak saling mencuri job.
+13. **Revisi (ganti suara / render ulang)** = run baru `kind=REVISION` yang menyalin tahap riset/naskah/cek fakta induk; tidak memotong kuota harian.
+14. **Pembaruan desktop**: Windows memakai `electron-updater` (provider generic) ke feed `/api/v1/releases/feed/<channel>/<platform>/<arch>/latest.yml` yang dibangkitkan dari tabel `app_releases` (sha512 dihitung server). macOS tanpa tanda tangan Developer ID tidak bisa auto-install (Squirrel.Mac), sehingga hanya memberi tahu dan membuka DMG.
+15. **Observability**: error 5xx API + error klien web/desktop dikelompokkan per fingerprint (`error_reports`); metrik Prometheus di `/api/v1/metrics` hanya aktif bila `METRICS_TOKEN` diset.

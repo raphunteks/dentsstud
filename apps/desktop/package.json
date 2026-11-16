@@ -1,0 +1,51 @@
+{
+  "name": "@dentweb/desktop",
+  "productName": "DENTWEB STUDIO",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DENTWEB STUDIO desktop — Create Motion. Powered by AI.",
+  "author": "DENTWEB STUDIO",
+  "type": "module",
+  "main": "dist/electron/main.js",
+  "scripts": {
+    "build:electron": "node scripts/build-electron.mjs",
+    "build:renderer": "vite build",
+    "build": "pnpm build:renderer && pnpm build:electron",
+    "dev": "pnpm build && electron .",
+    "start": "electron .",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "dist:mac": "pnpm build && electron-builder --mac --publish never",
+    "dist:win": "pnpm build && electron-builder --win --publish never",
+    "dist:linux": "pnpm build && electron-builder --linux dir --publish never"
+  },
+  "dependencies": {
+    "@dentweb/motion-schema": "workspace:*",
+    "@dentweb/shared-types": "workspace:*",
+    "@remotion/renderer": "4.0.544",
+    "electron-updater": "6.8.11",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@dentweb/remotion-compositions": "workspace:*",
+    "@fontsource-variable/chivo": "5.3.0",
+    "@fontsource/chivo-mono": "5.3.0",
+    "@tailwindcss/vite": "4.3.5",
+    "@tanstack/react-query": "5.107.1",
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.3.0",
+    "clsx": "2.1.1",
+    "electron": "45.3.3",
+    "electron-builder": "26.18.0",
+    "esbuild": "0.28.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "tailwindcss": "4.3.5",
+    "typescript": "6.0.3",
+    "vite": "8.3.8",
+    "vitest": "5.1.0"
+  }
+}
