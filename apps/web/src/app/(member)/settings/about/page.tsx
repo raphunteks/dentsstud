@@ -20,7 +20,7 @@ export default function AboutPage() {
       <PageHead eyebrow="Pengaturan" title="Tentang" />
       <Card className="grid gap-4 p-6">
         <p>
-          DENTWEB STUDIO <span className="num text-muted">web v{VERSION}</span>
+          DENTSWEB STUDIO <span className="num text-muted">web v{VERSION}</span>
         </p>
         <p className="text-sm text-muted">Create Motion. Powered by AI. Lisensi nonkomersial.</p>
         <div>

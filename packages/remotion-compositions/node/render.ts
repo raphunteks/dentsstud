@@ -26,7 +26,12 @@ export async function renderDocument(o: RenderOptions) {
   if (!o.serveUrl && !existsSync(BUNDLE_DIR)) throw new Error('Bundle Remotion belum dibangun (pnpm --filter @dentweb/remotion-compositions build)');
   const inputProps = { doc };
   const browserExecutable = o.browserExecutable ?? process.env.REMOTION_BROWSER_EXECUTABLE ?? null;
-  const composition = await selectComposition({ serveUrl, id: 'DentwebMotion', inputProps, browserExecutable });
+  let composition;
+  try {
+    composition = await selectComposition({ serveUrl, id: 'DentswebMotion', inputProps, browserExecutable });
+  } catch {
+    composition = await selectComposition({ serveUrl, id: 'DentwebMotion', inputProps, browserExecutable });
+  }
   const { cancelSignal, cancel } = makeCancelSignal();
   o.signal?.addEventListener('abort', () => cancel());
   const format = o.format ?? 'mp4';
@@ -50,7 +55,12 @@ export async function renderCover(o: { doc: unknown; outPath: string; title?: st
   const serveUrl = o.serveUrl ?? BUNDLE_DIR;
   const inputProps = { doc, coverTitle: o.title };
   const browserExecutable = o.browserExecutable ?? process.env.REMOTION_BROWSER_EXECUTABLE ?? null;
-  const composition = await selectComposition({ serveUrl, id: 'DentwebCover', inputProps, browserExecutable });
+  let composition;
+  try {
+    composition = await selectComposition({ serveUrl, id: 'DentswebCover', inputProps, browserExecutable });
+  } catch {
+    composition = await selectComposition({ serveUrl, id: 'DentwebCover', inputProps, browserExecutable });
+  }
   await renderStill({ composition, serveUrl, output: o.outPath, inputProps, browserExecutable, imageFormat: 'png' });
   return { outPath: o.outPath };
 }

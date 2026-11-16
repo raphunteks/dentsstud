@@ -25,7 +25,7 @@ const EnvSchema = z
     MAIL_FROM: z.string().optional(),
     ANTHROPIC_API_BASE: z.string().url().default('https://api.anthropic.com'),
     TRUST_PROXY: bool.default(true),
-    /** JSON array of OAuth providers registered to DENTWEB (generic PKCE). */
+    /** JSON array of OAuth providers registered to DENTSWEB (generic PKCE). */
     OAUTH_PROVIDERS_JSON: z.string().optional(),
     /** Object storage: local disk (dev / single VPS) or any S3-compatible bucket. */
     STORAGE_DRIVER: z.enum(['local', 's3']).default('local'),

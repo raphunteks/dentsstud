@@ -82,7 +82,7 @@ export class SupportService {
     if (asAdmin) {
       await this.db.insert(notifications).values({ userId: t.userId, type: 'support.reply', payload: { ticketId: id, subject: t.subject } });
       const [u] = await this.db.select({ email: users.email }).from(users).where(eq(users.id, t.userId));
-      if (u) await this.mail.send({ to: u.email, subject: `Balasan tiket: ${t.subject}`, text: `Tim DENTWEB membalas tiket Anda "${t.subject}". Buka Pusat Bantuan di aplikasi untuk membaca dan membalas.` }).catch(() => undefined);
+      if (u) await this.mail.send({ to: u.email, subject: `Balasan tiket: ${t.subject}`, text: `Tim DENTSWEB membalas tiket Anda "${t.subject}". Buka Pusat Bantuan di aplikasi untuk membaca dan membalas.` }).catch(() => undefined);
     }
     return this.get(null, id);
   }

@@ -4,6 +4,7 @@ import { z } from 'zod';
 export const CHANNELS = {
   'app:info': z.void(),
   'config:set-api-base': z.object({ apiBase: z.url().refine((u) => u.startsWith('https://') || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(u), 'Harus HTTPS (atau localhost)') }),
+  'auth:register': z.object({ email: z.string().email().max(254), password: z.string().min(10).max(128), displayName: z.string().min(2).max(100) }),
   'auth:login': z.object({ email: z.string().email().max(254), password: z.string().min(1).max(128) }),
   'auth:verify': z.object({ challengeId: z.uuid(), code: z.string().regex(/^\d{6}$/) }),
   'auth:resend': z.object({ challengeId: z.uuid() }),

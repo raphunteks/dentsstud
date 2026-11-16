@@ -15,7 +15,7 @@ export default function RenderCenter() {
   return (
     <>
       <PageHead eyebrow="Studio" title="Render Center" />
-      <p className="mb-5 max-w-2xl text-sm text-muted">Render cloud berjalan di worker DENTWEB. Render lokal dijalankan aplikasi desktop di komputer Anda; job berstatus "AWAITING LOCAL" menunggu aplikasi desktop.</p>
+      <p className="mb-5 max-w-2xl text-sm text-muted">Render cloud berjalan di worker DENTSWEB. Render lokal dijalankan aplikasi desktop di komputer Anda; job berstatus "AWAITING LOCAL" menunggu aplikasi desktop.</p>
       {q.isError && <ErrorNote error={q.error} onRetry={() => q.refetch()} />}
       {q.isLoading && <Skeleton className="h-48 rounded-card" />}
       {q.data?.length === 0 && <Empty title="Belum ada render" body="Buka project di Motion Editor lalu pilih Render cloud atau Render lokal." />}

@@ -68,9 +68,9 @@ export class AuthService {
     const what = purpose === 'LOGIN' ? 'masuk ke' : 'memverifikasi email Anda di';
     await this.mail.send({
       to: user.email,
-      subject: `Kode ${purpose === 'LOGIN' ? 'masuk' : 'verifikasi'} DENTWEB STUDIO: ${code}`,
-      text: `Halo ${user.displayName},\n\nKode untuk ${what} DENTWEB STUDIO: ${code}\nKode berlaku ${Math.round(ttl / 60)} menit dan hanya dapat dipakai sekali.\n\nJika Anda tidak meminta kode ini, abaikan email ini dan segera ganti password Anda.`,
-      html: `<div style="font-family:system-ui,sans-serif;max-width:480px"><p>Halo ${escapeHtml(user.displayName)},</p><p>Kode untuk ${what} <b>DENTWEB STUDIO</b>:</p><p style="font-size:32px;letter-spacing:8px;font-weight:700;font-family:ui-monospace,monospace">${code}</p><p>Berlaku ${Math.round(ttl / 60)} menit, sekali pakai.</p><p style="color:#666">Jika Anda tidak meminta kode ini, abaikan email ini.</p></div>`,
+      subject: `Kode ${purpose === 'LOGIN' ? 'masuk' : 'verifikasi'} DENTSWEB STUDIO: ${code}`,
+      text: `Halo ${user.displayName},\n\nKode untuk ${what} DENTSWEB STUDIO: ${code}\nKode berlaku ${Math.round(ttl / 60)} menit dan hanya dapat dipakai sekali.\n\nJika Anda tidak meminta kode ini, abaikan email ini dan segera ganti password Anda.`,
+      html: `<div style="font-family:system-ui,sans-serif;max-width:480px"><p>Halo ${escapeHtml(user.displayName)},</p><p>Kode untuk ${what} <b>DENTSWEB STUDIO</b>:</p><p style="font-size:32px;letter-spacing:8px;font-weight:700;font-family:ui-monospace,monospace">${code}</p><p>Berlaku ${Math.round(ttl / 60)} menit, sekali pakai.</p><p style="color:#666">Jika Anda tidak meminta kode ini, abaikan email ini.</p></div>`,
     });
   }
 
@@ -83,7 +83,7 @@ export class AuthService {
       // Avoid account enumeration: respond identically, notify the real owner.
       await this.mail.send({
         to: existing.email,
-        subject: 'Percobaan pendaftaran DENTWEB STUDIO',
+        subject: 'Percobaan pendaftaran DENTSWEB STUDIO',
         text: 'Seseorang mencoba mendaftar menggunakan email Anda. Jika itu Anda, silakan masuk menggunakan akun yang sudah ada.',
       });
       return { challengeId: randomUUID(), expiresInSeconds: await this.settings.num('auth.otp.ttlSeconds') };

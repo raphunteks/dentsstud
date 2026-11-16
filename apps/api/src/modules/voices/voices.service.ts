@@ -10,7 +10,7 @@ import { MediaService } from '../media/media.service.js';
 import { ElevenLabsTts, FallbackTts, GeminiTts, type Credentials, type TtsAdapter } from './tts.adapters.js';
 
 type Voice = typeof voiceProfiles.$inferSelect;
-const SAMPLE_TEXT = 'Halo, ini contoh suara narator untuk video edukasi DENTWEB STUDIO.';
+const SAMPLE_TEXT = 'Halo, ini contoh suara narator untuk video edukasi DENTSWEB STUDIO.';
 
 @Injectable()
 export class VoicesService {

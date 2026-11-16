@@ -8,7 +8,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="grid min-h-dvh lg:grid-cols-[1fr_minmax(440px,520px)]">
       <aside data-theme="dark" className="relative hidden overflow-hidden bg-bg p-10 text-text lg:flex lg:flex-col lg:justify-between">
-        <Link href="/" className="w-fit" aria-label="Beranda DENTWEB STUDIO">
+        <Link href="/" className="w-fit" aria-label="Beranda DENTSWEB STUDIO">
           <Mark className="text-lg" />
         </Link>
         {/* The six production stages as edit tracks; each block is a stage's share of one run. */}

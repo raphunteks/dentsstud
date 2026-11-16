@@ -1,4 +1,4 @@
-# DENTWEB STUDIO
+# DENTSWEB STUDIO
 
 **Create Motion. Powered by AI.** — monorepo (pnpm + Turborepo) per *Master Architecture v1.1*.
 
@@ -25,7 +25,7 @@ pnpm db:migrate && pnpm db:seed
 pnpm --filter @dentweb/api build && SUPERADMIN_EMAIL=... SUPERADMIN_PASSWORD=... pnpm bootstrap:superadmin
 pnpm --filter @dentweb/api dev        # :4000, Swagger di /api/docs
 pnpm --filter @dentweb/web dev        # :3000
-pnpm --filter @dentweb/desktop dev    # Electron (DENTWEB_API_BASE=http://localhost:4000)
+pnpm --filter @dentweb/desktop dev    # Electron (DENTSWEB_API_BASE=http://localhost:4000)
 ```
 
 Tanpa SMTP di development, kode OTP dicetak di log API. Production menolak start tanpa SMTP.
@@ -33,7 +33,7 @@ Tanpa SMTP di development, kode OTP dicetak di log API. Production menolak start
 ## Installer
 
 - macOS: `./scripts/build-mac.sh` di Mac → `apps/desktop/release/<versi>/*.dmg`
-- Windows: `pnpm dist:win` (Windows, atau Linux dengan wine) → `DENTWEB-STUDIO-Setup-<versi>.exe`
+- Windows: `pnpm dist:win` (Windows, atau Linux dengan wine) → `DENTSWEB-STUDIO-Setup-<versi>.exe`
 
 ## Deploy
 

@@ -3,7 +3,7 @@ import { normalize, join, relative, isAbsolute } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 export const APP_SCHEME = 'app';
-export const APP_HOST = 'dentweb';
+export const APP_HOST = 'dentsweb';
 export const APP_ORIGIN = `${APP_SCHEME}://${APP_HOST}`;
 
 export function registerSchemePrivileges() {

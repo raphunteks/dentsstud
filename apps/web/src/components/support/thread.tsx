@@ -22,7 +22,7 @@ export function Thread({ t, onReply, sending, staffView }: { t: Ticket; onReply:
           const staff = m.authorRole === 'SUPERADMIN';
           return (
             <li key={m.id} className={clsx('max-w-[85%] rounded-2xl border px-4 py-3', staff === !!staffView ? 'ml-auto border-accent/40 bg-accent/5' : 'border-line bg-surface')}>
-              <p className="text-xs text-muted">{staff ? `${m.authorName} · Tim DENTWEB` : m.authorName} · {fmtDate(m.createdAt)}</p>
+              <p className="text-xs text-muted">{staff ? `${m.authorName} · Tim DENTSWEB` : m.authorName} · {fmtDate(m.createdAt)}</p>
               <p className="mt-1 whitespace-pre-wrap text-sm">{m.body}</p>
             </li>
           );

@@ -278,7 +278,7 @@ export default function CreateContentPage() {
           <Section n={4} title="Gaya visual & referensi">
             {presets.data?.items.length ? (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                <Choice active={!presetId} onClick={() => setPresetId('')} title="Gaya bawaan" hint="Palet DENTWEB" />
+                <Choice active={!presetId} onClick={() => setPresetId('')} title="Gaya bawaan" hint="Palet DENTSWEB" />
                 {presets.data.items.map((p) => (
                   <button key={p.id} type="button" aria-pressed={presetId === p.id} onClick={() => setPresetId(p.id)} className={clsx('overflow-hidden rounded-xl border text-left transition-colors', presetId === p.id ? 'border-accent' : 'border-line hover:border-text/30')}>
                     <div className="aspect-video bg-surface-2">{p.thumbnailUrl && <img src={p.thumbnailUrl} alt="" className="size-full object-cover" />}</div>

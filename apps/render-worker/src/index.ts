@@ -1,5 +1,5 @@
 /**
- * DENTWEB render worker. Pulls jobs from Redis (outbound only, no public port), renders with Remotion + FFmpeg,
+ * DENTSWEB render worker. Pulls jobs from Redis (outbound only, no public port), renders with Remotion + FFmpeg,
  * talks to the API only through the token-protected /internal channel (no direct DB access).
  */
 import { Worker } from 'bullmq';

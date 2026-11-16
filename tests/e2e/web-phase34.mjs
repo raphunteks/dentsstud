@@ -71,8 +71,8 @@ for (const [path, text] of [['/progress', 'Tidak ada produksi aktif'], ['/result
 }
 
 await m.goto(`${BASE}/help`);
-await m.getByText('Mulai menggunakan DENTWEB STUDIO').waitFor();
-await m.getByText('Mulai menggunakan DENTWEB STUDIO').click();
+await m.getByText('Mulai menggunakan DENTSWEB STUDIO').waitFor();
+await m.getByText('Mulai menggunakan DENTSWEB STUDIO').click();
 await m.getByRole('dialog').getByText('Hubungkan Claude di Pengaturan').waitFor();
 await m.keyboard.press('Escape');
 await m.fill('input[aria-label="Cari artikel"]', 'render');

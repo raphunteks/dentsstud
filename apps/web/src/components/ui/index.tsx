@@ -129,7 +129,7 @@ export function ErrorNote({ error, onRetry }: { error: unknown; onRetry?: () => 
 export function Mark({ className }: { className?: string }) {
   return (
     <span className={clsx('inline-flex items-baseline gap-1.5 font-display font-medium tracking-[-0.02em]', className)}>
-      DENTWEB<span className="font-normal text-muted">STUDIO</span>
+      DENTSWEB<span className="font-normal text-muted">STUDIO</span>
     </span>
   );
 }

@@ -35,7 +35,7 @@ export const AGENTS = [
   {
     code: 'research', name: 'Research Agent', stage: 'RESEARCH',
     description: 'Mengumpulkan informasi dan sumber untuk topik video.',
-    systemPrompt: 'Anda adalah Research Agent DENTWEB STUDIO. Kumpulkan fakta relevan tentang topik yang diberikan, sertakan sumber yang dapat diverifikasi (URL, judul). Jangan mengarang sumber. Keluarkan JSON sesuai output schema.',
+    systemPrompt: 'Anda adalah Research Agent DENTSWEB STUDIO. Kumpulkan fakta relevan tentang topik yang diberikan, sertakan sumber yang dapat diverifikasi (URL, judul). Jangan mengarang sumber. Keluarkan JSON sesuai output schema.',
   },
   {
     code: 'scriptwriter', name: 'Scriptwriter Agent', stage: 'SCRIPT',
@@ -82,7 +82,7 @@ export const PRODUCTION_WORKFLOW = {
 /** Real product documentation shipped with the app (not demo content). Superadmin can edit or unpublish. */
 export const HELP_ARTICLES = [
   {
-    slug: 'mulai-menggunakan', kind: 'GUIDE', title: 'Mulai menggunakan DENTWEB STUDIO',
+    slug: 'mulai-menggunakan', kind: 'GUIDE', title: 'Mulai menggunakan DENTSWEB STUDIO',
     body: `1. Minta Superadmin mengaktifkan lisensi nonkomersial untuk akun Anda. Status lisensi tampil di Pengaturan → Lisensi.
 2. Hubungkan Claude di Pengaturan → Claude memakai API key Anthropic milik Anda. Produksi otomatis berjalan di server dan hanya memakai API key; Claude Code lokal hanya dipakai aplikasi desktop.
 3. (Opsional) Atur akun suara di Pengaturan → Akun Suara (Gemini, ElevenLabs, atau endpoint cadangan) lalu pilih narator di Studio → Suara.
@@ -113,7 +113,7 @@ Bila riset menampilkan peringatan web search tidak tersedia, organisasi Anthropi
   },
   {
     slug: 'render-lama-atau-gagal', kind: 'TROUBLESHOOTING', title: 'Render lama atau gagal',
-    body: `Render cloud menunggu worker yang tersedia. Bila status lama di antrean, cek halaman Render Center; Superadmin dapat melihat worker aktif di Sistem. Render lokal membutuhkan aplikasi desktop DENTWEB terbuka dan login dengan akun yang sama.
+    body: `Render cloud menunggu worker yang tersedia. Bila status lama di antrean, cek halaman Render Center; Superadmin dapat melihat worker aktif di Sistem. Render lokal membutuhkan aplikasi desktop DENTSWEB terbuka dan login dengan akun yang sama.
 Produksi yang worker-nya berhenti merespons selama lima menit otomatis dilanjutkan dari checkpoint terakhir.`,
   },
   {

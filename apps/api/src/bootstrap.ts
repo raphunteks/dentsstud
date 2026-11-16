@@ -37,7 +37,7 @@ export async function createApp(opts: { logger?: false } = {}): Promise<INestApp
 
 export function buildOpenApi(app: INestApplication) {
   const config = new DocumentBuilder()
-    .setTitle('DENTWEB STUDIO API')
+    .setTitle('DENTSWEB STUDIO API')
     .setDescription('API v1 — Create Motion. Powered by AI.')
     .setVersion('1.0.0')
     .addBearerAuth()

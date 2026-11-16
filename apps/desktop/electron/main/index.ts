@@ -9,13 +9,18 @@ import { APP_ORIGIN, registerSchemePrivileges, serveRenderer } from '../security
 const here = dirname(fileURLToPath(import.meta.url));
 registerSchemePrivileges();
 
-if (!app.requestSingleInstanceLock()) app.quit();
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.exit(0);
+}
+
+app.setAsDefaultProtocolClient('dentsweb');
 app.setAsDefaultProtocolClient('dentweb');
 // CI containers run as root, where Chromium refuses its sandbox. Honoured only for unpackaged test runs.
-if (!app.isPackaged && process.env.DENTWEB_TEST_NO_SANDBOX === '1') app.commandLine.appendSwitch('no-sandbox');
+if (!app.isPackaged && (process.env.DENTSWEB_TEST_NO_SANDBOX === '1' || process.env.DENTWEB_TEST_NO_SANDBOX === '1')) app.commandLine.appendSwitch('no-sandbox');
 else app.enableSandbox();
 
-const EXTERNAL_ALLOW = [/^https:\/\/(www\.)?dentweb\.studio\//, /^https:\/\/console\.anthropic\.com\//, /^https:\/\/docs\.claude\.com\//, /^https:\/\/claude\.com\//];
+const EXTERNAL_ALLOW = [/^https:\/\/(www\.)?dentsweb\.(my\.id|studio)\//, /^https:\/\/(www\.)?dentweb\.studio\//, /^https:\/\/console\.anthropic\.com\//, /^https:\/\/docs\.claude\.com\//, /^https:\/\/claude\.com\//];
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -23,7 +28,7 @@ function createWindow() {
     height: 880,
     minWidth: 1024,
     minHeight: 680,
-    title: 'DENTWEB STUDIO',
+    title: 'DENTSWEB STUDIO',
     backgroundColor: '#141210',
     show: false,
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
@@ -57,7 +62,19 @@ app.whenReady().then(() => {
   initUpdater();
   const win = createWindow();
   win.webContents.once('did-finish-load', () => void checkForUpdates());
-  app.on('activate', () => BrowserWindow.getAllWindows().length === 0 && createWindow());
+  app.on('activate', () => {
+    const windows = BrowserWindow.getAllWindows();
+    if (windows.length === 0) {
+      createWindow();
+    } else {
+      const [w] = windows;
+      if (w) {
+        if (w.isMinimized()) w.restore();
+        w.show();
+        w.focus();
+      }
+    }
+  });
 });
 
 process.on('uncaughtException', (e) => reportDesktopError(e));
@@ -67,6 +84,7 @@ app.on('second-instance', () => {
   const [w] = BrowserWindow.getAllWindows();
   if (w) {
     if (w.isMinimized()) w.restore();
+    w.show();
     w.focus();
   }
 });

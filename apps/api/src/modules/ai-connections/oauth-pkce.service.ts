@@ -10,7 +10,7 @@ import { Errors } from '../../infra/errors.js';
 
 /**
  * Generic OAuth 2.0 Authorization Code + PKCE (S256) engine.
- * Providers are configured explicitly via OAUTH_PROVIDERS_JSON with a client registered TO DENTWEB.
+ * Providers are configured explicitly via OAUTH_PROVIDERS_JSON with a client registered TO DENTSWEB.
  * We never reuse another application's client identity.
  */
 export const OAuthProviderConfig = z.object({
@@ -74,7 +74,7 @@ export class OAuthPkceService {
   async start(userId: string, provider: string, customRedirectUri?: string) {
     const cfg = this.providers.get(provider);
     if (!cfg) {
-      throw Errors.invalid('OAUTH_UNSUPPORTED', `Provider "${provider}" belum memiliki OAuth client resmi yang terdaftar untuk DENTWEB.`);
+      throw Errors.invalid('OAUTH_UNSUPPORTED', `Provider "${provider}" belum memiliki OAuth client resmi yang terdaftar untuk DENTSWEB.`);
     }
     const redirectUri = customRedirectUri ?? cfg.redirectUri;
     const state = b64url(randomBytes(32));

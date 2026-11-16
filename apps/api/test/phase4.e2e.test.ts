@@ -32,17 +32,17 @@ describe('Desktop releases and auto-update feed', () => {
   const exe = randomBytes(64 * 1024);
   let id = '';
   it('only Superadmin uploads; wrong extension and bad semver are rejected', async () => {
-    await member.post('/api/v1/admin/releases').field('platform', 'win32').field('arch', 'x64').field('version', '1.0.0').attach('file', exe, 'DENTWEB-Setup-1.0.0.exe').expect(403);
-    await admin.post('/api/v1/admin/releases').field('platform', 'win32').field('arch', 'x64').field('version', '1.0.0').attach('file', exe, 'DENTWEB-1.0.0.dmg').expect(422);
-    await admin.post('/api/v1/admin/releases').field('platform', 'win32').field('arch', 'x64').field('version', 'v1').attach('file', exe, 'DENTWEB-Setup.exe').expect(422);
+    await member.post('/api/v1/admin/releases').field('platform', 'win32').field('arch', 'x64').field('version', '1.0.0').attach('file', exe, 'DENTSWEB-Setup-1.0.0.exe').expect(403);
+    await admin.post('/api/v1/admin/releases').field('platform', 'win32').field('arch', 'x64').field('version', '1.0.0').attach('file', exe, 'DENTSWEB-1.0.0.dmg').expect(422);
+    await admin.post('/api/v1/admin/releases').field('platform', 'win32').field('arch', 'x64').field('version', 'v1').attach('file', exe, 'DENTSWEB-Setup.exe').expect(422);
   });
 
   it('stores the installer with sha256 + sha512 and serves an electron-updater feed', async () => {
-    const r = await admin.post('/api/v1/admin/releases').field('platform', 'win32').field('arch', 'x64').field('version', '1.0.0').field('releaseNotes', 'Rilis pertama').attach('file', exe, 'DENTWEB-Studio-Setup-1.0.0.exe').expect(201);
+    const r = await admin.post('/api/v1/admin/releases').field('platform', 'win32').field('arch', 'x64').field('version', '1.0.0').field('releaseNotes', 'Rilis pertama').attach('file', exe, 'DENTSWEB-Studio-Setup-1.0.0.exe').expect(201);
     id = r.body.id;
     expect(r.body.checksum).toBe(createHash('sha256').update(exe).digest('hex'));
     expect(r.body.sha512).toBe(createHash('sha512').update(exe).digest('base64'));
-    await admin.post('/api/v1/admin/releases').field('platform', 'win32').field('arch', 'x64').field('version', '1.0.0').attach('file', exe, 'DENTWEB-Studio-Setup-1.0.0.exe').expect(409);
+    await admin.post('/api/v1/admin/releases').field('platform', 'win32').field('arch', 'x64').field('version', '1.0.0').attach('file', exe, 'DENTSWEB-Studio-Setup-1.0.0.exe').expect(409);
     const latest = await request(app.getHttpServer()).get('/api/v1/releases/latest?platform=win32&arch=x64').expect(200);
     expect(latest.body.version).toBe('1.0.0');
     const yml = await request(app.getHttpServer()).get('/api/v1/releases/feed/stable/win32/x64/latest.yml').expect(200);
@@ -58,8 +58,8 @@ describe('Desktop releases and auto-update feed', () => {
   });
 
   it('semver ordering beats upload order and deactivated releases disappear', async () => {
-    await admin.post('/api/v1/admin/releases').field('platform', 'win32').field('arch', 'x64').field('version', '1.2.0').attach('file', exe, 'DENTWEB-Studio-Setup-1.2.0.exe').expect(201);
-    await admin.post('/api/v1/admin/releases').field('platform', 'win32').field('arch', 'x64').field('version', '1.1.5').attach('file', exe, 'DENTWEB-Studio-Setup-1.1.5.exe').expect(201);
+    await admin.post('/api/v1/admin/releases').field('platform', 'win32').field('arch', 'x64').field('version', '1.2.0').attach('file', exe, 'DENTSWEB-Studio-Setup-1.2.0.exe').expect(201);
+    await admin.post('/api/v1/admin/releases').field('platform', 'win32').field('arch', 'x64').field('version', '1.1.5').attach('file', exe, 'DENTSWEB-Studio-Setup-1.1.5.exe').expect(201);
     expect((await request(app.getHttpServer()).get('/api/v1/releases/latest?platform=win32&arch=x64')).body.version).toBe('1.2.0');
     const list = (await admin.get('/api/v1/admin/releases').expect(200)).body as { id: string; version: string }[];
     await admin.patch(`/api/v1/admin/releases/${list.find((x) => x.version === '1.2.0')!.id}`).send({ isActive: false }).expect(200);

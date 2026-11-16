@@ -16,7 +16,7 @@ async function raw(method: string, path: string, body: unknown, token?: string) 
   try {
     res = await fetch(`${apiBase}/api/v1${path}`, {
       method,
-      headers: { ...(body !== undefined ? { 'content-type': 'application/json' } : {}), ...(token ? { authorization: `Bearer ${token}` } : {}), 'user-agent': 'DENTWEB-Desktop' },
+      headers: { ...(body !== undefined ? { 'content-type': 'application/json' } : {}), ...(token ? { authorization: `Bearer ${token}` } : {}), 'user-agent': 'DENTSWEB-Desktop' },
       body: body !== undefined ? JSON.stringify(body) : undefined,
       signal: AbortSignal.timeout(30_000),
     });
@@ -24,7 +24,14 @@ async function raw(method: string, path: string, body: unknown, token?: string) 
     throw new ApiFailure(0, 'OFFLINE', `Server tidak dapat dihubungi (${(e as Error).message})`);
   }
   const text = await res.text();
-  const data = text ? (JSON.parse(text) as unknown) : null;
+  let data: unknown = null;
+  try {
+    data = text ? (JSON.parse(text) as unknown) : null;
+  } catch {
+    if (!res.ok) {
+      throw new ApiFailure(res.status, 'SERVER_ERROR', `Server sedang dalam pemeliharaan (HTTP ${res.status}: ${text.slice(0, 100).trim()})`);
+    }
+  }
   if (!res.ok) {
     const err = (data as { error?: { code?: string; message?: string } } | null)?.error;
     throw new ApiFailure(res.status, err?.code ?? 'ERROR', err?.message ?? `HTTP ${res.status}`);

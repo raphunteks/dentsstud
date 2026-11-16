@@ -67,7 +67,7 @@ export default function LicensePage() {
         ) : (
           <Skeleton className="h-16" />
         )}
-        <p className="mt-6 text-sm text-muted">Lisensi DENTWEB STUDIO bersifat nonkomersial dan diberikan oleh Superadmin.</p>
+        <p className="mt-6 text-sm text-muted">Lisensi DENTSWEB STUDIO bersifat nonkomersial dan diberikan oleh Superadmin.</p>
       </Card>
 
       <h2 className="mt-10 pb-4 font-display text-xl font-medium">Perangkat aktif</h2>

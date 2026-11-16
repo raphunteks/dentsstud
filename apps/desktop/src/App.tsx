@@ -22,7 +22,7 @@ function Mark() {
       <span aria-hidden className="grid size-6 place-items-center rounded-[7px] bg-text">
         <span className="size-2 rounded-full bg-accent" />
       </span>
-      DENTWEB<span className="font-normal text-muted">STUDIO</span>
+      DENTSWEB<span className="font-normal text-muted">STUDIO</span>
     </span>
   );
 }
@@ -53,7 +53,6 @@ export function App() {
           <div className="mt-4 flex gap-2">
             <button className={ghost} onClick={() => session.refetch()}>Coba lagi</button>
           </div>
-          <ServerConfig info={info.data} />
         </Card>
       </Shell>
     );
@@ -73,7 +72,8 @@ function UpdateBanner() {
   const [u, setU] = useState<Upd>({ state: 'idle' });
   useEffect(() => {
     void invoke<Upd>('update:state').then(setU).catch(() => undefined);
-    return window.dentweb.onEvent((e) => e.channel === 'update:state' && setU(e.data as Upd));
+    const b = window.dentsweb ?? window.dentweb;
+    return b ? b.onEvent((e) => e.channel === 'update:state' && setU(e.data as Upd)) : undefined;
   }, []);
   const apply = () => void invoke<Upd>('update:apply').catch(() => undefined);
   if (u.state === 'available')
@@ -95,80 +95,181 @@ function UpdateBanner() {
 }
 
 function Shell({ info, children }: { info?: Info; children: ReactNode }) {
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    return (typeof window !== 'undefined' && (localStorage.getItem('dentsweb-theme') as 'light' | 'dark')) || 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('dentsweb-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((t) => (t === 'light' ? 'dark' : 'light'));
+
   return (
     <div className="min-h-dvh">
       <UpdateBanner />
-      <header className="flex items-center justify-between border-b border-line px-6 py-4 pl-24" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
+      <header className="flex items-center justify-between border-b border-line px-6 py-3.5 pl-24" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
         <Mark />
-        <span className="num text-xs text-muted">v{info?.version} · {info?.platform}/{info?.arch}</span>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label="Ganti tema"
+            title={theme === 'light' ? 'Ganti ke tema gelap' : 'Ganti ke tema terang'}
+            className="flex size-7 items-center justify-center rounded-lg border border-line bg-surface text-xs text-muted transition hover:bg-surface-2 hover:text-text cursor-pointer"
+            style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+          >
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+          <span className="num text-xs text-muted">v{info?.version} · {info?.platform}/{info?.arch}</span>
+        </div>
       </header>
       <main className="mx-auto max-w-[1100px] px-6 py-8">{children}</main>
     </div>
   );
 }
 
-function ServerConfig({ info }: { info?: Info }) {
-  const qc = useQueryClient();
-  const [url, setUrl] = useState(info?.apiBase ?? '');
-  const save = useMutation({ mutationFn: () => invoke('config:set-api-base', { apiBase: url }), onSuccess: () => qc.invalidateQueries() });
-  return (
-    <details className="mt-6 text-sm">
-      <summary className="cursor-pointer text-muted">Server API ({info?.apiBase})</summary>
-      <form className="mt-3 flex gap-2" onSubmit={(e) => (e.preventDefault(), save.mutate())}>
-        <input aria-label="URL server API" className={input} value={url} onChange={(e) => setUrl(e.target.value)} />
-        <button className={ghost} disabled={save.isPending}>Simpan</button>
-      </form>
-      {save.isError && <p className="mt-2 text-bad">{errMsg(save.error)}</p>}
-    </details>
-  );
-}
-
 function Login({ info }: { info?: Info }) {
   const qc = useQueryClient();
+  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [challenge, setChallenge] = useState<string | null>(null);
   const [code, setCode] = useState('');
-  const login = useMutation({ mutationFn: () => invoke<{ challengeId: string }>('auth:login', { email, password }), onSuccess: (r) => setChallenge(r.challengeId) });
+  const [clientError, setClientError] = useState<string | null>(null);
+
+  const login = useMutation({
+    mutationFn: () => invoke<{ challengeId: string }>('auth:login', { email, password }),
+    onSuccess: (r) => {
+      setClientError(null);
+      setChallenge(r.challengeId);
+    },
+  });
+
+  const register = useMutation({
+    mutationFn: () => invoke<{ challengeId: string }>('auth:register', { email, password, displayName }),
+    onSuccess: (r) => {
+      setClientError(null);
+      setChallenge(r.challengeId);
+    },
+  });
+
   const verify = useMutation({
     mutationFn: (c: string) => invoke('auth:verify', { challengeId: challenge, code: c }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['session'] }),
     onError: () => setCode(''),
   });
+
+  function handleRegisterSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (displayName.trim().length < 2) {
+      setClientError('Nama minimal 2 karakter');
+      return;
+    }
+    if (password.length < 10 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+      setClientError('Password minimal 10 karakter dan harus mengandung huruf & angka');
+      return;
+    }
+    setClientError(null);
+    register.mutate();
+  }
+
   return (
     <Shell info={info}>
-      <div className="mx-auto max-w-[400px] pt-10">
-        {!challenge ? (
-          <form className="grid gap-4" onSubmit={(e) => (e.preventDefault(), login.mutate())}>
-            <h1 className="font-display text-3xl font-medium tracking-[-0.02em]">Masuk ke studio</h1>
-            <label className="grid gap-1.5 text-sm">Email<input className={input} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
-            <label className="grid gap-1.5 text-sm">Password<input className={input} type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} /></label>
-            {login.isError && <p role="alert" className="text-sm text-bad">{errMsg(login.error)}</p>}
-            <button className={primary} disabled={login.isPending}>Lanjut</button>
-            {info && !info.secureStorage && <p className="text-xs text-warn">Keychain OS tidak tersedia: sesi hanya disimpan selama aplikasi terbuka.</p>}
-            <ServerConfig info={info} />
-          </form>
-        ) : (
-          <form className="grid gap-4" onSubmit={(e) => (e.preventDefault(), verify.mutate(code))}>
-            <h1 className="font-display text-3xl font-medium tracking-[-0.02em]">Kode OTP</h1>
-            <p className="text-sm text-muted">Kode 6 digit dikirim ke {email}.</p>
-            <input
-              aria-label="Kode OTP"
-              autoFocus
-              inputMode="numeric"
-              className={`${input} h-14 text-center font-mono text-2xl tracking-[0.5em]`}
-              value={code}
-              onChange={(e) => {
-                const v = e.target.value.replace(/\D/g, '').slice(0, 6);
-                setCode(v);
-                if (v.length === 6) verify.mutate(v);
-              }}
-            />
-            {verify.isError && <p role="alert" className="text-sm text-bad">{errMsg(verify.error)}</p>}
-            <button className={primary} disabled={verify.isPending}>Verifikasi</button>
-            <button type="button" className="text-sm text-muted" onClick={() => setChallenge(null)}>Kembali</button>
-          </form>
-        )}
+      <div className="mx-auto max-w-[440px] pt-4">
+        <Card className="p-7 shadow-lg border-line/80">
+          {!challenge ? (
+            <div>
+              <div className="mb-6 flex rounded-[10px] border border-line bg-surface-2 p-1">
+                <button
+                  type="button"
+                  onClick={() => { setMode('login'); setClientError(null); }}
+                  className={clsx('flex-1 rounded-[8px] py-1.5 text-sm font-medium transition cursor-pointer', mode === 'login' ? 'bg-surface text-text shadow-sm' : 'text-muted hover:text-text')}
+                >
+                  Masuk
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setMode('register'); setClientError(null); }}
+                  className={clsx('flex-1 rounded-[8px] py-1.5 text-sm font-medium transition cursor-pointer', mode === 'register' ? 'bg-surface text-text shadow-sm' : 'text-muted hover:text-text')}
+                >
+                  Daftar Member Baru
+                </button>
+              </div>
+
+              {mode === 'login' ? (
+                <form className="grid gap-4" onSubmit={(e) => (e.preventDefault(), login.mutate())}>
+                  <div>
+                    <h1 className="font-display text-2xl font-medium tracking-[-0.02em]">Masuk ke Studio</h1>
+                    <p className="mt-1 text-xs text-muted">Gunakan email & password akun Superadmin atau Member Anda.</p>
+                  </div>
+                  <label className="grid gap-1.5 text-sm">
+                    Email
+                    <input className={input} type="email" autoComplete="email" placeholder="nama@email.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                  </label>
+                  <label className="grid gap-1.5 text-sm">
+                    Password
+                    <input className={input} type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+                  </label>
+                  {login.isError && <p role="alert" className="text-sm text-bad">{errMsg(login.error)}</p>}
+                  <button className={primary} disabled={login.isPending}>
+                    {login.isPending ? 'Memproses…' : 'Lanjut'}
+                  </button>
+                  {info && !info.secureStorage && <p className="text-xs text-warn">Keychain OS tidak tersedia: sesi hanya disimpan selama aplikasi terbuka.</p>}
+                </form>
+              ) : (
+                <form className="grid gap-4" onSubmit={handleRegisterSubmit}>
+                  <div>
+                    <h1 className="font-display text-2xl font-medium tracking-[-0.02em]">Buat Akun Member</h1>
+                    <p className="mt-1 text-xs text-muted">Daftar akun member baru DENTSWEB STUDIO. Kode verifikasi akan dikirim ke email Anda.</p>
+                  </div>
+                  <label className="grid gap-1.5 text-sm">
+                    Nama Lengkap
+                    <input className={input} type="text" autoComplete="name" required placeholder="Budi Santoso" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+                  </label>
+                  <label className="grid gap-1.5 text-sm">
+                    Email
+                    <input className={input} type="email" autoComplete="email" required placeholder="member@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                  </label>
+                  <label className="grid gap-1.5 text-sm">
+                    Password
+                    <input className={input} type="password" autoComplete="new-password" required placeholder="Min. 10 karakter (huruf & angka)" value={password} onChange={(e) => setPassword(e.target.value)} />
+                  </label>
+                  {(clientError || register.isError) && <p role="alert" className="text-sm text-bad">{clientError ?? errMsg(register.error)}</p>}
+                  <button className={primary} disabled={register.isPending}>
+                    {register.isPending ? 'Mendaftarkan…' : 'Daftar dan Kirim Kode'}
+                  </button>
+                </form>
+              )}
+            </div>
+          ) : (
+            <form className="grid gap-4" onSubmit={(e) => (e.preventDefault(), verify.mutate(code))}>
+              <h1 className="font-display text-2xl font-medium tracking-[-0.02em]">Kode OTP</h1>
+              <p className="text-sm text-muted">Kode verifikasi 6 digit dikirim ke <strong className="text-text">{email}</strong>.</p>
+              <input
+                aria-label="Kode OTP"
+                autoFocus
+                inputMode="numeric"
+                className={`${input} h-14 text-center font-mono text-2xl tracking-[0.5em]`}
+                value={code}
+                onChange={(e) => {
+                  const v = e.target.value.replace(/\D/g, '').slice(0, 6);
+                  setCode(v);
+                  if (v.length === 6) verify.mutate(v);
+                }}
+              />
+              {verify.isError && <p role="alert" className="text-sm text-bad">{errMsg(verify.error)}</p>}
+              <button className={primary} disabled={verify.isPending}>
+                {verify.isPending ? 'Memverifikasi…' : 'Verifikasi'}
+              </button>
+              <button type="button" className="text-sm text-muted hover:text-text cursor-pointer" onClick={() => { setChallenge(null); setCode(''); }}>
+                ← Kembali
+              </button>
+            </form>
+          )}
+        </Card>
       </div>
     </Shell>
   );
@@ -260,7 +361,10 @@ function LocalRender() {
   const cap = useQuery({ queryKey: ['render-cap'], queryFn: () => invoke<{ chrome: string | null }>('render:capability') });
   const jobs = useQuery({ queryKey: ['jobs'], queryFn: () => get<{ id: string; projectName: string; mode: string; status: string; progress: number; outputs: { url: string; format: string }[] }[]>('/render/jobs'), refetchInterval: 4000 });
   const [prog, setProg] = useState<Record<string, number>>({});
-  useEffect(() => window.dentweb.onEvent((e) => e.channel === 'render:progress' && e.data.jobId && setProg((p) => ({ ...p, [e.data.jobId!]: e.data.progress }))), []);
+  useEffect(() => {
+    const b = window.dentsweb ?? window.dentweb;
+    return b ? b.onEvent((e) => e.channel === 'render:progress' && e.data.jobId && setProg((p) => ({ ...p, [e.data.jobId!]: e.data.progress }))) : undefined;
+  }, []);
   const run = useMutation({ mutationFn: (jobId: string) => invoke('render:local', { jobId }), onSettled: () => qc.invalidateQueries({ queryKey: ['jobs'] }) });
   const local = jobs.data?.filter((j) => j.mode === 'LOCAL') ?? [];
   return (
@@ -315,7 +419,10 @@ function OfflineProjects() {
 function FolderImport() {
   const [kind, setKind] = useState<'preset' | 'voice' | 'hook'>('preset');
   const [p, setP] = useState(0);
-  useEffect(() => window.dentweb.onEvent((e) => e.channel === 'import:progress' && setP(e.data.progress)), []);
+  useEffect(() => {
+    const b = window.dentsweb ?? window.dentweb;
+    return b ? b.onEvent((e) => e.channel === 'import:progress' && setP(e.data.progress)) : undefined;
+  }, []);
   const run = useMutation({ mutationFn: () => invoke<{ canceled?: boolean; validated?: { id: string; status: string; items: { originalPath: string; status: string; validationErrors: string[] }[] }; skipped?: string[] }>('import:folder', { kind }) });
   const commit = useMutation({ mutationFn: (batchId: string) => invoke<{ status: string }>('api:mutate', { method: 'POST', path: '/admin/imports/commit', body: { batchId } }) });
   const v = run.data?.validated;

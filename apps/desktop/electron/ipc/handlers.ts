@@ -57,6 +57,7 @@ export function registerIpc() {
     return saveConfig({ apiBase: i.apiBase.replace(/\/$/, '') });
   });
 
+  handle('auth:register', (i: { email: string; password: string; displayName: string }) => publicRequest('POST', '/auth/register', i));
   handle('auth:login', (i: { email: string; password: string }) => publicRequest('POST', '/auth/login', i));
   handle('auth:resend', (i: { challengeId: string }) => publicRequest('POST', '/auth/otp/resend', i));
   handle('auth:verify', async (i: { challengeId: string; code: string }) => {
@@ -127,7 +128,7 @@ export function registerIpc() {
   handle('render:local', (i: { jobId: string }) => renderLocal(i.jobId, (p) => emit('render:progress', { jobId: i.jobId, progress: p })));
   handle('render:cancel', async (i: { jobId: string }) => (cancelLocal(i.jobId), { ok: true }));
   handle('import:folder', async (i: { kind: 'preset' | 'voice' | 'hook' }) => {
-    const r = await dialog.showOpenDialog({ title: 'Pilih folder konten DENTWEB', properties: ['openDirectory'] });
+    const r = await dialog.showOpenDialog({ title: 'Pilih folder konten DENTSWEB', properties: ['openDirectory'] });
     if (r.canceled || !r.filePaths[0]) return { canceled: true };
     return importFolder(r.filePaths[0], i.kind, (p) => emit('import:progress', { progress: p }));
   });

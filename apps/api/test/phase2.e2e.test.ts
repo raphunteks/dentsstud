@@ -23,7 +23,7 @@ function presetPkg(slug: string, opts: { badChecksum?: boolean; category?: strin
   const recipe = Buffer.from(JSON.stringify(RECIPE));
   const manifest = {
     schemaVersion: 1, kind: 'preset', slug, name: `Preset ${slug}`, category: opts.category ?? 'infografis',
-    compatibility: { formats: ['9:16', '16:9'] }, rights: { license: 'Milik DENTWEB, nonkomersial' }, recipe: 'recipe.json',
+    compatibility: { formats: ['9:16', '16:9'] }, rights: { license: 'Milik DENTSWEB, nonkomersial' }, recipe: 'recipe.json',
     files: [
       { path: 'thumbnail.png', sha256: opts.badChecksum ? '0'.repeat(64) : sha(PNG), role: 'thumbnail' },
       { path: 'recipe.json', sha256: sha(recipe), role: 'recipe' },

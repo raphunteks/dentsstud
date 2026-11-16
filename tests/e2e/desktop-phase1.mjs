@@ -23,19 +23,19 @@ await j(await fetch(`${API}/admin/licenses/grant`, { method: 'POST', headers: H,
 const app = await _electron.launch({
   executablePath: createRequire(resolve('apps/desktop/package.json'))('electron'),
   args: [resolve('apps/desktop'), '--no-sandbox'],
-  env: { ...process.env, NODE_OPTIONS: '', DENTWEB_TEST_NO_SANDBOX: '1', DENTWEB_API_BASE: 'http://localhost:4000', ELECTRON_DISABLE_SECURITY_WARNINGS: '1' },
+  env: { ...process.env, NODE_OPTIONS: '', DENTSWEB_TEST_NO_SANDBOX: '1', DENTWEB_TEST_NO_SANDBOX: '1', DENTSWEB_API_BASE: 'http://localhost:4000', DENTWEB_API_BASE: 'http://localhost:4000', ELECTRON_DISABLE_SECURITY_WARNINGS: '1' },
 });
 const win = await app.firstWindow();
 const errors = [];
 win.on('pageerror', (e) => errors.push(e.message));
 await win.waitForLoadState('domcontentloaded');
-assert(win.url().startsWith('app://dentweb/'), 'renderer served from app:// protocol');
+assert(win.url().startsWith('app://dentsweb/') || win.url().startsWith('app://dentweb/'), 'renderer served from app:// protocol');
 const nodeLeak = await win.evaluate(() => typeof require !== 'undefined' || typeof process !== 'undefined');
 assert(!nodeLeak, 'no Node globals in renderer (contextIsolation + sandbox)');
-const bad = await win.evaluate(() => window.dentweb.invoke('fs:read', {}).then(() => 'resolved', (e) => String(e)));
+const bad = await win.evaluate(() => (window.dentsweb ?? window.dentweb).invoke('fs:read', {}).then(() => 'resolved', (e) => String(e)));
 assert(bad.includes('not allowed'), 'preload rejects non-allowlisted channel');
 
-await win.getByText('Masuk ke studio').waitFor({ timeout: 15000 });
+await win.getByText(/Masuk ke Studio/i).waitFor({ timeout: 15000 });
 await win.fill('input[type=email]', EMAIL);
 await win.fill('input[type=password]', PASS);
 await win.click('button:has-text("Lanjut")');

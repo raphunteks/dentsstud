@@ -4,9 +4,9 @@ import './globals.css';
 import { Providers } from '@/lib/providers';
 
 export const metadata: Metadata = {
-  title: { default: 'DENTWEB STUDIO — Create Motion. Powered by AI.', template: '%s · DENTWEB STUDIO' },
+  title: { default: 'DENTSWEB STUDIO — Create Motion. Powered by AI.', template: '%s · DENTSWEB STUDIO' },
   description: 'Platform produksi motion video dengan tim AI multi-agent: riset, naskah, cek fakta, render, QC, dan paket media sosial.',
-  applicationName: 'DENTWEB STUDIO',
+  applicationName: 'DENTSWEB STUDIO',
 };
 export const viewport: Viewport = {
   themeColor: [

@@ -20,9 +20,15 @@ const dir = () => {
   return d;
 };
 
-/** Baked at build time (DENTWEB_API_BASE); users can change it on the "Server API" screen. */
+/** Baked at build time; users can change it if needed. */
+declare const __DENTSWEB_BAKED_API__: string;
 declare const __DENTWEB_BAKED_API__: string;
-export const DEFAULT_API_BASE = process.env.DENTWEB_API_BASE || (typeof __DENTWEB_BAKED_API__ === 'string' && __DENTWEB_BAKED_API__) || 'http://localhost:4000';
+export const DEFAULT_API_BASE =
+  process.env.DENTSWEB_API_BASE ||
+  process.env.DENTWEB_API_BASE ||
+  (typeof __DENTSWEB_BAKED_API__ === 'string' && __DENTSWEB_BAKED_API__) ||
+  (typeof __DENTWEB_BAKED_API__ === 'string' && __DENTWEB_BAKED_API__) ||
+  'https://motion.dentsweb.my.id';
 
 export function loadConfig(): Config {
   const p = join(dir(), 'config.json');
@@ -34,8 +40,10 @@ export function loadConfig(): Config {
       cfg = {};
     }
   }
-  const full: Config = { apiBase: cfg.apiBase ?? DEFAULT_API_BASE, installationId: cfg.installationId ?? `${randomUUID()}${randomUUID()}`.replaceAll('-', '') };
-  if (!cfg.installationId || !cfg.apiBase) writeFileSync(p, JSON.stringify(full, null, 2), { mode: 0o600 });
+  // Auto-upgrade legacy localhost default to production HTTPS API base
+  const apiBase = !cfg.apiBase || cfg.apiBase === 'http://localhost:4000' ? DEFAULT_API_BASE : cfg.apiBase;
+  const full: Config = { apiBase, installationId: cfg.installationId ?? `${randomUUID()}${randomUUID()}`.replaceAll('-', '') };
+  if (!cfg.installationId || cfg.apiBase !== apiBase) writeFileSync(p, JSON.stringify(full, null, 2), { mode: 0o600 });
   return full;
 }
 
