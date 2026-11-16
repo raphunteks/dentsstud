@@ -1,0 +1,391 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import clsx from 'clsx';
+import { useState } from 'react';
+import { get, mutate } from '../bridge';
+import { Button, Card, Input, Pill, Select, Textarea, errMsg } from '../components/UI';
+import type { HookItem, NavTab, StylePreset, VoiceItem } from '../types';
+
+interface BuatKontenViewProps {
+  onSuccess: () => void;
+  onNavigate: (tab: NavTab) => void;
+}
+
+export function BuatKontenView({ onSuccess, onNavigate }: BuatKontenViewProps) {
+  const qc = useQueryClient();
+
+  const [quantity, setQuantity] = useState(1);
+  const [workers, setWorkers] = useState(1);
+  const [format, setFormat] = useState<'9:16' | '16:9' | '1:1'>('9:16');
+  const [topicMode, setTopicMode] = useState<'BEBAS' | 'UMUM' | 'PERSIS'>('PERSIS');
+  const [topic, setTopic] = useState('Teknologi AI masa depan dan dampaknya');
+  const [voiceId, setVoiceId] = useState<string>('depa');
+  const [presetCategory, setPresetCategory] = useState<string>('all');
+  const [presetId, setPresetId] = useState<string>('3d-hologram');
+  const [hookMode, setHookMode] = useState<'AUTO' | 'PRESET' | 'NONE'>('AUTO');
+  const [notes, setNotes] = useState('');
+
+  // Fetch presets and voices
+  const presets = useQuery({
+    queryKey: ['presets'],
+    queryFn: () => get<{ items: StylePreset[] }>('/styles/presets?limit=100').catch(() => ({ items: [] })),
+  });
+
+  const voices = useQuery({
+    queryKey: ['voices'],
+    queryFn: () => get<VoiceItem[]>('/voices').catch(() => []),
+  });
+
+  const hooks = useQuery({
+    queryKey: ['hooks'],
+    queryFn: () => get<HookItem[]>('/hooks').catch(() => []),
+  });
+
+  const submit = useMutation({
+    mutationFn: () =>
+      mutate('POST', '/production/runs', {
+        format,
+        topicMode,
+        topic: topicMode === 'BEBAS' ? null : topic,
+        voiceId: voiceId || null,
+        presetId: presetId || null,
+        hookMode,
+        quantity,
+        workerConcurrency: workers,
+        notes: notes || null,
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['dash'] });
+      qc.invalidateQueries({ queryKey: ['runs'] });
+      onSuccess();
+      onNavigate('progress');
+    },
+  });
+
+  const CATEGORIES = [
+    { id: 'all', name: 'Semua 81' },
+    { id: 'studio', name: 'Gaya studio' },
+    { id: 'infografis', name: 'Infografis' },
+    { id: 'tangan', name: 'Gambar tangan' },
+    { id: 'bukti', name: 'Film bukti' },
+    { id: '3d', name: '3D & Hologram' },
+    { id: 'kartun', name: 'Kartun' },
+    { id: 'sinema', name: 'Sinematik' },
+  ];
+
+  const MOCK_PRESETS = [
+    { id: '3d-hologram', name: 'Hologram 3D Modern', cat: '3d' },
+    { id: 'infografis-bento', name: 'Bento Grid Infografis', cat: 'infografis' },
+    { id: 'vintage-print', name: 'Vintage Swiss Newsreel', cat: 'bukti' },
+    { id: 'hand-drawn', name: 'Sketsa Pensil Hand-Drawn', cat: 'tangan' },
+    { id: 'studio-minimal', name: 'Studio Editorial Minimal', cat: 'studio' },
+    { id: 'anime-kinetic', name: 'Anime Kinetic Typography', cat: 'kartun' },
+  ];
+
+  const MOCK_VOICES = [
+    { id: 'depa', name: 'Depa', desc: 'Pria · Ramah, smooth & ekspresif (ElevenLabs)' },
+    { id: 'gadis', name: 'Gadis', desc: 'Wanita · Ramah & jernih (ElevenLabs)' },
+    { id: 'ardi', name: 'Ardi', desc: 'Pria · Jelas & natural (Gemini TTS)' },
+    { id: 'putra', name: 'Putra', desc: 'Pria · Berwibawa & tegas (ElevenLabs)' },
+    { id: 'lily', name: 'Lily', desc: 'Wanita · Suara narator edukatif (Gemini TTS)' },
+  ];
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-200">
+      <div className="border-b border-line pb-4">
+        <h1 className="font-display text-2xl font-medium tracking-tight text-text">
+          Buat Konten Baru
+        </h1>
+        <p className="mt-1 text-sm text-muted">
+          Pilih spesifikasi video, biarkan tim AI meriset fakta, menulis naskah, dan merender grafis secara otomatis.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
+        {/* Form Body */}
+        <div className="space-y-6">
+          {/* Step 1: Jumlah & Format */}
+          <Card className="p-5 space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="flex size-6 items-center justify-center rounded-full bg-accent text-accent-contrast text-xs font-bold">
+                1
+              </span>
+              <h2 className="font-display text-base font-semibold text-text">
+                Jumlah video, Worker & Format
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs text-muted mb-2 font-medium">Jumlah video</p>
+                <div className="inline-flex items-center rounded-xl border border-line bg-surface-2/40 p-1">
+                  <button
+                    type="button"
+                    disabled={quantity <= 1}
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    className="flex size-9 items-center justify-center rounded-lg bg-surface text-base font-bold shadow-xs hover:bg-surface-2 disabled:opacity-30 cursor-pointer"
+                  >
+                    −
+                  </button>
+                  <span className="num w-12 text-center font-mono text-base font-medium">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={quantity >= 20}
+                    onClick={() => setQuantity((q) => q + 1)}
+                    className="flex size-9 items-center justify-center rounded-lg bg-surface text-base font-bold shadow-xs hover:bg-surface-2 disabled:opacity-30 cursor-pointer"
+                  >
+                    ＋
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs text-muted mb-2 font-medium">Dikerjakan bersamaan (Worker)</p>
+                <div className="inline-flex items-center rounded-xl border border-line bg-surface-2/40 p-1">
+                  <button
+                    type="button"
+                    disabled={workers <= 1}
+                    onClick={() => setWorkers((w) => Math.max(1, w - 1))}
+                    className="flex size-9 items-center justify-center rounded-lg bg-surface text-base font-bold shadow-xs hover:bg-surface-2 disabled:opacity-30 cursor-pointer"
+                  >
+                    −
+                  </button>
+                  <span className="num w-12 text-center font-mono text-base font-medium">
+                    {workers}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={workers >= 4}
+                    onClick={() => setWorkers((w) => w + 1)}
+                    className="flex size-9 items-center justify-center rounded-lg bg-surface text-base font-bold shadow-xs hover:bg-surface-2 disabled:opacity-30 cursor-pointer"
+                  >
+                    ＋
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-2">
+              <p className="text-xs text-muted font-medium">Format rasio video</p>
+              <div className="grid grid-cols-3 gap-2.5">
+                {[
+                  { id: '9:16', title: '9:16 Reels', sub: 'TikTok / Shorts' },
+                  { id: '16:9', title: '16:9 YouTube', sub: 'Horizontal' },
+                  { id: '1:1', title: '1:1 Square', sub: 'Instagram Feed' },
+                ].map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setFormat(f.id as typeof format)}
+                    className={clsx(
+                      'rounded-xl border p-3 text-left transition cursor-pointer',
+                      format === f.id
+                        ? 'border-accent bg-accent/10 shadow-xs'
+                        : 'border-line bg-surface hover:border-text/30'
+                    )}
+                  >
+                    <p className="text-sm font-semibold text-text">{f.title}</p>
+                    <p className="text-[11px] text-muted">{f.sub}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </Card>
+
+          {/* Step 2: Tema / Topik */}
+          <Card className="p-5 space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="flex size-6 items-center justify-center rounded-full bg-accent text-accent-contrast text-xs font-bold">
+                2
+              </span>
+              <h2 className="font-display text-base font-semibold text-text">
+                Tema atau Topik
+              </h2>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {[
+                { id: 'PERSIS', label: 'Topik persis' },
+                { id: 'UMUM', label: 'Tema umum' },
+                { id: 'BEBAS', label: 'Bebas (AI tentukan)' },
+              ].map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => setTopicMode(m.id as typeof topicMode)}
+                  className={clsx(
+                    'rounded-full border px-3.5 py-1 text-xs font-medium transition cursor-pointer',
+                    topicMode === m.id
+                      ? 'border-accent bg-accent text-accent-contrast'
+                      : 'border-line bg-surface-2 text-muted hover:text-text'
+                  )}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
+
+            {topicMode !== 'BEBAS' && (
+              <div className="space-y-1.5">
+                <Textarea
+                  rows={3}
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  placeholder="Contoh: Mengapa AC mobil bocor dan cara mencegahnya..."
+                />
+                <p className="text-[11px] text-muted">
+                  Satu topik per baris jika memproduksi beberapa video sekaligus.
+                </p>
+              </div>
+            )}
+          </Card>
+
+          {/* Step 3: Suara Narator */}
+          <Card className="p-5 space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="flex size-6 items-center justify-center rounded-full bg-accent text-accent-contrast text-xs font-bold">
+                3
+              </span>
+              <h2 className="font-display text-base font-semibold text-text">
+                Suara Narator
+              </h2>
+            </div>
+
+            <div className="space-y-2">
+              <Select
+                value={voiceId}
+                onChange={(e) => setVoiceId(e.target.value)}
+                className="w-full"
+              >
+                {MOCK_VOICES.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.name} — {v.desc}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          </Card>
+
+          {/* Step 4: Gaya Visual */}
+          <Card className="p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="flex size-6 items-center justify-center rounded-full bg-accent text-accent-contrast text-xs font-bold">
+                  4
+                </span>
+                <h2 className="font-display text-base font-semibold text-text">
+                  Gaya Visual
+                </h2>
+              </div>
+              <span className="text-xs text-muted">81 resep gaya aktif</span>
+            </div>
+
+            {/* Category Tabs */}
+            <div className="flex flex-wrap gap-1.5 overflow-x-auto pb-1">
+              {CATEGORIES.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setPresetCategory(c.id)}
+                  className={clsx(
+                    'rounded-full border px-3 py-1 text-xs transition cursor-pointer',
+                    presetCategory === c.id
+                      ? 'border-text bg-text text-bg font-medium'
+                      : 'border-line bg-surface text-muted hover:text-text'
+                  )}
+                >
+                  {c.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Presets Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+              {MOCK_PRESETS.map((p) => (
+                <div
+                  key={p.id}
+                  onClick={() => setPresetId(p.id)}
+                  className={clsx(
+                    'group relative aspect-[3/4] cursor-pointer overflow-hidden rounded-xl border p-3 flex flex-col justify-end transition hover:scale-101',
+                    presetId === p.id
+                      ? 'border-accent ring-2 ring-accent/30 bg-accent/5'
+                      : 'border-line bg-surface-2/40 hover:border-text/30'
+                  )}
+                >
+                  <span className="text-xs font-semibold text-text group-hover:text-accent">
+                    {p.name}
+                  </span>
+                  <span className="text-[10px] text-muted capitalize mt-0.5">
+                    {p.cat}
+                  </span>
+                  {presetId === p.id && (
+                    <span className="absolute top-2 right-2 flex size-5 items-center justify-center rounded-full bg-accent text-accent-contrast text-[10px]">
+                      ✓
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        {/* Right Sticky Order Summary */}
+        <aside className="lg:sticky lg:top-4 space-y-4">
+          <Card className="p-5 space-y-4 shadow-sm border-line">
+            <h3 className="font-display text-base font-semibold text-text border-b border-line pb-3">
+              Ringkasan Pesanan
+            </h3>
+
+            <div className="space-y-2.5 text-xs">
+              <div className="flex justify-between">
+                <span className="text-muted">Jumlah</span>
+                <span className="font-semibold text-text">{quantity} video</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted">Format</span>
+                <span className="font-semibold text-text">{format}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted">Worker</span>
+                <span className="font-semibold text-text">{workers} bersamaan</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted">Suara</span>
+                <span className="font-semibold text-text capitalize">{voiceId}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted">Gaya</span>
+                <span className="font-semibold text-text capitalize">{presetId.replace('-', ' ')}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted">Estimasi</span>
+                <span className="font-mono text-accent font-semibold">± 15-25 menit</span>
+              </div>
+            </div>
+
+            <div className="border-t border-line pt-3">
+              <Button
+                size="lg"
+                className="w-full text-sm font-semibold"
+                disabled={submit.isPending}
+                onClick={() => submit.mutate()}
+              >
+                {submit.isPending ? 'Mengirim tugas…' : '▶ Mulai produksi'}
+              </Button>
+              {submit.isError && (
+                <p className="mt-2 text-xs text-bad text-center">
+                  {errMsg(submit.error)}
+                </p>
+              )}
+            </div>
+
+            <p className="text-[11px] text-muted text-center leading-relaxed">
+              Tim agen AI (Riset, Naskah, Cek Fakta, Motion Director, QC) akan otomatis memproses naskah secara paralel.
+            </p>
+          </Card>
+        </aside>
+      </div>
+    </div>
+  );
+}

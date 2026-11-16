@@ -27,3 +27,4 @@ export async function invoke<T>(channel: string, payload?: unknown): Promise<T> 
   return r.data as T;
 }
 export const get = <T,>(path: string) => invoke<T>('api:get', { path });
+export const mutate = <T,>(method: string, path: string, body?: Record<string, unknown>) => invoke<T>('api:mutate', { method, path, body });
