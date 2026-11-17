@@ -61,33 +61,26 @@ export function BuatKontenView({ onSuccess, onNavigate }: BuatKontenViewProps) {
     },
   });
 
+  const catsQuery = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => get<{ categories: Array<{ id: string; slug: string; name: string }>; total: number }>('/styles/categories').catch(() => ({ categories: [], total: 0 })),
+  });
+  const presetsQuery = useQuery({
+    queryKey: ['presets-all'],
+    queryFn: () => get<{ items: Array<{ id: string; name: string; category?: { slug?: string; name?: string } }> }>('/styles/presets?limit=100').catch(() => ({ items: [] })),
+  });
+  const voicesQuery = useQuery({
+    queryKey: ['voices-all'],
+    queryFn: () => get<Array<{ id: string; name: string; provider: string; language: string; voiceAttributes?: { gender?: string } }>>('/voices').catch(() => []),
+  });
+
   const CATEGORIES = [
-    { id: 'all', name: 'Semua 81' },
-    { id: 'studio', name: 'Gaya studio' },
-    { id: 'infografis', name: 'Infografis' },
-    { id: 'tangan', name: 'Gambar tangan' },
-    { id: 'bukti', name: 'Film bukti' },
-    { id: '3d', name: '3D & Hologram' },
-    { id: 'kartun', name: 'Kartun' },
-    { id: 'sinema', name: 'Sinematik' },
+    { id: 'all', name: 'Semua' },
+    ...(catsQuery.data?.categories?.map((c) => ({ id: c.slug, name: c.name })) ?? []),
   ];
 
-  const MOCK_PRESETS = [
-    { id: '3d-hologram', name: 'Hologram 3D Modern', cat: '3d' },
-    { id: 'infografis-bento', name: 'Bento Grid Infografis', cat: 'infografis' },
-    { id: 'vintage-print', name: 'Vintage Swiss Newsreel', cat: 'bukti' },
-    { id: 'hand-drawn', name: 'Sketsa Pensil Hand-Drawn', cat: 'tangan' },
-    { id: 'studio-minimal', name: 'Studio Editorial Minimal', cat: 'studio' },
-    { id: 'anime-kinetic', name: 'Anime Kinetic Typography', cat: 'kartun' },
-  ];
-
-  const MOCK_VOICES = [
-    { id: 'depa', name: 'Depa', desc: 'Pria · Ramah, smooth & ekspresif (ElevenLabs)' },
-    { id: 'gadis', name: 'Gadis', desc: 'Wanita · Ramah & jernih (ElevenLabs)' },
-    { id: 'ardi', name: 'Ardi', desc: 'Pria · Jelas & natural (Gemini TTS)' },
-    { id: 'putra', name: 'Putra', desc: 'Pria · Berwibawa & tegas (ElevenLabs)' },
-    { id: 'lily', name: 'Lily', desc: 'Wanita · Suara narator edukatif (Gemini TTS)' },
-  ];
+  const presetsList = presetsQuery.data?.items ?? [];
+  const voicesList = voicesQuery.data ?? [];
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
@@ -258,11 +251,15 @@ export function BuatKontenView({ onSuccess, onNavigate }: BuatKontenViewProps) {
                 onChange={(e) => setVoiceId(e.target.value)}
                 className="w-full"
               >
-                {MOCK_VOICES.map((v) => (
+                <option value="none">Tanpa Narasi (Video Hening / Musik Saja)</option>
+                {voicesList.map((v) => (
                   <option key={v.id} value={v.id}>
-                    {v.name} — {v.desc}
+                    {v.name} — {v.provider} ({v.voiceAttributes?.gender === 'female' ? 'Wanita' : 'Pria'})
                   </option>
                 ))}
+                {voicesList.length === 0 && (
+                  <option value="auto">Mode Otomatis AI (Gemini TTS default)</option>
+                )}
               </Select>
             </div>
           </Card>
@@ -278,7 +275,7 @@ export function BuatKontenView({ onSuccess, onNavigate }: BuatKontenViewProps) {
                   Gaya Visual
                 </h2>
               </div>
-              <span className="text-xs text-muted">81 resep gaya aktif</span>
+              <span className="text-xs text-muted font-mono">{presetsList.length} resep gaya aktif</span>
             </div>
 
             {/* Category Tabs */}
@@ -302,30 +299,51 @@ export function BuatKontenView({ onSuccess, onNavigate }: BuatKontenViewProps) {
 
             {/* Presets Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
-              {MOCK_PRESETS.map((p) => (
+              {presetsList
+                .filter((p) => presetCategory === 'all' || p.category?.slug === presetCategory)
+                .map((p) => (
+                  <div
+                    key={p.id}
+                    onClick={() => setPresetId(p.id)}
+                    className={clsx(
+                      'group relative aspect-[3/4] cursor-pointer overflow-hidden rounded-xl border p-3 flex flex-col justify-end transition hover:scale-101',
+                      presetId === p.id
+                        ? 'border-accent ring-2 ring-accent/30 bg-accent/5'
+                        : 'border-line bg-surface-2/40 hover:border-text/30'
+                    )}
+                  >
+                    <span className="text-xs font-semibold text-text group-hover:text-accent">
+                      {p.name}
+                    </span>
+                    <span className="text-[10px] text-muted capitalize mt-0.5">
+                      {p.category?.name || 'Gaya'}
+                    </span>
+                    {presetId === p.id && (
+                      <span className="absolute top-2 right-2 flex size-5 items-center justify-center rounded-full bg-accent text-accent-contrast text-[10px]">
+                        ✓
+                      </span>
+                    )}
+                  </div>
+                ))}
+
+              {presetsList.length === 0 && (
                 <div
-                  key={p.id}
-                  onClick={() => setPresetId(p.id)}
+                  onClick={() => setPresetId('auto')}
                   className={clsx(
-                    'group relative aspect-[3/4] cursor-pointer overflow-hidden rounded-xl border p-3 flex flex-col justify-end transition hover:scale-101',
-                    presetId === p.id
-                      ? 'border-accent ring-2 ring-accent/30 bg-accent/5'
-                      : 'border-line bg-surface-2/40 hover:border-text/30'
+                    'group relative aspect-[3/4] cursor-pointer overflow-hidden rounded-xl border p-3 flex flex-col justify-end transition hover:scale-101 col-span-2 sm:col-span-3 border-accent ring-2 ring-accent/30 bg-accent/5'
                   )}
                 >
-                  <span className="text-xs font-semibold text-text group-hover:text-accent">
-                    {p.name}
+                  <span className="text-xs font-semibold text-text">
+                    Gaya Standar Otomatis AI (Studio Editorial)
                   </span>
-                  <span className="text-[10px] text-muted capitalize mt-0.5">
-                    {p.cat}
+                  <span className="text-[10px] text-muted mt-0.5">
+                    Katalog gaya masih kosong — AI akan memformat komposisi tipografi & scene standar otomatis.
                   </span>
-                  {presetId === p.id && (
-                    <span className="absolute top-2 right-2 flex size-5 items-center justify-center rounded-full bg-accent text-accent-contrast text-[10px]">
-                      ✓
-                    </span>
-                  )}
+                  <span className="absolute top-2 right-2 flex size-5 items-center justify-center rounded-full bg-accent text-accent-contrast text-[10px]">
+                    ✓
+                  </span>
                 </div>
-              ))}
+              )}
             </div>
           </Card>
         </div>

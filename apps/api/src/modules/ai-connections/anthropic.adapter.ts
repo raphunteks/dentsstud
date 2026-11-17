@@ -20,6 +20,9 @@ export class AnthropicAdapter {
         'Authorization': `Bearer ${credential}`,
         'anthropic-version': VERSION,
         'anthropic-beta': 'oauth-2025-04-20,claude-code-20250219',
+        'anthropic-dangerous-direct-browser-access': 'true',
+        'User-Agent': 'claude-cli/1.0.0 (external, sdk-cli)',
+        'X-App': 'cli',
         'content-type': 'application/json',
       };
     }
@@ -27,11 +30,30 @@ export class AnthropicAdapter {
   }
 
   async probe(credential: string, signal = AbortSignal.timeout(15_000)): Promise<ProbeResult> {
+    const isOAuth = credential.startsWith('sk-ant-oat') || (credential.length > 80 && !credential.startsWith('sk-ant-api'));
     try {
+      if (isOAuth) {
+        // OAuth tokens for Claude Code (9Router style) are scoped for messages, not /v1/models
+        const testRes = await fetch(`${this.env.ANTHROPIC_API_BASE}/v1/messages`, {
+          method: 'POST',
+          headers: this.headers(credential),
+          body: JSON.stringify({ model: 'claude-3-5-haiku-20241022', max_tokens: 1, messages: [{ role: 'user', content: 'ping' }] }),
+          signal,
+        });
+        if (testRes.status === 401 || testRes.status === 403) {
+          const errBody = (await testRes.json().catch(() => ({}))) as { error?: { message?: string } };
+          return { status: 'INVALID', error: errBody.error?.message ?? 'Kredensial OAuth ditolak oleh Anthropic', httpStatus: testRes.status };
+        }
+        if (testRes.ok || testRes.status === 400) {
+          return { status: 'CONNECTED', models: ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022'] };
+        }
+        return { status: 'UNAVAILABLE', error: `Anthropic API merespons ${testRes.status}`, httpStatus: testRes.status };
+      }
+
       const res = await fetch(`${this.env.ANTHROPIC_API_BASE}/v1/models?limit=100`, { headers: this.headers(credential), signal });
       if (res.status === 401 || res.status === 403) return { status: 'INVALID', error: 'Kredensial ditolak oleh Anthropic', httpStatus: res.status };
       if (!res.ok) {
-        // Some OAuth tokens may not have permission to list models directly; probe via lightweight messages
+        // Fallback probe via lightweight messages
         const fallbackRes = await fetch(`${this.env.ANTHROPIC_API_BASE}/v1/messages`, {
           method: 'POST',
           headers: this.headers(credential),

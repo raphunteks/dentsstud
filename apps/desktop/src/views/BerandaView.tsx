@@ -76,7 +76,7 @@ export function BerandaView({ user, dash, offline, onNavigate }: BerandaViewProp
                 Baru
               </span>
               <h2 className="font-display text-xl font-medium text-text">
-                81 gaya visual siap pakai
+                Katalog gaya visual siap pakai
               </h2>
             </div>
             <p className="mt-1 text-xs sm:text-sm text-muted max-w-2xl">

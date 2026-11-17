@@ -1,56 +1,51 @@
-import { useState } from 'react';
+import { useDeferredValue, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
+import { get } from '../bridge';
 import { Card, Input, Modal, Button } from '../components/UI';
 import type { NavTab } from '../types';
+
+interface Cat {
+  id: string;
+  slug: string;
+  name: string;
+  presetCount: number;
+}
+
+interface Preset {
+  id: string;
+  name: string;
+  description: string;
+  thumbnailUrl: string | null;
+  previewUrl: string | null;
+  category: { name: string; slug?: string };
+}
 
 interface GaleriGayaViewProps {
   onNavigate: (tab: NavTab) => void;
 }
 
 export function GaleriGayaView({ onNavigate }: GaleriGayaViewProps) {
-  const [activeCat, setActiveCat] = useState('all');
+  const [activeCat, setActiveCat] = useState('');
   const [search, setSearch] = useState('');
-  const [selectedStyle, setSelectedStyle] = useState<{ id: string; name: string; cat: string; desc: string; number: number } | null>(null);
+  const dq = useDeferredValue(search);
+  const [selectedPreset, setSelectedPreset] = useState<Preset | null>(null);
 
-  const CATEGORIES = [
-    { id: 'all', name: 'Semua 81' },
-    { id: 'studio', name: 'Gaya studio (15)' },
-    { id: 'infografis', name: 'Infografis (8)' },
-    { id: 'tangan', name: 'Gambar tangan (8)' },
-    { id: 'bukti', name: 'Film bukti (8)' },
-    { id: '3d', name: '3D (7)' },
-    { id: 'kartun', name: 'Kartun (4)' },
-    { id: 'grafis', name: 'Grafis (7)' },
-    { id: 'cetak', name: 'Cetak (6)' },
-    { id: 'dokumenter', name: 'Dokumenter (8)' },
-    { id: 'asiatimur', name: 'Asia Timur (4)' },
-    { id: 'sinema', name: 'Sinema (2)' },
-  ];
-
-  const STYLES = [
-    { id: 's-65', number: 65, name: 'Kisah Mikroskop', cat: 'bukti', desc: 'Visual makro zooming dengan partikel sel hidup dan penjelas detail mikroskopik.' },
-    { id: 's-66', number: 66, name: 'Meja Lampu Arsip', cat: 'bukti', desc: 'Efek meja kaca iluminasi dengan foto polaroid dan coretan spidol retro.' },
-    { id: 's-67', number: 67, name: 'Berita Teks Berjalan', cat: 'dokumenter', desc: 'Tipografi cepat dengan highlight teks kuning khas video investigasi VOX.' },
-    { id: 's-68', number: 68, name: 'Newsreel 1920-an', cat: 'dokumenter', desc: 'Filter grain monokrom film seluloid hitam putih dengan flicker tempo cepat.' },
-    { id: 's-69', number: 69, name: 'Hitung Mundur Peluncuran', cat: 'dokumenter', desc: 'Grafis telemetry luar angkasa dengan angka digital dan radar tracking.' },
-    { id: 's-70', number: 70, name: 'Simfoni Time-lapse', cat: 'sinema', desc: 'Gerakan awan dan lalu lintas cepat berpadu grafik garis penjelas ritmik.' },
-    { id: 's-71', number: 71, name: 'Investigasi Visual', cat: 'bukti', desc: 'Peta koneksi pin merah, garis benang detektif, dan arsip dokumen rahasia.' },
-    { id: 's-72', number: 72, name: 'Montase Konstruktivisme', cat: 'cetak', desc: 'Geometri tebal, sudut miring dinamis, dan warna merah hitam khas poster propaganda seni.' },
-    { id: 's-73', number: 73, name: 'Telestrator Olahraga', cat: 'infografis', desc: 'Garis panah taktik kurva dinamis yang menyorot pergerakan objek di lapangan.' },
-    { id: 's-74', number: 74, name: 'Paket Berita TV', cat: 'studio', desc: 'Lower-third modern, layar studio kaca, dan transisi swipe profesional.' },
-    { id: 's-75', number: 75, name: 'Bento Grid SaaS', cat: 'studio', desc: 'Kotak-kotak rounded halus dengan gradient lembut khas Apple Keynote.' },
-    { id: 's-76', number: 76, name: 'Papan Tulis Fisika', cat: 'tangan', desc: 'Coretan kapur putih di atas papan tulis hitam dengan rumus KaTeX presisi.' },
-    { id: 's-77', number: 77, name: 'Hologram Neon Cyberpunk', cat: '3d', desc: 'Wireframe biru toska neon berputar di ruang gelap dengan scanlines CRT.' },
-    { id: 's-78', number: 78, name: 'Anime Pop Ink', cat: 'kartun', desc: 'Outline kuas manga tebal dengan efek halftone screen tone dan aksen kanji.' },
-    { id: 's-79', number: 79, name: 'Kertas Lipat Origami', cat: 'tangan', desc: 'Layer kertas bertekstur yang membuka lipatan satu per satu membentuk objek.' },
-    { id: 's-80', number: 80, name: 'Terminal Retro 80s', cat: 'sinema', desc: 'Kursor hijau fosfor berkedip pada monitor monokrom IBM antik.' },
-  ];
-
-  const filtered = STYLES.filter((s) => {
-    const matchCat = activeCat === 'all' || s.cat === activeCat;
-    const matchSearch = !search || s.name.toLowerCase().includes(search.toLowerCase());
-    return matchCat && matchSearch;
+  const cats = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => get<{ categories: Cat[]; total: number }>('/styles/categories').catch(() => ({ categories: [], total: 0 })),
   });
+
+  const list = useQuery({
+    queryKey: ['presets', activeCat, dq],
+    queryFn: () =>
+      get<{ items: Preset[] }>(
+        `/styles/presets?limit=100${activeCat ? `&category=${activeCat}` : ''}${dq ? `&q=${encodeURIComponent(dq)}` : ''}`
+      ).catch(() => ({ items: [] })),
+  });
+
+  const items = list.data?.items ?? [];
+  const totalPresets = cats.data?.total ?? items.length;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
@@ -61,7 +56,7 @@ export function GaleriGayaView({ onNavigate }: GaleriGayaViewProps) {
             Galeri Gaya Visual
           </h1>
           <p className="mt-1 text-sm text-muted">
-            81 preset komposisi motion graphic siap pakai untuk Reels & TikTok 9:16.
+            Katalog preset komposisi motion graphic siap pakai untuk Reels & TikTok 9:16.
           </p>
         </div>
         <div className="w-full sm:w-72">
@@ -74,88 +69,144 @@ export function GaleriGayaView({ onNavigate }: GaleriGayaViewProps) {
         </div>
       </div>
 
-      {/* Categories Filter Tabs */}
+      {/* Categories Filter Tabs (Real categories from DB) */}
       <div className="flex flex-wrap gap-1.5 overflow-x-auto pb-1">
-        {CATEGORIES.map((c) => (
+        <button
+          onClick={() => setActiveCat('')}
+          className={clsx(
+            'rounded-full border px-3.5 py-1 text-xs transition cursor-pointer',
+            !activeCat
+              ? 'border-accent bg-accent text-accent-contrast font-semibold shadow-xs'
+              : 'border-line bg-surface text-muted hover:text-text'
+          )}
+        >
+          Semua <span className="opacity-70 ml-1 font-mono">{totalPresets}</span>
+        </button>
+        {cats.data?.categories?.map((c) => (
           <button
             key={c.id}
-            onClick={() => setActiveCat(c.id)}
+            onClick={() => setActiveCat(c.slug)}
             className={clsx(
               'rounded-full border px-3.5 py-1 text-xs transition cursor-pointer',
-              activeCat === c.id
+              activeCat === c.slug
                 ? 'border-accent bg-accent text-accent-contrast font-semibold shadow-xs'
                 : 'border-line bg-surface text-muted hover:text-text'
             )}
           >
-            {c.name}
+            {c.name} <span className="opacity-70 ml-1 font-mono">{c.presetCount}</span>
           </button>
         ))}
       </div>
 
+      {/* Loading Skeleton */}
+      {list.isLoading && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }, (_, i) => (
+            <div key={i} className="aspect-[3/4] animate-pulse rounded-2xl bg-surface-2 border border-line" />
+          ))}
+        </div>
+      )}
+
+      {/* Empty State matching Web */}
+      {!list.isLoading && items.length === 0 && (
+        <div className="rounded-2xl border border-line bg-surface p-12 text-center">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-surface-2 text-muted">
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h3 className="font-display text-lg font-medium text-text">
+            {activeCat ? 'Kategori ini masih kosong' : 'Katalog gaya masih kosong'}
+          </h3>
+          <p className="mt-2 text-xs text-muted max-w-md mx-auto">
+            Preset akan muncul setelah Superadmin mengimpor dan mempublikasikannya melalui Import Folder atau CMS.
+          </p>
+        </div>
+      )}
+
       {/* Style Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {filtered.map((item) => (
-          <Card
-            key={item.id}
-            onClick={() => setSelectedStyle(item)}
-            className="group relative cursor-pointer overflow-hidden p-0 hover:border-accent hover:shadow-md transition-all duration-200"
-          >
-            {/* Visual Thumbnail */}
-            <div className="relative aspect-[3/4] w-full bg-gradient-to-br from-neutral-800 to-neutral-900 flex flex-col justify-between p-3 text-white">
-              <div className="flex items-center justify-between">
-                <span className="rounded bg-black/60 px-2 py-0.5 text-[10px] font-mono font-bold text-accent">
-                  #{item.number}
-                </span>
-                <span className="rounded bg-white/20 px-2 py-0.5 text-[9px] uppercase font-semibold">
-                  {item.cat}
+      {!list.isLoading && items.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {items.map((item) => (
+            <Card
+              key={item.id}
+              onClick={() => setSelectedPreset(item)}
+              className="group relative cursor-pointer overflow-hidden p-0 hover:border-accent hover:shadow-md transition-all duration-200"
+            >
+              {/* Visual Thumbnail */}
+              <div className="relative aspect-[3/4] w-full bg-gradient-to-br from-neutral-800 to-neutral-900 flex flex-col justify-between p-3 text-white overflow-hidden">
+                {item.thumbnailUrl && (
+                  <img
+                    src={item.thumbnailUrl}
+                    alt={item.name}
+                    className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                )}
+                <div className="relative z-10 flex items-center justify-between">
+                  <span className="rounded bg-black/60 px-2 py-0.5 text-[9px] uppercase font-semibold text-white/90">
+                    {item.category?.name || 'Gaya'}
+                  </span>
+                </div>
+                <div className="relative z-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 -mx-3 -mb-3 pt-6">
+                  <p className="font-display text-sm font-bold group-hover:text-accent transition-colors leading-tight">
+                    {item.name}
+                  </p>
+                  <p className="text-[10px] opacity-75 line-clamp-2 mt-1">
+                    {item.description || item.category?.name}
+                  </p>
+                </div>
+              </div>
+              <div className="p-3 bg-surface border-t border-line">
+                <span className="text-xs font-semibold text-accent group-hover:underline">
+                  Lihat Detail & Pakai →
                 </span>
               </div>
-              <div>
-                <p className="font-display text-sm font-bold group-hover:text-accent transition-colors leading-tight">
-                  {item.name}
-                </p>
-                <p className="text-[10px] opacity-75 line-clamp-2 mt-1">
-                  {item.desc}
-                </p>
-              </div>
-            </div>
-            <div className="p-3 bg-surface border-t border-line">
-              <span className="text-xs font-semibold text-accent group-hover:underline">
-                Lihat Detail & Pakai →
-              </span>
-            </div>
-          </Card>
-        ))}
-      </div>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Detail Modal */}
       <Modal
-        open={!!selectedStyle}
-        onClose={() => setSelectedStyle(null)}
-        title={selectedStyle ? `#${selectedStyle.number} — ${selectedStyle.name}` : ''}
+        open={!!selectedPreset}
+        onClose={() => setSelectedPreset(null)}
+        title={selectedPreset?.name ?? ''}
       >
-        {selectedStyle && (
+        {selectedPreset && (
           <div className="space-y-4">
-            <div className="relative aspect-[16/9] w-full rounded-xl bg-gradient-to-br from-neutral-800 to-neutral-950 flex items-center justify-center p-6 text-white text-center">
-              <div>
-                <span className="rounded bg-accent px-2.5 py-1 text-xs font-bold text-black uppercase">
-                  {selectedStyle.cat}
-                </span>
-                <h3 className="font-display text-xl font-bold mt-2">
-                  {selectedStyle.name}
-                </h3>
-              </div>
+            <div className="relative aspect-[9/16] max-h-[50vh] mx-auto w-full max-w-xs rounded-xl bg-gradient-to-br from-neutral-800 to-neutral-950 flex items-center justify-center overflow-hidden">
+              {selectedPreset.previewUrl ? (
+                <video
+                  src={selectedPreset.previewUrl}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="size-full object-cover"
+                />
+              ) : selectedPreset.thumbnailUrl ? (
+                <img
+                  src={selectedPreset.thumbnailUrl}
+                  alt={selectedPreset.name}
+                  className="size-full object-cover"
+                />
+              ) : (
+                <div className="p-6 text-center text-muted">
+                  <p className="font-display text-lg font-bold text-text">{selectedPreset.name}</p>
+                  <p className="text-xs mt-1 uppercase">{selectedPreset.category?.name}</p>
+                </div>
+              )}
             </div>
             <p className="text-sm text-text leading-relaxed">
-              {selectedStyle.desc}
+              {selectedPreset.description || selectedPreset.category?.name}
             </p>
             <div className="pt-2 flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setSelectedStyle(null)}>
+              <Button variant="ghost" onClick={() => setSelectedPreset(null)}>
                 Tutup
               </Button>
               <Button
                 onClick={() => {
-                  setSelectedStyle(null);
+                  setSelectedPreset(null);
                   onNavigate('buat-konten');
                 }}
               >

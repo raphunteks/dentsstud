@@ -13,6 +13,19 @@ interface PengaturanViewProps {
 export function PengaturanView({ user, dash, offline }: PengaturanViewProps) {
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState<'license' | 'claude' | 'profile'>('license');
+  const [apiKey, setApiKey] = useState('');
+  const [keyError, setKeyError] = useState<string | null>(null);
+
+  const saveApiKey = useMutation({
+    mutationFn: () => mutate('POST', '/ai/connections/start', { provider: 'anthropic', method: 'API_KEY', apiKey: apiKey.trim() }),
+    onSuccess: () => {
+      setApiKey('');
+      setKeyError(null);
+      alert('Koneksi Claude berhasil disimpan dan diverifikasi!');
+      qc.invalidateQueries({ queryKey: ['dash'] });
+    },
+    onError: (err: any) => setKeyError(err?.message || 'Gagal memverifikasi kredensial'),
+  });
 
   const activate = useMutation({
     mutationFn: () => invoke<{ offlineUntil: string }>('license:activate'),
@@ -210,6 +223,38 @@ export function PengaturanView({ user, dash, offline }: PengaturanViewProps) {
                 Connect Claude via OAuth
               </Button>
             </div>
+          </Card>
+
+          <Card className="p-6 space-y-4">
+            <div>
+              <h2 className="font-display text-base font-semibold text-text">
+                Input API Key / OAuth Token (9Router)
+              </h2>
+              <p className="text-xs text-muted leading-relaxed mt-1">
+                Masukkan API Key Anthropic (<code>sk-ant-api...</code>) atau Token OAuth Claude Code (<code>sk-ant-oat...</code>) milik akun Anda.
+              </p>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (apiKey.trim().length < 20) return setKeyError('Token / Key minimal 20 karakter');
+                saveApiKey.mutate();
+              }}
+              className="space-y-3"
+            >
+              <input
+                type="password"
+                placeholder="sk-ant-api... atau sk-ant-oat..."
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                className="w-full rounded-xl border border-line bg-surface-2 px-3.5 py-2 text-xs font-mono text-text outline-none focus:border-accent"
+              />
+              {keyError && <p className="text-xs text-bad">{keyError}</p>}
+              <Button type="submit" size="sm" disabled={saveApiKey.isPending}>
+                {saveApiKey.isPending ? 'Memverifikasi…' : 'Verifikasi & Simpan Kredensial'}
+              </Button>
+            </form>
           </Card>
         </div>
       )}

@@ -22,7 +22,7 @@ export function Sidebar({
   theme,
   onToggleTheme,
   activeCount = 0,
-  presetsCount = 81,
+  presetsCount = 0,
 }: SidebarProps) {
   const isSuperadmin = user.role === 'SUPERADMIN';
   const [collapsed, setCollapsed] = useState(false);
@@ -91,12 +91,18 @@ export function Sidebar({
           onClick={() => setCollapsed(!collapsed)}
           title={collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
           className={clsx(
-            'flex h-7 w-7 items-center justify-center rounded-lg border border-line text-muted hover:bg-surface-2 hover:text-text transition-colors',
+            'flex h-8 w-8 items-center justify-center rounded-xl border border-line text-muted hover:bg-surface-2 hover:text-text transition-colors shadow-2xs cursor-pointer',
             collapsed && 'mt-2'
           )}
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h10M4 18h16" />
+            <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" />
+            <path d="M9 3v18" stroke="currentColor" />
+            {collapsed ? (
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 9l3 3-3 3" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 9l-3 3 3 3" />
+            )}
           </svg>
         </button>
       </div>

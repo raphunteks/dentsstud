@@ -48,8 +48,8 @@ export class OAuthPkceService {
       code: 'anthropic',
       clientId: '9d1c250a-e61b-44d9-88ed-5944d1962f5e',
       authorizeUrl: 'https://claude.ai/oauth/authorize',
-      tokenUrl: 'https://console.anthropic.com/v1/oauth/token',
-      scopes: ['user:profile'],
+      tokenUrl: 'https://api.anthropic.com/v1/oauth/token',
+      scopes: ['org:create_api_key', 'user:profile', 'user:inference'],
       redirectUri: `${this.env.WEB_ORIGIN}/callback`,
     };
     const raw = env.OAUTH_PROVIDERS_JSON;
@@ -90,6 +90,7 @@ export class OAuthPkceService {
       expiresAt: new Date(Date.now() + 10 * 60_000),
     });
     const url = new URL(cfg.authorizeUrl);
+    url.searchParams.set('code', 'true');
     url.searchParams.set('response_type', 'code');
     url.searchParams.set('client_id', cfg.clientId);
     url.searchParams.set('redirect_uri', redirectUri);
@@ -104,15 +105,33 @@ export class OAuthPkceService {
   async refresh(provider: string, refreshToken: string): Promise<OAuthTokenSet> {
     const cfg = this.providers.get(provider);
     if (!cfg) throw Errors.invalid('OAUTH_UNSUPPORTED', 'Provider tidak lagi dikonfigurasi');
-    const body = new URLSearchParams({
-      grant_type: 'refresh_token',
-      refresh_token: refreshToken,
-      client_id: cfg.clientId,
-    });
-    if (cfg.clientSecret) body.set('client_secret', cfg.clientSecret);
+
+    const isAnthropic = provider === 'anthropic' || provider === 'claude';
+    let headers: Record<string, string>;
+    let body: string | URLSearchParams;
+
+    if (isAnthropic) {
+      headers = { 'content-type': 'application/json', accept: 'application/json' };
+      body = JSON.stringify({
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: cfg.clientId,
+        ...(cfg.clientSecret ? { client_secret: cfg.clientSecret } : {}),
+      });
+    } else {
+      headers = { 'content-type': 'application/x-www-form-urlencoded', accept: 'application/json' };
+      const form = new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: cfg.clientId,
+      });
+      if (cfg.clientSecret) form.set('client_secret', cfg.clientSecret);
+      body = form;
+    }
+
     const res = await fetch(cfg.tokenUrl, {
       method: 'POST',
-      headers: { 'content-type': 'application/x-www-form-urlencoded', accept: 'application/json' },
+      headers,
       body,
       signal: AbortSignal.timeout(20_000),
     }).catch((e: Error) => {
@@ -144,18 +163,47 @@ export class OAuthPkceService {
     if (!tx) throw Errors.invalid('OAUTH_STATE_INVALID', 'State OAuth tidak valid, kedaluwarsa, atau sudah digunakan');
     const cfg = this.providers.get(tx.provider);
     if (!cfg) throw Errors.invalid('OAUTH_UNSUPPORTED', 'Provider tidak lagi dikonfigurasi');
+
+    let authCode = params.code;
+    let codeState = '';
+    if (authCode.includes('#')) {
+      const parts = authCode.split('#');
+      authCode = parts[0]!;
+      codeState = parts[1] || '';
+    }
+
     const verifier = this.cipher.decrypt(tx.codeVerifierEnc, `oauth:${tx.provider}`);
-    const body = new URLSearchParams({
-      grant_type: 'authorization_code',
-      code: params.code,
-      redirect_uri: tx.redirectUri,
-      client_id: cfg.clientId,
-      code_verifier: verifier,
-    });
-    if (cfg.clientSecret) body.set('client_secret', cfg.clientSecret);
+    const isAnthropic = tx.provider === 'anthropic' || tx.provider === 'claude';
+    let headers: Record<string, string>;
+    let body: string | URLSearchParams;
+
+    if (isAnthropic) {
+      headers = { 'content-type': 'application/json', accept: 'application/json' };
+      body = JSON.stringify({
+        code: authCode,
+        state: codeState || params.state,
+        grant_type: 'authorization_code',
+        client_id: cfg.clientId,
+        redirect_uri: tx.redirectUri,
+        code_verifier: verifier,
+        ...(cfg.clientSecret ? { client_secret: cfg.clientSecret } : {}),
+      });
+    } else {
+      headers = { 'content-type': 'application/x-www-form-urlencoded', accept: 'application/json' };
+      const form = new URLSearchParams({
+        grant_type: 'authorization_code',
+        code: authCode,
+        redirect_uri: tx.redirectUri,
+        client_id: cfg.clientId,
+        code_verifier: verifier,
+      });
+      if (cfg.clientSecret) form.set('client_secret', cfg.clientSecret);
+      body = form;
+    }
+
     const res = await fetch(cfg.tokenUrl, {
       method: 'POST',
-      headers: { 'content-type': 'application/x-www-form-urlencoded', accept: 'application/json' },
+      headers,
       body,
       signal: AbortSignal.timeout(20_000),
     }).catch((e: Error) => {

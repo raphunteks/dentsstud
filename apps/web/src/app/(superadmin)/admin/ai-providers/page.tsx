@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { api, ApiError } from '@/lib/api';
-import { Button, Card, ErrorNote, PageHead, Skeleton, Status } from '@/components/ui';
+import { Button, Card, ErrorNote, Field, Input, PageHead, Skeleton, Status } from '@/components/ui';
 
 interface Provider {
   code: string;
@@ -31,11 +31,28 @@ export default function AiProvidersPage() {
   const conns = useQuery({ queryKey: ['ai-connections'], queryFn: () => api<Conn[]>('/ai/connections') });
 
   const [testResult, setTestResult] = useState<string | null>(null);
+  const [apiKey, setApiKey] = useState('');
+  const [keyError, setKeyError] = useState<string | null>(null);
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ['ai-connections'] });
     qc.invalidateQueries({ queryKey: ['admin-dash'] });
   };
+
+  const connectApiKey = useMutation({
+    mutationFn: () =>
+      api<{ connection: Conn }>('/ai/connections/start', {
+        method: 'POST',
+        json: { provider: 'anthropic', method: 'API_KEY', apiKey: apiKey.trim() },
+      }),
+    onSuccess: () => {
+      setApiKey('');
+      setKeyError(null);
+      toast.success('Kredensial Claude berhasil disimpan dan diverifikasi');
+      invalidate();
+    },
+    onError: (e) => setKeyError(e instanceof ApiError ? e.message : 'Gagal menyimpan'),
+  });
 
   const connectOAuth = useMutation({
     mutationFn: () =>
@@ -135,6 +152,33 @@ export default function AiProvidersPage() {
             )}
           </div>
         )}
+
+        <div className="mt-5 border-t border-line/60 pt-4">
+          <p className="text-xs font-medium text-muted">Atau masukkan API Key / OAuth Token (9Router) langsung:</p>
+          <form
+            className="mt-2 flex flex-wrap items-center gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (apiKey.trim().length < 20) return setKeyError('Kredensial minimal 20 karakter');
+              connectApiKey.mutate();
+            }}
+          >
+            <div className="min-w-[280px] flex-1">
+              <Input
+                type="password"
+                placeholder="sk-ant-api... atau sk-ant-oat... (OAuth 9Router)"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                invalid={!!keyError}
+                className="h-9 text-xs"
+              />
+            </div>
+            <Button type="submit" loading={connectApiKey.isPending} className="h-9 text-xs">
+              Simpan & Hubungkan
+            </Button>
+          </form>
+          {keyError && <p className="mt-1 text-xs text-bad">{keyError}</p>}
+        </div>
       </Card>
 
       {q.isError && <ErrorNote error={q.error} onRetry={() => q.refetch()} />}

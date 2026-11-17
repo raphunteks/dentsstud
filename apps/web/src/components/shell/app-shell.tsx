@@ -132,7 +132,7 @@ export function AppShell({
       id: 'studio',
       label: 'STUDIO',
       items: [
-        { href: '/styles', label: 'Galeri Gaya', icon: IconStyles, badge: '81' },
+        { href: '/styles', label: 'Galeri Gaya', icon: IconStyles },
         { href: '/voices', label: 'Suara', icon: IconVoices },
         { href: '/studio/projects', label: 'Motion Editor', icon: IconStudio },
         { href: '/studio/render', label: 'Render Center', icon: IconSystem },
@@ -195,14 +195,14 @@ export function AppShell({
             </div>
           )}
 
-          {/* Desktop Toggle Button */}
+          {/* Desktop Toggle Button (Gambar 4) */}
           <button
             onClick={() => setCollapsed(!collapsed)}
             aria-label={collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
             title={collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
-            className="hidden lg:flex h-8 w-8 items-center justify-center rounded-lg border border-line text-muted hover:bg-surface-2 hover:text-text transition-colors"
+            className="hidden lg:flex h-8 w-8 items-center justify-center rounded-xl border border-line text-muted hover:bg-surface-2 hover:text-text transition-colors shadow-2xs"
           >
-            <IconPanelToggle className="h-4 w-4" />
+            <IconPanelToggle className="h-4 w-4" collapsed={collapsed} />
           </button>
         </div>
 

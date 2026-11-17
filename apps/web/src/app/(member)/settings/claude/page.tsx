@@ -156,8 +156,10 @@ export default function ClaudeSettingsPage() {
           </Card>
 
           <Card className="p-5">
-            <h2 className="font-display text-lg font-medium">Connect Claude — API key</h2>
-            <p className="mt-1 text-sm text-muted">Key divalidasi langsung ke Anthropic, disimpan terenkripsi (AES-256-GCM), dan tidak pernah ditampilkan ulang.</p>
+            <h2 className="font-display text-lg font-medium">Connect Claude — API key / OAuth Token (9Router)</h2>
+            <p className="mt-1 text-sm text-muted">
+              Masukkan API key Anthropic (<code>sk-ant-api…</code>) atau token OAuth Claude Code / 9Router (<code>sk-ant-oat…</code>). Key divalidasi langsung ke Anthropic, disimpan terenkripsi (AES-256-GCM), dan tidak pernah ditampilkan ulang.
+            </p>
             <form
               className="mt-4 grid gap-3"
               onSubmit={(e) => {

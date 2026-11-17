@@ -32,8 +32,12 @@ interface SysHealth {
 export function AdminMembersView() {
   const members = useQuery({
     queryKey: ['admin-members'],
-    queryFn: () => get<Member[]>('/admin/members').catch(() => []),
+    queryFn: () => get<{ items: Member[] } | Member[]>('/admin/members').catch(() => ({ items: [] })),
   });
+
+  const memberList: Member[] = Array.isArray(members.data)
+    ? members.data
+    : (members.data as { items?: Member[] })?.items || [];
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
@@ -60,7 +64,7 @@ export function AdminMembersView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {members.data?.map((m) => (
+              {memberList.map((m) => (
                 <tr key={m.id} className="hover:bg-surface-2/40 transition">
                   <td className="px-5 py-3.5 font-medium text-text">{m.displayName}</td>
                   <td className="px-5 py-3.5 font-mono text-muted">{m.email}</td>
@@ -77,7 +81,7 @@ export function AdminMembersView() {
                   </td>
                 </tr>
               ))}
-              {members.data?.length === 0 && (
+              {memberList.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-5 py-8 text-center text-muted">
                     Belum ada data member.
@@ -95,8 +99,12 @@ export function AdminMembersView() {
 export function AdminLicensesView() {
   const licenses = useQuery({
     queryKey: ['admin-licenses'],
-    queryFn: () => get<License[]>('/admin/licenses').catch(() => []),
+    queryFn: () => get<{ items: License[] } | License[]>('/admin/licenses').catch(() => ({ items: [] })),
   });
+
+  const licenseList: License[] = Array.isArray(licenses.data)
+    ? licenses.data
+    : (licenses.data as { items?: License[] })?.items || [];
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
@@ -122,7 +130,7 @@ export function AdminLicensesView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {licenses.data?.map((l) => (
+              {licenseList.map((l) => (
                 <tr key={l.id} className="hover:bg-surface-2/40 transition">
                   <td className="px-5 py-3.5 font-mono text-text">{l.id.slice(0, 16)}...</td>
                   <td className="px-5 py-3.5">
@@ -134,6 +142,13 @@ export function AdminLicensesView() {
                   </td>
                 </tr>
               ))}
+              {licenseList.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-5 py-8 text-center text-muted">
+                    Belum ada lisensi terdaftar.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

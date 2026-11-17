@@ -91,7 +91,7 @@ function StudioShell({ user, info, offline }: { user: SessionUser; info?: Info; 
         theme={theme}
         onToggleTheme={toggleTheme}
         activeCount={dash.data?.stats?.inProduction ?? 0}
-        presetsCount={dash.data?.catalog?.publishedPresets ?? 81}
+        presetsCount={dash.data?.catalog?.publishedPresets ?? 0}
       />
 
       {/* Main Workspace Frame */}

@@ -14,9 +14,16 @@ export default function ClaudeOAuthCallbackPage() {
     if (handled.current) return;
     handled.current = true;
 
-    const code = searchParams.get('code');
-    const state = searchParams.get('state');
-    const error = searchParams.get('error');
+    let code = searchParams.get('code');
+    let state = searchParams.get('state');
+    let error = searchParams.get('error');
+
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#\/?/, ''));
+      code = code || hashParams.get('code');
+      state = state || hashParams.get('state');
+      error = error || hashParams.get('error');
+    }
 
     if (error) {
       toast.error(`Otorisasi Claude ditolak: ${error}`);

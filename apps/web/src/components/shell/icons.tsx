@@ -162,10 +162,16 @@ export function IconChevronRight(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-export function IconPanelToggle(props: SVGProps<SVGSVGElement>) {
+export function IconPanelToggle({ collapsed = false, ...props }: SVGProps<SVGSVGElement> & { collapsed?: boolean }) {
   return (
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} {...props}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h10M4 18h16" />
+      <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" />
+      <path d="M9 3v18" stroke="currentColor" />
+      {collapsed ? (
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 9l3 3-3 3" />
+      ) : (
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 9l-3 3 3 3" />
+      )}
     </svg>
   );
 }
