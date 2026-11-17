@@ -30,6 +30,48 @@ export default function ClaudeSettingsPage() {
   const providers = useQuery({ queryKey: ['ai-providers'], queryFn: () => api<Provider[]>('/ai/providers'), staleTime: 5 * 60_000 });
   const [apiKey, setApiKey] = useState('');
   const [keyError, setKeyError] = useState<string>();
+  const [manualCode, setManualCode] = useState('');
+  const [manualError, setManualError] = useState<string>();
+
+  const exchangeManual = useMutation({
+    mutationFn: async () => {
+      let input = manualCode.trim();
+      let code = '';
+      let state = '';
+      if (input.includes('://') || input.includes('callback?')) {
+        try {
+          const url = new URL(input.startsWith('http') ? input : `http://localhost/${input}`);
+          code = url.searchParams.get('code') || '';
+          state = url.searchParams.get('state') || '';
+          if (url.hash) {
+            const h = url.hash.replace(/^#\/?/, '');
+            const hp = new URLSearchParams(h);
+            state = state || hp.get('state') || (!h.includes('=') ? h : '');
+          }
+        } catch {
+          // fallback split
+        }
+      }
+      if (!code) {
+        if (input.includes('#')) {
+          const parts = input.split('#');
+          code = parts[0]!;
+          state = state || parts[1] || '';
+        } else {
+          code = input;
+        }
+      }
+      if (!code) throw new Error('Kode otorisasi tidak ditemukan');
+      return api(`/ai/connections/callback?code=${encodeURIComponent(code)}${state ? `&state=${encodeURIComponent(state)}` : ''}`);
+    },
+    onSuccess: () => {
+      setManualCode('');
+      setManualError(undefined);
+      toast.success('Akun Claude berhasil terhubung via kode otorisasi!');
+      invalidate();
+    },
+    onError: (e) => setManualError(e instanceof ApiError ? e.message : (e as Error).message),
+  });
   const [answers, setAnswers] = useState<Record<string, { answer: string; model: string; latencyMs: number }>>({});
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ['ai-connections'] });
@@ -153,6 +195,37 @@ export default function ClaudeSettingsPage() {
                 Connect Claude via OAuth
               </Button>
             </div>
+          </Card>
+
+          <Card className="p-5">
+            <h2 className="font-display text-lg font-medium">Tempel Kode / URL Callback (9Router Fallback)</h2>
+            <p className="mt-1 text-sm text-muted">
+              Jika redirect otomatis terhalang atau Claude menampilkan kode di layar, tempelkan seluruh URL callback atau kode otorisasi di bawah ini:
+            </p>
+            <form
+              className="mt-4 grid gap-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!manualCode.trim()) return setManualError('Masukkan kode atau URL callback');
+                exchangeManual.mutate();
+              }}
+            >
+              <Field id="manualCode" label="Kode otorisasi atau URL callback" error={manualError}>
+                <Input
+                  id="manualCode"
+                  type="text"
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder="http://localhost:3000/callback?code=... atau Kode#State"
+                  value={manualCode}
+                  onChange={(e) => setManualCode(e.target.value)}
+                  invalid={!!manualError}
+                />
+              </Field>
+              <Button type="submit" loading={exchangeManual.isPending} variant="ghost" className="border border-line">
+                Tukar Kode & Hubungkan
+              </Button>
+            </form>
           </Card>
 
           <Card className="p-5">

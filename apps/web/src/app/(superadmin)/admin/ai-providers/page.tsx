@@ -33,6 +33,48 @@ export default function AiProvidersPage() {
   const [testResult, setTestResult] = useState<string | null>(null);
   const [apiKey, setApiKey] = useState('');
   const [keyError, setKeyError] = useState<string | null>(null);
+  const [manualCode, setManualCode] = useState('');
+  const [manualError, setManualError] = useState<string>();
+
+  const exchangeManual = useMutation({
+    mutationFn: async () => {
+      let input = manualCode.trim();
+      let code = '';
+      let state = '';
+      if (input.includes('://') || input.includes('callback?')) {
+        try {
+          const url = new URL(input.startsWith('http') ? input : `http://localhost/${input}`);
+          code = url.searchParams.get('code') || '';
+          state = url.searchParams.get('state') || '';
+          if (url.hash) {
+            const h = url.hash.replace(/^#\/?/, '');
+            const hp = new URLSearchParams(h);
+            state = state || hp.get('state') || (!h.includes('=') ? h : '');
+          }
+        } catch {
+          // fallback
+        }
+      }
+      if (!code) {
+        if (input.includes('#')) {
+          const parts = input.split('#');
+          code = parts[0]!;
+          state = state || parts[1] || '';
+        } else {
+          code = input;
+        }
+      }
+      if (!code) throw new Error('Kode otorisasi tidak ditemukan');
+      return api(`/ai/connections/callback?code=${encodeURIComponent(code)}${state ? `&state=${encodeURIComponent(state)}` : ''}`);
+    },
+    onSuccess: () => {
+      setManualCode('');
+      setManualError(undefined);
+      toast.success('Akun Claude berhasil terhubung via kode otorisasi!');
+      invalidate();
+    },
+    onError: (e) => setManualError(e instanceof ApiError ? e.message : (e as Error).message),
+  });
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ['ai-connections'] });
@@ -154,6 +196,33 @@ export default function AiProvidersPage() {
         )}
 
         <div className="mt-5 border-t border-line/60 pt-4">
+          <p className="text-xs font-medium text-muted">Fallback: Tempel Kode Otorisasi / Callback URL jika redirect otomatis terhalang:</p>
+          <form
+            className="mt-2 flex flex-wrap items-center gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!manualCode.trim()) return setManualError('Masukkan kode atau URL callback');
+              exchangeManual.mutate();
+            }}
+          >
+            <div className="min-w-[280px] flex-1">
+              <Input
+                type="text"
+                placeholder="http://localhost:3000/callback?code=... atau Kode#State"
+                value={manualCode}
+                onChange={(e) => setManualCode(e.target.value)}
+                invalid={!!manualError}
+                className="h-9 text-xs"
+              />
+            </div>
+            <Button type="submit" loading={exchangeManual.isPending} variant="ghost" className="h-9 border border-line text-xs">
+              Tukar & Hubungkan
+            </Button>
+          </form>
+          {manualError && <p className="mt-1 text-xs text-bad">{manualError}</p>}
+        </div>
+
+        <div className="mt-4 border-t border-line/60 pt-4">
           <p className="text-xs font-medium text-muted">Atau masukkan API Key / OAuth Token (9Router) langsung:</p>
           <form
             className="mt-2 flex flex-wrap items-center gap-2"

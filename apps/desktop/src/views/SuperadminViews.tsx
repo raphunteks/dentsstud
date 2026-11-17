@@ -1,6 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { get, invoke, mutate } from '../bridge';
-import { Card, Pill } from '../components/UI';
+import { Button, Card, Pill } from '../components/UI';
 
 interface Member {
   id: string;
@@ -222,6 +223,12 @@ export function AdminSystemView() {
 }
 
 export function AdminAIProvidersView() {
+  const qc = useQueryClient();
+  const [manualCode, setManualCode] = useState('');
+  const [manualError, setManualError] = useState<string | null>(null);
+  const [apiKey, setApiKey] = useState('');
+  const [keyError, setKeyError] = useState<string | null>(null);
+
   const conns = useQuery({
     queryKey: ['admin-ai-connections'],
     queryFn: () => get<any[]>('/ai/connections').catch(() => []),
@@ -248,6 +255,59 @@ export function AdminAIProvidersView() {
       }
     } catch (err: any) {
       alert(`Gagal memulai OAuth: ${err?.message || 'Error'}`);
+    }
+  };
+
+  const handleExchangeManual = async (e: React.FormEvent) => {
+    e.preventDefault();
+    let input = manualCode.trim();
+    if (!input) return setManualError('Masukkan kode atau URL callback');
+    let code = '';
+    let state = '';
+    if (input.includes('://') || input.includes('callback?')) {
+      try {
+        const url = new URL(input.startsWith('http') ? input : `http://localhost/${input}`);
+        code = url.searchParams.get('code') || '';
+        state = url.searchParams.get('state') || '';
+        if (url.hash) {
+          const h = url.hash.replace(/^#\/?/, '');
+          const hp = new URLSearchParams(h);
+          state = state || hp.get('state') || (!h.includes('=') ? h : '');
+        }
+      } catch {}
+    }
+    if (!code) {
+      if (input.includes('#')) {
+        const parts = input.split('#');
+        code = parts[0]!;
+        state = state || parts[1] || '';
+      } else {
+        code = input;
+      }
+    }
+    if (!code) return setManualError('Kode otorisasi tidak ditemukan');
+    try {
+      await get(`/ai/connections/callback?code=${encodeURIComponent(code)}${state ? `&state=${encodeURIComponent(state)}` : ''}`);
+      setManualCode('');
+      setManualError(null);
+      alert('Akun Claude Superadmin berhasil terhubung!');
+      qc.invalidateQueries({ queryKey: ['admin-ai-connections'] });
+    } catch (err: any) {
+      setManualError(err?.message || 'Gagal menukar kode');
+    }
+  };
+
+  const handleSaveApiKey = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (apiKey.trim().length < 20) return setKeyError('Kredensial minimal 20 karakter');
+    try {
+      await mutate('POST', '/ai/connections/start', { provider: 'anthropic', method: 'API_KEY', apiKey: apiKey.trim() });
+      setApiKey('');
+      setKeyError(null);
+      alert('Kredensial Claude berhasil disimpan dan diverifikasi!');
+      qc.invalidateQueries({ queryKey: ['admin-ai-connections'] });
+    } catch (err: any) {
+      setKeyError(err?.message || 'Gagal menyimpan');
     }
   };
 
@@ -299,6 +359,38 @@ export function AdminAIProvidersView() {
             )}
           </div>
         )}
+
+        <div className="pt-2 border-t border-line/60">
+          <p className="text-xs font-semibold text-text">Fallback: Tempel Kode Otorisasi / Callback URL</p>
+          <p className="text-xs text-muted mb-2">Jika redirect browser gagal atau Claude menampilkan kode di layar:</p>
+          <form onSubmit={handleExchangeManual} className="flex gap-2">
+            <input
+              type="text"
+              placeholder="http://localhost:3000/callback?code=... atau Kode#State"
+              value={manualCode}
+              onChange={(e) => setManualCode(e.target.value)}
+              className="flex-1 rounded-xl border border-line bg-surface-2 px-3 py-1.5 text-xs text-text placeholder:text-muted focus:border-accent focus:outline-hidden"
+            />
+            <Button size="sm" variant="ghost">Tukar & Hubungkan</Button>
+          </form>
+          {manualError && <p className="mt-1 text-xs text-bad">{manualError}</p>}
+        </div>
+
+        <div className="pt-2 border-t border-line/60">
+          <p className="text-xs font-semibold text-text">Input Langsung Token OAuth Claude Code / API Key</p>
+          <p className="text-xs text-muted mb-2">Masukkan token <code>sk-ant-oat...</code> atau API Key <code>sk-ant-api...</code>:</p>
+          <form onSubmit={handleSaveApiKey} className="flex gap-2">
+            <input
+              type="password"
+              placeholder="sk-ant-api... atau sk-ant-oat... (OAuth 9Router)"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              className="flex-1 rounded-xl border border-line bg-surface-2 px-3 py-1.5 text-xs text-text placeholder:text-muted focus:border-accent focus:outline-hidden"
+            />
+            <Button size="sm">Simpan & Verifikasi</Button>
+          </form>
+          {keyError && <p className="mt-1 text-xs text-bad">{keyError}</p>}
+        </div>
       </Card>
     </div>
   );

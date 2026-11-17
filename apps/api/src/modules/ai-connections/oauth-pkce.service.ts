@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, eq, gt, isNull } from 'drizzle-orm';
+import { and, desc, eq, gt, isNull } from 'drizzle-orm';
 import { createHash, randomBytes } from 'node:crypto';
 import { z } from 'zod';
 import { type Database, oauthTransactions } from '@dentweb/database';
@@ -147,30 +147,59 @@ export class OAuthPkceService {
   /** Validates state (single-use, unexpired, bound to user) and exchanges the code. */
   async callback(userId: string, params: { state?: string; code?: string; error?: string }) {
     if (params.error) throw Errors.invalid('OAUTH_DENIED', `Otorisasi ditolak: ${redact(params.error)}`);
-    if (!params.state || !params.code) throw Errors.invalid('OAUTH_BAD_CALLBACK', 'Parameter callback tidak lengkap');
-    const [tx] = await this.db
-      .update(oauthTransactions)
-      .set({ consumedAt: new Date() })
-      .where(
-        and(
-          eq(oauthTransactions.stateDigest, sha256(params.state)),
-          eq(oauthTransactions.userId, userId),
-          isNull(oauthTransactions.consumedAt),
-          gt(oauthTransactions.expiresAt, new Date()),
-        ),
-      )
-      .returning();
-    if (!tx) throw Errors.invalid('OAUTH_STATE_INVALID', 'State OAuth tidak valid, kedaluwarsa, atau sudah digunakan');
-    const cfg = this.providers.get(tx.provider);
-    if (!cfg) throw Errors.invalid('OAUTH_UNSUPPORTED', 'Provider tidak lagi dikonfigurasi');
+    if (!params.code) throw Errors.invalid('OAUTH_BAD_CALLBACK', 'Kode otorisasi tidak ditemukan');
 
-    let authCode = params.code;
+    let authCode = params.code.trim();
     let codeState = '';
     if (authCode.includes('#')) {
       const parts = authCode.split('#');
       authCode = parts[0]!;
       codeState = parts[1] || '';
     }
+
+    const stateToLookup = params.state || codeState;
+    let tx: typeof oauthTransactions.$inferSelect | undefined;
+
+    if (stateToLookup) {
+      const [found] = await this.db
+        .select()
+        .from(oauthTransactions)
+        .where(
+          and(
+            eq(oauthTransactions.stateDigest, sha256(stateToLookup)),
+            eq(oauthTransactions.userId, userId),
+            gt(oauthTransactions.expiresAt, new Date()),
+          ),
+        )
+        .limit(1);
+      tx = found;
+    }
+
+    if (!tx) {
+      // Fallback: jika URL yang ditempel tidak menyertakan state, ambil transaksi aktif terbaru milik user
+      const recent = await this.db
+        .select()
+        .from(oauthTransactions)
+        .where(
+          and(
+            eq(oauthTransactions.userId, userId),
+            gt(oauthTransactions.expiresAt, new Date()),
+          ),
+        )
+        .orderBy(desc(oauthTransactions.createdAt))
+        .limit(1);
+      tx = recent[0];
+    }
+
+    if (!tx) {
+      throw Errors.invalid(
+        'OAUTH_STATE_INVALID',
+        'Sesi OAuth kedaluwarsa atau tidak ditemukan. Silakan klik tombol "Connect Claude via OAuth" sekali lagi untuk memulai sesi baru.',
+      );
+    }
+
+    const cfg = this.providers.get(tx.provider);
+    if (!cfg) throw Errors.invalid('OAUTH_UNSUPPORTED', 'Provider tidak lagi dikonfigurasi');
 
     const verifier = this.cipher.decrypt(tx.codeVerifierEnc, `oauth:${tx.provider}`);
     const isAnthropic = tx.provider === 'anthropic' || tx.provider === 'claude';
@@ -181,7 +210,7 @@ export class OAuthPkceService {
       headers = { 'content-type': 'application/json', accept: 'application/json' };
       body = JSON.stringify({
         code: authCode,
-        state: codeState || params.state,
+        state: codeState || params.state || 'auth_state',
         grant_type: 'authorization_code',
         client_id: cfg.clientId,
         redirect_uri: tx.redirectUri,
@@ -209,8 +238,26 @@ export class OAuthPkceService {
     }).catch((e: Error) => {
       throw Errors.unavailable('OAUTH_TOKEN_UNREACHABLE', redact(e.message));
     });
-    const json = (await res.json().catch(() => ({}))) as Partial<OAuthTokenSet> & { error?: string };
-    if (!res.ok || !json.access_token) throw Errors.invalid('OAUTH_TOKEN_FAILED', `Penukaran token gagal (${res.status}${json.error ? `: ${redact(json.error)}` : ''})`);
+    const json = (await res.json().catch(() => ({}))) as any;
+    if (!res.ok || !json.access_token) {
+      let errDetail =
+        json.error_description
+          ? `${json.error}: ${json.error_description}`
+          : typeof json.error === 'string'
+            ? json.error
+            : json.error?.message || json.message || `HTTP ${res.status}`;
+      if (errDetail.includes('invalid_grant') || errDetail.includes('Invalid \'code\'')) {
+        errDetail = 'Kode otorisasi sudah digunakan atau kedaluwarsa oleh Anthropic. Silakan klik "Connect Claude via OAuth" untuk otorisasi ulang.';
+      }
+      throw Errors.invalid('OAUTH_TOKEN_FAILED', `Penukaran token gagal (${res.status}: ${redact(errDetail)})`);
+    }
+
+    // Tandai transaksi telah dikonsumsi setelah berhasil tukar token
+    await this.db
+      .update(oauthTransactions)
+      .set({ consumedAt: new Date() })
+      .where(eq(oauthTransactions.id, tx.id));
+
     return { provider: tx.provider, tokens: json as OAuthTokenSet };
   }
 }

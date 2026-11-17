@@ -15,6 +15,46 @@ export function PengaturanView({ user, dash, offline }: PengaturanViewProps) {
   const [activeTab, setActiveTab] = useState<'license' | 'claude' | 'profile'>('license');
   const [apiKey, setApiKey] = useState('');
   const [keyError, setKeyError] = useState<string | null>(null);
+  const [manualCode, setManualCode] = useState('');
+  const [manualError, setManualError] = useState<string | null>(null);
+
+  const exchangeManual = useMutation({
+    mutationFn: async () => {
+      let input = manualCode.trim();
+      let code = '';
+      let state = '';
+      if (input.includes('://') || input.includes('callback?')) {
+        try {
+          const url = new URL(input.startsWith('http') ? input : `http://localhost/${input}`);
+          code = url.searchParams.get('code') || '';
+          state = url.searchParams.get('state') || '';
+          if (url.hash) {
+            const h = url.hash.replace(/^#\/?/, '');
+            const hp = new URLSearchParams(h);
+            state = state || hp.get('state') || (!h.includes('=') ? h : '');
+          }
+        } catch {}
+      }
+      if (!code) {
+        if (input.includes('#')) {
+          const parts = input.split('#');
+          code = parts[0]!;
+          state = state || parts[1] || '';
+        } else {
+          code = input;
+        }
+      }
+      if (!code) throw new Error('Kode otorisasi tidak ditemukan');
+      return get(`/ai/connections/callback?code=${encodeURIComponent(code)}${state ? `&state=${encodeURIComponent(state)}` : ''}`);
+    },
+    onSuccess: () => {
+      setManualCode('');
+      setManualError(null);
+      alert('Akun Claude berhasil terhubung via kode otorisasi!');
+      qc.invalidateQueries({ queryKey: ['dash'] });
+    },
+    onError: (err: any) => setManualError(err?.message || 'Gagal menukar kode otorisasi'),
+  });
 
   const saveApiKey = useMutation({
     mutationFn: () => mutate('POST', '/ai/connections/start', { provider: 'anthropic', method: 'API_KEY', apiKey: apiKey.trim() }),
@@ -223,6 +263,37 @@ export function PengaturanView({ user, dash, offline }: PengaturanViewProps) {
                 Connect Claude via OAuth
               </Button>
             </div>
+          </Card>
+
+          <Card className="p-6 space-y-4">
+            <div>
+              <h2 className="font-display text-base font-semibold text-text">
+                Tempel Kode / URL Callback (9Router Fallback)
+              </h2>
+              <p className="text-xs text-muted leading-relaxed mt-1">
+                Jika Claude menampilkan kode di layar atau redirect callback terhalang, tempelkan teks kode atau URL callback di sini:
+              </p>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!manualCode.trim()) return setManualError('Masukkan kode atau URL callback');
+                exchangeManual.mutate();
+              }}
+              className="space-y-3"
+            >
+              <input
+                type="text"
+                placeholder="http://localhost:3000/callback?code=... atau Kode#State"
+                value={manualCode}
+                onChange={(e) => setManualCode(e.target.value)}
+                className="w-full rounded-xl border border-line bg-surface-2 px-3 py-2 text-xs text-text placeholder:text-muted focus:border-accent focus:outline-hidden"
+              />
+              {manualError && <p className="text-xs text-bad">{manualError}</p>}
+              <Button size="sm" variant="ghost" disabled={exchangeManual.isPending}>
+                {exchangeManual.isPending ? 'Menukar token…' : 'Tukar Kode & Hubungkan'}
+              </Button>
+            </form>
           </Card>
 
           <Card className="p-6 space-y-4">
