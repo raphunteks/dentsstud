@@ -39,6 +39,12 @@ export default function AiProvidersPage() {
   const exchangeManual = useMutation({
     mutationFn: async () => {
       let input = manualCode.trim();
+      if (input.startsWith('sk-ant-')) {
+        return api<{ connection: Conn }>('/ai/connections/start', {
+          method: 'POST',
+          json: { provider: 'anthropic', method: 'API_KEY', apiKey: input },
+        });
+      }
       let code = '';
       let state = '';
       if (input.includes('://') || input.includes('callback?')) {

@@ -78,7 +78,10 @@ function StudioShell({ user, info, offline }: { user: SessionUser; info?: Info; 
 
   const logout = useMutation({
     mutationFn: () => invoke('auth:logout'),
-    onSuccess: () => qc.invalidateQueries(),
+    onSuccess: () => {
+      qc.clear();
+      qc.invalidateQueries();
+    },
   });
 
   return (

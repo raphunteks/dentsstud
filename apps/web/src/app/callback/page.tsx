@@ -105,11 +105,35 @@ function CallbackContent() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-rose-600">Gagal Otorisasi</h2>
+            <h2 className="text-xl font-semibold text-rose-600">Otorisasi Gagal atau Kedaluwarsa</h2>
             <p className="mt-2 text-sm text-muted">{errorMessage}</p>
-            <Button onClick={() => router.replace(targetPath)} variant="ghost" className="mt-6 w-full">
-              Kembali ke Pengaturan
-            </Button>
+            <div className="mt-6 flex flex-col gap-2">
+              <Button
+                onClick={async () => {
+                  try {
+                    const r = await api<{ authorizeUrl: string }>('/ai/connections/start', {
+                      method: 'POST',
+                      json: {
+                        provider: 'anthropic',
+                        method: 'OAUTH_PKCE',
+                        redirectUri: typeof window !== 'undefined' && window.location.origin.includes('localhost')
+                          ? 'http://localhost:3000/callback'
+                          : 'https://platform.claude.com/oauth/code/callback',
+                      },
+                    });
+                    window.location.href = r.authorizeUrl;
+                  } catch (e) {
+                    router.replace(targetPath);
+                  }
+                }}
+                className="w-full"
+              >
+                Coba Otorisasi Lagi
+              </Button>
+              <Button onClick={() => router.replace(targetPath)} variant="ghost" className="w-full">
+                Kembali ke Pengaturan
+              </Button>
+            </div>
           </>
         )}
       </Card>

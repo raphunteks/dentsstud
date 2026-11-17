@@ -71,7 +71,10 @@ export function registerIpc() {
     try {
       return await request('GET', '/auth/session');
     } catch (e) {
-      if (e instanceof ApiFailure && e.status === 401) return null;
+      if (e instanceof ApiFailure && (e.status === 401 || e.status === 403)) {
+        writeTokens(null);
+        return null;
+      }
       throw e;
     }
   });

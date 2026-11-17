@@ -23,7 +23,7 @@ async function run() {
   console.log('📍 2. Navigating to http://localhost:3000/callback (empty params test)');
   await page.goto('http://localhost:3000/callback', { waitUntil: 'networkidle' });
   const callbackText = await page.textContent('body');
-  if (callbackText.includes('Gagal Otorisasi') || callbackText.includes('Menghubungkan ke Claude')) {
+  if (callbackText.includes('Gagal Otorisasi') || callbackText.includes('Otorisasi Gagal') || callbackText.includes('Menghubungkan ke Claude')) {
     console.log('✓ /callback page renders and handles empty/invalid callback gracefully');
   } else {
     throw new Error('/callback page failed to render expected state');

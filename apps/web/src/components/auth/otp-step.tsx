@@ -7,7 +7,7 @@ import { api, ApiError } from '@/lib/api';
 import { Button, Field, Input } from '@/components/ui';
 import { useQueryClient } from '@tanstack/react-query';
 
-export function OtpStep({ challengeId, email, onBack }: { challengeId: string; email: string; onBack: () => void }) {
+export function OtpStep({ challengeId, email, onBack, next }: { challengeId: string; email: string; onBack: () => void; next?: string | null }) {
   const [code, setCode] = useState('');
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
@@ -32,7 +32,8 @@ export function OtpStep({ challengeId, email, onBack }: { challengeId: string; e
     try {
       const r = await api<{ user: SessionUser }>('/auth/otp/verify', { method: 'POST', json: { challengeId, code: value } });
       qc.setQueryData(['session'], { user: r.user });
-      router.replace(r.user.role === 'SUPERADMIN' ? '/admin' : '/dashboard');
+      const target = next && next.startsWith('/') ? next : r.user.role === 'SUPERADMIN' ? '/admin' : '/dashboard';
+      router.replace(target);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Verifikasi gagal');
       setCode('');

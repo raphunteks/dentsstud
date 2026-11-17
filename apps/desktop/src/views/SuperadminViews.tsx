@@ -265,6 +265,18 @@ export function AdminAIProvidersView() {
     e.preventDefault();
     let input = manualCode.trim();
     if (!input) return setManualError('Masukkan kode atau URL callback');
+    if (input.startsWith('sk-ant-')) {
+      try {
+        await mutate('POST', '/ai/connections/start', { provider: 'anthropic', method: 'API_KEY', apiKey: input });
+        setManualCode('');
+        setManualError(null);
+        alert('Kredensial Claude Superadmin berhasil terhubung!');
+        qc.invalidateQueries({ queryKey: ['admin-ai-connections'] });
+        return;
+      } catch (err: any) {
+        return setManualError(err?.message || 'Gagal menyimpan kredensial');
+      }
+    }
     let code = '';
     let state = '';
     if (input.includes('://') || input.includes('callback?')) {

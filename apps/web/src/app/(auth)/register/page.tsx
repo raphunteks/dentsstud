@@ -1,18 +1,29 @@
 'use client';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { RegisterInput } from '@dentweb/shared-types';
 import { api, ApiError } from '@/lib/api';
+import { useSession } from '@/lib/session';
 import { fieldErrors } from '@/lib/form';
 import { Button, Field, Input } from '@/components/ui';
 import { OtpStep } from '@/components/auth/otp-step';
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const session = useSession();
   const [form, setForm] = useState({ displayName: '', email: '', password: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [challenge, setChallenge] = useState<string | null>(null);
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  // Auto-redirect if already logged in
+  useEffect(() => {
+    if (session.data?.user) {
+      router.replace(session.data.user.role === 'SUPERADMIN' ? '/admin' : '/dashboard');
+    }
+  }, [session.data, router]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

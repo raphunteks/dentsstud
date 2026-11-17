@@ -21,6 +21,9 @@ export function PengaturanView({ user, dash, offline }: PengaturanViewProps) {
   const exchangeManual = useMutation({
     mutationFn: async () => {
       let input = manualCode.trim();
+      if (input.startsWith('sk-ant-')) {
+        return mutate('POST', '/ai/connections/start', { provider: 'anthropic', method: 'API_KEY', apiKey: input });
+      }
       let code = '';
       let state = '';
       if (input.includes('://') || input.includes('callback?')) {

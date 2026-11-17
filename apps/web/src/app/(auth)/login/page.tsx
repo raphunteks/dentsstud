@@ -1,18 +1,33 @@
 'use client';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { LoginInput } from '@dentweb/shared-types';
 import { api, ApiError } from '@/lib/api';
+import { useSession } from '@/lib/session';
 import { fieldErrors } from '@/lib/form';
 import { Button, Field, Input } from '@/components/ui';
 import { OtpStep } from '@/components/auth/otp-step';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = searchParams.get('next');
+  const session = useSession();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [challenge, setChallenge] = useState<string | null>(null);
+
+  // Auto-login: If already authenticated, redirect to destination
+  useEffect(() => {
+    if (session.data?.user) {
+      const destination = next && next.startsWith('/') ? next : session.data.user.role === 'SUPERADMIN' ? '/admin' : '/dashboard';
+      router.replace(destination);
+    }
+  }, [session.data, next, router]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -33,7 +48,7 @@ export default function LoginPage() {
     }
   }
 
-  if (challenge) return <OtpStep challengeId={challenge} email={email} onBack={() => setChallenge(null)} />;
+  if (challenge) return <OtpStep challengeId={challenge} email={email} next={next} onBack={() => setChallenge(null)} />;
 
   return (
     <form onSubmit={submit} className="grid gap-5" noValidate>
