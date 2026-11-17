@@ -22,8 +22,13 @@ export default function RegisterPage() {
   useEffect(() => {
     if (session.data?.user) {
       router.replace(session.data.user.role === 'SUPERADMIN' ? '/admin' : '/dashboard');
+    } else if (session.isError) {
+      if (typeof document !== 'undefined') {
+        document.cookie = 'dw_auth=; Max-Age=0; path=/;';
+        document.cookie = 'dw_sid=; Max-Age=0; path=/;';
+      }
     }
-  }, [session.data, router]);
+  }, [session.data, session.isError, router]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

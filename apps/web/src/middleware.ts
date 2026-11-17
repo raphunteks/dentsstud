@@ -2,33 +2,21 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 /**
  * Strict authentication guard for DENTSWEB STUDIO web portal.
- * - Protected routes (/dashboard, /settings, /admin, etc.) strictly require active session cookies.
+ * - Protected routes (/dashboard, /settings, /admin, etc.) strictly require session cookies.
  * - Unauthenticated users are redirected to /login with original destination saved in `next`.
- * - Authenticated users visiting /login or /register are auto-redirected to /dashboard.
+ * - /login and /register are NEVER blocked by middleware, preventing any redirect loops.
+ *   Real session verification for auto-login is handled by client React + API.
  */
 export function middleware(req: NextRequest) {
   const hasSession = req.cookies.has('dw_sid') || req.cookies.has('dw_auth');
   const pathname = req.nextUrl.pathname;
 
-  // Login page handling
-  if (pathname.startsWith('/login')) {
-    if (hasSession) {
-      const next = req.nextUrl.searchParams.get('next');
-      const destination = next && next.startsWith('/') && !next.startsWith('/login') ? next : '/dashboard';
-      return NextResponse.redirect(new URL(destination, req.url));
-    }
+  // Never intercept login or register in edge middleware
+  if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
     return NextResponse.next();
   }
 
-  // Register page handling
-  if (pathname.startsWith('/register')) {
-    if (hasSession) {
-      return NextResponse.redirect(new URL('/dashboard', req.url));
-    }
-    return NextResponse.next();
-  }
-
-  // Protected routes: unauthenticated -> redirect to /login
+  // Protected routes: if no session cookie, redirect to login
   if (!hasSession) {
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('next', pathname);
@@ -50,7 +38,5 @@ export const config = {
     '/studio/:path*',
     '/styles/:path*',
     '/voices/:path*',
-    '/login',
-    '/register',
   ],
 };

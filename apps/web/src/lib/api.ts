@@ -29,7 +29,13 @@ export async function api<T = unknown>(path: string, init: RequestInit & { json?
     headers: { ...(json !== undefined ? { 'content-type': 'application/json' } : {}), ...headers },
     body: json !== undefined ? JSON.stringify(json) : rest.body,
   });
-  if (res.status === 401 && retry && !path.startsWith('/auth/')) {
+  const skipRefresh =
+    path.startsWith('/auth/login') ||
+    path.startsWith('/auth/register') ||
+    path.startsWith('/auth/otp') ||
+    path.startsWith('/auth/refresh') ||
+    path.startsWith('/auth/logout');
+  if (res.status === 401 && retry && !skipRefresh) {
     if (await refresh()) return api<T>(path, init, false);
   }
   const text = await res.text();

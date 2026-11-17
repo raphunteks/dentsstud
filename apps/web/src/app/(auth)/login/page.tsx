@@ -1,15 +1,15 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LoginInput } from '@dentweb/shared-types';
 import { api, ApiError } from '@/lib/api';
 import { useSession } from '@/lib/session';
 import { fieldErrors } from '@/lib/form';
-import { Button, Field, Input } from '@/components/ui';
+import { Button, Field, Input, Skeleton } from '@/components/ui';
 import { OtpStep } from '@/components/auth/otp-step';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get('next');
@@ -21,13 +21,18 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false);
   const [challenge, setChallenge] = useState<string | null>(null);
 
-  // Auto-login: If already authenticated, redirect to destination
+  // Auto-login: If already authenticated with confirmed active session
   useEffect(() => {
     if (session.data?.user) {
-      const destination = next && next.startsWith('/') ? next : session.data.user.role === 'SUPERADMIN' ? '/admin' : '/dashboard';
+      const destination = next && next.startsWith('/') && !next.startsWith('/login') ? next : session.data.user.role === 'SUPERADMIN' ? '/admin' : '/dashboard';
       router.replace(destination);
+    } else if (session.isError) {
+      if (typeof document !== 'undefined') {
+        document.cookie = 'dw_auth=; Max-Age=0; path=/;';
+        document.cookie = 'dw_sid=; Max-Age=0; path=/;';
+      }
     }
-  }, [session.data, next, router]);
+  }, [session.data, session.isError, next, router]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -77,5 +82,19 @@ export default function LoginPage() {
         </Link>
       </p>
     </form>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="grid min-h-[300px] place-items-center">
+          <Skeleton className="h-8 w-40" />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

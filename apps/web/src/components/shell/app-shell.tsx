@@ -93,12 +93,23 @@ export function AppShell({
   useEffect(() => setMobileOpen(false), [path]);
 
   useEffect(() => {
-    if (session.isError) router.replace(`/login?next=${encodeURIComponent(path)}`);
+    if (session.isError) {
+      if (typeof document !== 'undefined') {
+        document.cookie = 'dw_auth=; Max-Age=0; path=/;';
+        document.cookie = 'dw_sid=; Max-Age=0; path=/;';
+      }
+      qc.clear();
+      router.replace(`/login?next=${encodeURIComponent(path)}`);
+    }
     if (session.data && requireRole && session.data.user.role !== requireRole) router.replace('/dashboard');
-  }, [session.isError, session.data, requireRole, router, path]);
+  }, [session.isError, session.data, requireRole, router, path, qc]);
 
   async function logout() {
     await api('/auth/logout', { method: 'POST' }).catch(() => undefined);
+    if (typeof document !== 'undefined') {
+      document.cookie = 'dw_auth=; Max-Age=0; path=/;';
+      document.cookie = 'dw_sid=; Max-Age=0; path=/;';
+    }
     qc.clear();
     router.replace('/login');
   }
