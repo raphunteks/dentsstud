@@ -103,7 +103,9 @@ export default function AiProvidersPage() {
         json: {
           provider: 'anthropic',
           method: 'OAUTH_PKCE',
-          redirectUri: `${window.location.origin}/callback`,
+          redirectUri: typeof window !== 'undefined' && window.location.origin.includes('localhost')
+            ? 'http://localhost:3000/callback'
+            : 'https://platform.claude.com/oauth/code/callback',
         },
       }),
     onSuccess: (r) => {

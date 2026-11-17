@@ -77,9 +77,23 @@ export class OAuthPkceService {
       throw Errors.invalid('OAUTH_UNSUPPORTED', `Provider "${provider}" belum memiliki OAuth client resmi yang terdaftar untuk DENTSWEB.`);
     }
     const isClaude = provider === 'anthropic' || provider === 'claude';
-    const redirectUri = isClaude
-      ? 'http://localhost:3000/callback'
-      : (customRedirectUri ?? cfg.redirectUri);
+    let redirectUri: string;
+    if (isClaude) {
+      if (customRedirectUri && (customRedirectUri.includes('platform.claude.com') || customRedirectUri.includes('console.anthropic.com'))) {
+        redirectUri = customRedirectUri;
+      } else if (customRedirectUri && (customRedirectUri.includes('localhost') || customRedirectUri.startsWith('http://127.0.0.1'))) {
+        redirectUri = customRedirectUri;
+      } else {
+        // Default Anthropic supported redirect URI:
+        // Remote web requests use official platform callback (which displays copyable code on screen)
+        // Local requests use loopback
+        redirectUri = customRedirectUri?.includes('localhost')
+          ? 'http://localhost:3000/callback'
+          : 'https://platform.claude.com/oauth/code/callback';
+      }
+    } else {
+      redirectUri = customRedirectUri ?? cfg.redirectUri;
+    }
     const state = b64url(randomBytes(32));
     const verifier = b64url(randomBytes(48));
     const nonce = b64url(randomBytes(16));
@@ -98,7 +112,7 @@ export class OAuthPkceService {
     url.searchParams.set('client_id', cfg.clientId);
     url.searchParams.set('redirect_uri', redirectUri);
     url.searchParams.set('state', state);
-    url.searchParams.set('nonce', nonce);
+    if (!isClaude) url.searchParams.set('nonce', nonce);
     url.searchParams.set('code_challenge', pkceChallenge(verifier));
     url.searchParams.set('code_challenge_method', 'S256');
     if (cfg.scopes.length) url.searchParams.set('scope', cfg.scopes.join(' '));
@@ -152,15 +166,31 @@ export class OAuthPkceService {
     if (params.error) throw Errors.invalid('OAUTH_DENIED', `Otorisasi ditolak: ${redact(params.error)}`);
     if (!params.code) throw Errors.invalid('OAUTH_BAD_CALLBACK', 'Kode otorisasi tidak ditemukan');
 
-    let authCode = params.code.trim();
-    let codeState = '';
+    let raw = params.code.trim();
+    let authCode = raw;
+    let codeState = params.state?.trim() || '';
+
+    // Jika yang ditempel adalah full URL callback
+    if (raw.includes('://') || raw.includes('callback?') || raw.includes('code=')) {
+      try {
+        const u = new URL(raw.startsWith('http') ? raw : `http://localhost/${raw}`);
+        authCode = u.searchParams.get('code') || authCode;
+        if (!codeState) codeState = u.searchParams.get('state') || '';
+        if (u.hash) {
+          const h = u.hash.replace(/^#\/?/, '');
+          const hp = new URLSearchParams(h);
+          codeState = codeState || hp.get('state') || (!h.includes('=') ? h : '');
+        }
+      } catch {}
+    }
+
     if (authCode.includes('#')) {
       const parts = authCode.split('#');
       authCode = parts[0]!;
-      codeState = parts[1] || '';
+      if (!codeState && parts[1]) codeState = parts[1];
     }
 
-    const stateToLookup = params.state || codeState;
+    const stateToLookup = codeState || params.state;
     let tx: typeof oauthTransactions.$inferSelect | undefined;
 
     if (stateToLookup) {

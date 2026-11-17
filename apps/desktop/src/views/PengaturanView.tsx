@@ -236,31 +236,58 @@ export function PengaturanView({ user, dash, offline }: PengaturanViewProps) {
                   Hubungkan akun Claude Pro/Team langsung lewat OAuth browser tanpa input API key manual.
                 </p>
               </div>
-              <Button
-                size="sm"
-                onClick={async () => {
-                  try {
-                    await invoke('claude:oauth-listen').catch(() => undefined);
-                    const redirectUri = 'http://localhost:3000/callback';
-                    const res = await mutate<{ authorizeUrl: string }>('POST', '/ai/connections/start', {
-                      provider: 'anthropic',
-                      method: 'OAUTH_PKCE',
-                      redirectUri,
-                    });
-                    if (res?.authorizeUrl) {
-                      try {
-                        await invoke('shell:open-external', { url: res.authorizeUrl });
-                      } catch {
-                        window.open(res.authorizeUrl, '_blank');
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  onClick={async () => {
+                    try {
+                      await invoke('claude:oauth-listen').catch(() => undefined);
+                      const redirectUri = 'http://localhost:3000/callback';
+                      const res = await mutate<{ authorizeUrl: string }>('POST', '/ai/connections/start', {
+                        provider: 'anthropic',
+                        method: 'OAUTH_PKCE',
+                        redirectUri,
+                      });
+                      if (res?.authorizeUrl) {
+                        try {
+                          await invoke('shell:open-external', { url: res.authorizeUrl });
+                        } catch {
+                          window.open(res.authorizeUrl, '_blank');
+                        }
                       }
+                    } catch (err: any) {
+                      alert(`Gagal memulai OAuth: ${err?.message || 'Error'}`);
                     }
-                  } catch (err: any) {
-                    alert(`Gagal memulai OAuth: ${err?.message || 'Error'}`);
-                  }
-                }}
-              >
-                Connect Claude via OAuth
-              </Button>
+                  }}
+                >
+                  Connect Otomatis
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={async () => {
+                    try {
+                      const redirectUri = 'https://platform.claude.com/oauth/code/callback';
+                      const res = await mutate<{ authorizeUrl: string }>('POST', '/ai/connections/start', {
+                        provider: 'anthropic',
+                        method: 'OAUTH_PKCE',
+                        redirectUri,
+                      });
+                      if (res?.authorizeUrl) {
+                        try {
+                          await invoke('shell:open-external', { url: res.authorizeUrl });
+                        } catch {
+                          window.open(res.authorizeUrl, '_blank');
+                        }
+                      }
+                    } catch (err: any) {
+                      alert(`Gagal membuka otorisasi: ${err?.message || 'Error'}`);
+                    }
+                  }}
+                >
+                  Buka Otorisasi (Tampilkan Kode)
+                </Button>
+              </div>
             </div>
           </Card>
 

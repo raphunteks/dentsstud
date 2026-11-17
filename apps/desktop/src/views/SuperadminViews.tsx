@@ -236,10 +236,14 @@ export function AdminAIProvidersView() {
 
   const claudeConn = conns.data?.find((c: any) => c.provider === 'anthropic' || c.provider === 'claude');
 
-  const handleConnectClaudeOAuth = async () => {
+  const handleConnectClaudeOAuth = async (mode: 'auto' | 'manual' = 'auto') => {
     try {
-      await invoke('claude:oauth-listen').catch(() => undefined);
-      const redirectUri = 'http://localhost:3000/callback';
+      if (mode === 'auto') {
+        await invoke('claude:oauth-listen').catch(() => undefined);
+      }
+      const redirectUri = mode === 'auto'
+        ? 'http://localhost:3000/callback'
+        : 'https://platform.claude.com/oauth/code/callback';
       const res = await mutate<{ authorizeUrl: string }>('POST', '/ai/connections/start', {
         provider: 'anthropic',
         method: 'OAUTH_PKCE',
@@ -333,18 +337,24 @@ export function AdminAIProvidersView() {
               <p className="text-xs text-muted">Hubungkan Claude Pro/Team via OAuth PKCE (9Router) untuk alur naskah & riset.</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <Pill ok={claudeConn?.status === 'CONNECTED'}>
               {claudeConn?.status ?? 'BELUM TERHUBUNG'}
             </Pill>
             <button
-              onClick={handleConnectClaudeOAuth}
-              className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white shadow hover:opacity-90 transition-opacity"
+              onClick={() => handleConnectClaudeOAuth('auto')}
+              className="flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-white shadow hover:opacity-90 transition-opacity"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
               </svg>
-              {claudeConn?.status === 'CONNECTED' ? 'Sambung Ulang OAuth' : 'Connect Claude via OAuth'}
+              {claudeConn?.status === 'CONNECTED' ? 'Sambung Ulang (Auto)' : 'Connect Otomatis'}
+            </button>
+            <button
+              onClick={() => handleConnectClaudeOAuth('manual')}
+              className="rounded-xl border border-line bg-surface-2 px-3 py-2 text-xs font-semibold text-text hover:bg-surface-3 transition-colors"
+            >
+              Buka via Kode
             </button>
           </div>
         </div>
