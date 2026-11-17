@@ -72,7 +72,8 @@ function StudioShell({ user, info, offline }: { user: SessionUser; info?: Info; 
   const dash = useQuery({
     queryKey: ['dash'],
     queryFn: () => get<Dash>('/me/dashboard').catch(() => undefined),
-    refetchInterval: 15_000,
+    refetchInterval: 60_000,
+    staleTime: 30_000,
   });
 
   const logout = useMutation({

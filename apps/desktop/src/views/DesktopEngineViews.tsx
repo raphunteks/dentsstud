@@ -13,7 +13,7 @@ export function LocalRenderView() {
     queryKey: ['jobs'],
     queryFn: () =>
       get<{ id: string; projectName: string; mode: string; status: string; progress: number; outputs: { url: string; format: string }[] }[]>('/render/jobs'),
-    refetchInterval: 4000,
+    refetchInterval: (query) => (query.state.data?.some((j) => j.status === 'RUNNING' || j.status === 'QUEUED') ? 3000 : 15000),
   });
   const [prog, setProg] = useState<Record<string, number>>({});
 

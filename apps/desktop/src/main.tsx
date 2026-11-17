@@ -13,9 +13,7 @@ window.addEventListener('unhandledrejection', (e) => report(e.reason));
 
 const qc = new QueryClient({ defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false, staleTime: 30_000 } } });
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <QueryClientProvider client={qc}>
-      <App />
-    </QueryClientProvider>
-  </StrictMode>,
+  <QueryClientProvider client={qc}>
+    <App />
+  </QueryClientProvider>,
 );

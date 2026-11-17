@@ -60,7 +60,7 @@ export function Sidebar({
   return (
     <aside
       className={clsx(
-        'flex h-full flex-col border-r border-line bg-surface select-none transition-all duration-300',
+        'flex h-full flex-col border-r border-line bg-surface select-none transition-[width] duration-200 ease-out',
         collapsed ? 'w-[68px]' : 'w-[260px]'
       )}
       style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}

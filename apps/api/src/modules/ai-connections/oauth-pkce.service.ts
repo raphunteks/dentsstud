@@ -50,7 +50,7 @@ export class OAuthPkceService {
       authorizeUrl: 'https://claude.ai/oauth/authorize',
       tokenUrl: 'https://api.anthropic.com/v1/oauth/token',
       scopes: ['org:create_api_key', 'user:profile', 'user:inference'],
-      redirectUri: `${this.env.WEB_ORIGIN}/callback`,
+      redirectUri: 'http://localhost:3000/callback',
     };
     const raw = env.OAUTH_PROVIDERS_JSON;
     const list = raw ? z.array(OAuthProviderConfig).parse(JSON.parse(raw)) : [];
@@ -76,7 +76,10 @@ export class OAuthPkceService {
     if (!cfg) {
       throw Errors.invalid('OAUTH_UNSUPPORTED', `Provider "${provider}" belum memiliki OAuth client resmi yang terdaftar untuk DENTSWEB.`);
     }
-    const redirectUri = customRedirectUri ?? cfg.redirectUri;
+    const isClaude = provider === 'anthropic' || provider === 'claude';
+    const redirectUri = isClaude
+      ? 'http://localhost:3000/callback'
+      : (customRedirectUri ?? cfg.redirectUri);
     const state = b64url(randomBytes(32));
     const verifier = b64url(randomBytes(48));
     const nonce = b64url(randomBytes(16));

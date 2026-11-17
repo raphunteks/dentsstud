@@ -11,6 +11,7 @@ import { kvDel, kvGet, kvSet, loadConfig, readTokens, saveConfig, secureStorageA
 import { verifyProof } from '../security/license-proof.js';
 import { askClaudeCode, detectClaudeCode } from '../security/claude-code.js';
 import { APP_ORIGIN } from '../security/protocol.js';
+import { startLocalCallbackListener } from '../security/oauth-listener.js';
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: { status: number; code: string; message: string } };
 
@@ -111,6 +112,10 @@ export function registerIpc() {
   });
 
   handle('claude:detect', async () => detectClaudeCode());
+  handle('claude:oauth-listen', async () => {
+    startLocalCallbackListener();
+    return { listening: true };
+  });
 
   handle('claude:test', async (i: { prompt: string }) => {
     const det = await detectClaudeCode();

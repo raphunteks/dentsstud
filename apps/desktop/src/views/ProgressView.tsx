@@ -14,7 +14,7 @@ export function ProgressView({ onNavigate }: ProgressViewProps) {
   const runs = useQuery({
     queryKey: ['runs'],
     queryFn: () => get<RunItem[]>('/production/runs').catch(() => []),
-    refetchInterval: 4000,
+    refetchInterval: (query) => (query.state.data?.some((r) => r.status === 'RUNNING' || r.status === 'QUEUED') ? 3000 : 15000),
   });
 
   const retryRun = useMutation({

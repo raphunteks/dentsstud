@@ -19,6 +19,7 @@ export const CHANNELS = {
   'license:activate': z.void(),
   'license:offline-status': z.void(),
   'claude:detect': z.void(),
+  'claude:oauth-listen': z.void(),
   'claude:test': z.object({ prompt: z.string().min(1).max(2000) }),
   'render:local': z.object({ jobId: z.uuid() }),
   'render:cancel': z.object({ jobId: z.uuid() }),

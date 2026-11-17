@@ -16,11 +16,21 @@ if (!gotTheLock) {
 
 app.setAsDefaultProtocolClient('dentsweb');
 app.setAsDefaultProtocolClient('dentweb');
+
+// Performance & GPU rasterization optimizations
+app.commandLine.appendSwitch('enable-gpu-rasterization');
+app.commandLine.appendSwitch('enable-zero-copy');
+
 // CI containers run as root, where Chromium refuses its sandbox. Honoured only for unpackaged test runs.
 if (!app.isPackaged && (process.env.DENTSWEB_TEST_NO_SANDBOX === '1' || process.env.DENTWEB_TEST_NO_SANDBOX === '1')) app.commandLine.appendSwitch('no-sandbox');
 else app.enableSandbox();
 
-const EXTERNAL_ALLOW = [/^https:\/\/(www\.)?dentsweb\.(my\.id|studio)\//, /^https:\/\/(www\.)?dentweb\.studio\//, /^https:\/\/console\.anthropic\.com\//, /^https:\/\/docs\.claude\.com\//, /^https:\/\/claude\.com\//];
+const EXTERNAL_ALLOW = [
+  /^https:\/\/(www\.)?dentsweb\.(my\.id|studio)\//,
+  /^https:\/\/(www\.)?dentweb\.studio\//,
+  /^https:\/\/([a-z0-9-]+\.)?anthropic\.com\//,
+  /^https:\/\/([a-z0-9-]+\.)?claude\.(ai|com)\//,
+];
 
 function createWindow() {
   const win = new BrowserWindow({

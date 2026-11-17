@@ -240,9 +240,8 @@ export function PengaturanView({ user, dash, offline }: PengaturanViewProps) {
                 size="sm"
                 onClick={async () => {
                   try {
-                    const redirectUri = window.location.origin.includes('localhost')
-                      ? 'http://localhost:3000/callback'
-                      : 'https://motion.dentsweb.my.id/callback';
+                    await invoke('claude:oauth-listen').catch(() => undefined);
+                    const redirectUri = 'http://localhost:3000/callback';
                     const res = await mutate<{ authorizeUrl: string }>('POST', '/ai/connections/start', {
                       provider: 'anthropic',
                       method: 'OAUTH_PKCE',
