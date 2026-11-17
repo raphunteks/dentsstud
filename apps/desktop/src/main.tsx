@@ -15,7 +15,17 @@ const report = (err: unknown) => {
 window.addEventListener('error', (e) => report(e.error ?? e.message));
 window.addEventListener('unhandledrejection', (e) => report(e.reason));
 
-const qc = new QueryClient({ defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false, staleTime: 30_000 } } });
+const qc = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      staleTime: 60_000,
+      gcTime: 5 * 60_000,
+    },
+  },
+});
 createRoot(document.getElementById('root')!).render(
   <QueryClientProvider client={qc}>
     <App />

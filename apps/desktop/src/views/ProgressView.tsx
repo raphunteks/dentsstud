@@ -86,7 +86,7 @@ export function ProgressView({ onNavigate }: ProgressViewProps) {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-xs text-muted">
-                      #{r.sequence || r.id.slice(0, 6)}
+                      #{r.sequence || (r.id ? r.id.slice(0, 6) : '-')}
                     </span>
                     <Pill
                       ok={

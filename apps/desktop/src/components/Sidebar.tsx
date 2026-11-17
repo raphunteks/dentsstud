@@ -44,7 +44,7 @@ export function Sidebar({
 
   const navItemClass = (tab: NavTab) =>
     clsx(
-      'group flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium transition-all duration-150 cursor-pointer select-none',
+      'group flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-100 cursor-pointer select-none',
       currentTab === tab
         ? 'bg-accent text-accent-contrast shadow-md shadow-accent/25 font-semibold'
         : 'text-muted hover:bg-surface-2 hover:text-text'
@@ -52,7 +52,7 @@ export function Sidebar({
 
   const miniItemClass = (tab: NavTab) =>
     clsx(
-      'relative flex h-10 w-10 mx-auto items-center justify-center rounded-xl transition-all cursor-pointer',
+      'relative flex h-10 w-10 mx-auto items-center justify-center rounded-xl transition-colors duration-100 cursor-pointer',
       currentTab === tab
         ? 'bg-accent text-accent-contrast shadow-md scale-105'
         : 'text-muted hover:bg-surface-2 hover:text-text'

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
+import { Component, type ButtonHTMLAttributes, type ErrorInfo, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 import { BridgeError } from '../bridge';
 
 export const errMsg = (e: unknown) => (e instanceof BridgeError ? e.message : (e as Error)?.message ?? 'Gagal');
@@ -176,4 +176,59 @@ export function Modal({
       </div>
     </div>
   );
+}
+
+interface ErrorBoundaryProps {
+  children: ReactNode;
+  fallback?: ReactNode;
+  onReset?: () => void;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  override state: ErrorBoundaryState = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('UI ErrorBoundary caught error:', error, errorInfo);
+  }
+
+  handleReset = () => {
+    this.setState({ hasError: false, error: null });
+    this.props.onReset?.();
+  };
+
+  override render() {
+    if (this.state.hasError) {
+      if (this.props.fallback) return this.props.fallback;
+      return (
+        <div className="grid place-items-center min-h-[360px] p-6">
+          <Card className="max-w-md w-full p-6 text-center space-y-4">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-bad/10 text-bad font-bold text-lg">
+              ✕
+            </div>
+            <div>
+              <h2 className="font-display text-lg font-medium text-text">Terjadi Kendala Memuat Tampilan</h2>
+              <p className="text-xs text-muted mt-1 leading-relaxed">
+                {this.state.error?.message || 'Gagal merender komponen UI.'}
+              </p>
+            </div>
+            <div className="pt-2 flex gap-2 justify-center">
+              <Button size="sm" onClick={this.handleReset}>
+                Muat Ulang Tampilan
+              </Button>
+            </div>
+          </Card>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }

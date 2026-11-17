@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 import { get, invoke } from './bridge';
-import { Button, Card, Input, Mark, errMsg } from './components/UI';
+import { Button, Card, ErrorBoundary, Input, Mark, errMsg } from './components/UI';
 import { Sidebar } from './components/Sidebar';
 import { BerandaView } from './views/BerandaView';
 import { BuatKontenView } from './views/BuatKontenView';
@@ -128,66 +128,68 @@ function StudioShell({ user, info, offline }: { user: SessionUser; info?: Info; 
         {/* View Content Canvas */}
         <main className="flex-1 overflow-y-auto px-6 py-6 md:px-8">
           <div className="mx-auto max-w-[1200px]">
-            {currentTab === 'beranda' && (
-              <BerandaView user={user} dash={dash.data} offline={offline} onNavigate={setCurrentTab} />
-            )}
-            {currentTab === 'buat-konten' && (
-              <BuatKontenView onSuccess={() => dash.refetch()} onNavigate={setCurrentTab} />
-            )}
-            {currentTab === 'progress' && (
-              <ProgressView onNavigate={setCurrentTab} />
-            )}
-            {currentTab === 'hasil' && (
-              <HasilView onNavigate={setCurrentTab} />
-            )}
-            {currentTab === 'galeri-gaya' && (
-              <GaleriGayaView onNavigate={setCurrentTab} />
-            )}
-            {currentTab === 'suara' && (
-              <SuaraView onNavigate={setCurrentTab} />
-            )}
-            {currentTab === 'pengaturan' && (
-              <PengaturanView user={user} dash={dash.data} offline={offline} />
-            )}
-            {currentTab === 'bantuan' && (
-              <BantuanView />
-            )}
-            {currentTab === 'render-lokal' && (
-              <LocalRenderView />
-            )}
-            {currentTab === 'project-offline' && (
-              <OfflineProjectsView />
-            )}
-            {currentTab === 'import-folder' && (
-              <FolderImportView />
-            )}
-            {currentTab === 'admin-members' && (
-              <AdminMembersView />
-            )}
-            {currentTab === 'admin-licenses' && (
-              <AdminLicensesView />
-            )}
-            {currentTab === 'admin-system' && (
-              <AdminSystemView />
-            )}
-            {currentTab === 'admin-ai-providers' && (
-              <AdminAIProvidersView />
-            )}
-            {currentTab === 'admin-workflows' && (
-              <AdminWorkflowsView />
-            )}
-            {currentTab === 'admin-production' && (
-              <AdminProductionView />
-            )}
-            {currentTab === 'admin-quotas' && (
-              <AdminQuotasView />
-            )}
-            {currentTab === 'admin-releases' && (
-              <AdminReleasesView />
-            )}
-            {currentTab === 'admin-support' && (
-              <AdminSupportView />
-            )}
+            <ErrorBoundary key={currentTab} onReset={() => setCurrentTab('beranda')}>
+              {currentTab === 'beranda' && (
+                <BerandaView user={user} dash={dash.data} offline={offline} onNavigate={setCurrentTab} />
+              )}
+              {currentTab === 'buat-konten' && (
+                <BuatKontenView onSuccess={() => dash.refetch()} onNavigate={setCurrentTab} />
+              )}
+              {currentTab === 'progress' && (
+                <ProgressView onNavigate={setCurrentTab} />
+              )}
+              {currentTab === 'hasil' && (
+                <HasilView onNavigate={setCurrentTab} />
+              )}
+              {currentTab === 'galeri-gaya' && (
+                <GaleriGayaView onNavigate={setCurrentTab} />
+              )}
+              {currentTab === 'suara' && (
+                <SuaraView onNavigate={setCurrentTab} />
+              )}
+              {currentTab === 'pengaturan' && (
+                <PengaturanView user={user} dash={dash.data} offline={offline} />
+              )}
+              {currentTab === 'bantuan' && (
+                <BantuanView />
+              )}
+              {currentTab === 'render-lokal' && (
+                <LocalRenderView />
+              )}
+              {currentTab === 'project-offline' && (
+                <OfflineProjectsView />
+              )}
+              {currentTab === 'import-folder' && (
+                <FolderImportView />
+              )}
+              {currentTab === 'admin-members' && (
+                <AdminMembersView />
+              )}
+              {currentTab === 'admin-licenses' && (
+                <AdminLicensesView />
+              )}
+              {currentTab === 'admin-system' && (
+                <AdminSystemView />
+              )}
+              {currentTab === 'admin-ai-providers' && (
+                <AdminAIProvidersView />
+              )}
+              {currentTab === 'admin-workflows' && (
+                <AdminWorkflowsView />
+              )}
+              {currentTab === 'admin-production' && (
+                <AdminProductionView />
+              )}
+              {currentTab === 'admin-quotas' && (
+                <AdminQuotasView />
+              )}
+              {currentTab === 'admin-releases' && (
+                <AdminReleasesView />
+              )}
+              {currentTab === 'admin-support' && (
+                <AdminSupportView />
+              )}
+            </ErrorBoundary>
           </div>
         </main>
       </div>

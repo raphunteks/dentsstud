@@ -20,6 +20,8 @@ app.setAsDefaultProtocolClient('dentweb');
 // Performance & GPU rasterization optimizations
 app.commandLine.appendSwitch('enable-gpu-rasterization');
 app.commandLine.appendSwitch('enable-zero-copy');
+app.commandLine.appendSwitch('ignore-gpu-blocklist');
+app.commandLine.appendSwitch('enable-accelerated-video-decode');
 
 // CI containers run as root, where Chromium refuses its sandbox. Honoured only for unpackaged test runs.
 if (!app.isPackaged && (process.env.DENTSWEB_TEST_NO_SANDBOX === '1' || process.env.DENTWEB_TEST_NO_SANDBOX === '1')) app.commandLine.appendSwitch('no-sandbox');

@@ -98,25 +98,37 @@ export function AdminMembersView() {
 }
 
 export function AdminLicensesView() {
+  const [status, setStatus] = useState('');
   const licenses = useQuery({
-    queryKey: ['admin-licenses'],
-    queryFn: () => get<{ items: License[] } | License[]>('/admin/licenses').catch(() => ({ items: [] })),
+    queryKey: ['admin-licenses', status],
+    queryFn: () => get<{ items: any[] } | any[]>(`/admin/licenses?limit=100${status ? `&status=${status}` : ''}`).catch(() => ({ items: [] })),
   });
 
-  const licenseList: License[] = Array.isArray(licenses.data)
+  const rawList: any[] = Array.isArray(licenses.data)
     ? licenses.data
-    : (licenses.data as { items?: License[] })?.items || [];
+    : (licenses.data as { items?: any[] })?.items || [];
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
-      <div className="border-b border-line pb-4">
-        <p className="text-xs uppercase tracking-widest text-accent font-mono font-bold">SUPERADMIN</p>
-        <h1 className="font-display text-2xl font-medium tracking-tight text-text mt-0.5">
-          Kelola Lisensi & Device
-        </h1>
-        <p className="mt-1 text-sm text-muted">
-          Daftar lisensi aktif dan kuota perangkat desktop.
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-accent font-mono font-bold">SUPERADMIN</p>
+          <h1 className="font-display text-2xl font-medium tracking-tight text-text mt-0.5">
+            Kelola Lisensi & Device
+          </h1>
+          <p className="mt-1 text-sm text-muted">
+            Daftar lisensi aktif, kuota perangkat desktop, dan worker concurrent.
+          </p>
+        </div>
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className="h-9 rounded-xl border border-line bg-surface-2 px-3 text-xs text-text outline-none cursor-pointer"
+        >
+          <option value="">Semua Status</option>
+          <option value="ACTIVE">Aktif</option>
+          <option value="REVOKED">Dicabut</option>
+        </select>
       </div>
 
       <Card className="p-0 overflow-hidden">
@@ -124,28 +136,52 @@ export function AdminLicensesView() {
           <table className="w-full text-left text-xs">
             <thead className="bg-surface-2 text-muted uppercase font-mono tracking-wider border-b border-line">
               <tr>
-                <th className="px-5 py-3">License ID</th>
+                <th className="px-5 py-3">Member</th>
+                <th className="px-5 py-3">License Key / ID</th>
                 <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3">Maks Perangkat</th>
-                <th className="px-5 py-3">Tanggal Diberikan</th>
+                <th className="px-5 py-3">Perangkat</th>
+                <th className="px-5 py-3">Worker · Video/Hari</th>
+                <th className="px-5 py-3">Masa Berlaku</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {licenseList.map((l) => (
-                <tr key={l.id} className="hover:bg-surface-2/40 transition">
-                  <td className="px-5 py-3.5 font-mono text-text">{l.id.slice(0, 16)}...</td>
-                  <td className="px-5 py-3.5">
-                    <Pill ok={l.status === 'ACTIVE'}>{l.status}</Pill>
-                  </td>
-                  <td className="px-5 py-3.5 font-mono font-medium">{l.maxDevices} device</td>
-                  <td className="px-5 py-3.5 font-mono text-muted">
-                    {new Date(l.createdAt).toLocaleDateString('id-ID')}
-                  </td>
-                </tr>
-              ))}
-              {licenseList.length === 0 && (
+              {rawList.map((item, idx) => {
+                const lic = item?.license ?? item ?? {};
+                const licId = lic?.id ? String(lic.id) : `lic-${idx}`;
+                const email = item?.email ?? lic?.userEmail ?? '-';
+                const name = item?.displayName ?? email;
+                const licStatus = lic?.status ?? 'ACTIVE';
+                const maxDevices = lic?.maxDevices ?? 1;
+                const workers = lic?.entitlements?.maxWorkers ?? 1;
+                const videos = lic?.entitlements?.maxVideosPerDay ?? 10;
+                const created = lic?.createdAt ? new Date(lic.createdAt).toLocaleDateString('id-ID') : '-';
+                const validUntil = lic?.validUntil ? new Date(lic.validUntil).toLocaleDateString('id-ID') : 'Tanpa batas';
+
+                return (
+                  <tr key={licId} className="hover:bg-surface-2/40 transition">
+                    <td className="px-5 py-3.5">
+                      <span className="font-medium text-text">{name}</span>
+                      <span className="block font-mono text-[11px] text-muted">{email}</span>
+                    </td>
+                    <td className="px-5 py-3.5 font-mono text-muted">
+                      {licId.length > 16 ? `${licId.slice(0, 16)}...` : licId}
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <Pill ok={licStatus === 'ACTIVE'}>{licStatus}</Pill>
+                    </td>
+                    <td className="px-5 py-3.5 font-mono font-medium">{maxDevices} device</td>
+                    <td className="px-5 py-3.5 font-mono text-muted">
+                      {workers} worker · {videos}/hari
+                    </td>
+                    <td className="px-5 py-3.5 font-mono text-muted">
+                      {created} → {validUntil}
+                    </td>
+                  </tr>
+                );
+              })}
+              {rawList.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-5 py-8 text-center text-muted">
+                  <td colSpan={6} className="px-5 py-8 text-center text-muted">
                     Belum ada lisensi terdaftar.
                   </td>
                 </tr>
