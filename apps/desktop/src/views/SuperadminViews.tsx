@@ -416,3 +416,403 @@ export function AdminAIProvidersView() {
     </div>
   );
 }
+
+export function AdminWorkflowsView() {
+  const qc = useQueryClient();
+  const agents = useQuery({
+    queryKey: ['admin-agents'],
+    queryFn: () => get<any[]>('/admin/agents').catch(() => []),
+  });
+
+  const agentList = Array.isArray(agents.data) ? agents.data : [];
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-200">
+      <div className="border-b border-line pb-4">
+        <p className="text-xs uppercase tracking-widest text-accent font-mono font-bold">SUPERADMIN</p>
+        <h1 className="font-display text-2xl font-medium tracking-tight text-text mt-0.5">
+          Workflow Engine & Agent AI
+        </h1>
+        <p className="mt-1 text-sm text-muted">
+          Konfigurasi prompt, model, dan pipeline otomatis 6 tahap produksi video.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {[
+          { code: 'RESEARCH', title: '1. Riset & Deep Search', agent: 'research', desc: 'Mencari fakta unik, sumber jurnal, dan angle konten viral.' },
+          { code: 'SCRIPT', title: '2. Naskah & Beat Hook', agent: 'scriptwriter', desc: 'Menulis skrip 60-90 detik dengan struktur AIDA & retensi tinggi.' },
+          { code: 'FACT_CHECK', title: '3. Fact Checking', agent: 'fact_checker', desc: 'Verifikasi klaim naskah terhadap sumber valid.' },
+          { code: 'MOTION', title: '4. Motion Director', agent: 'motion_director', desc: 'Penyusunan komponen visual Remotion dan timeline grafis.' },
+          { code: 'QC', title: '5. Quality Control', agent: 'qc', desc: 'Validasi kontras warna, safe zone caption, dan sinkronisasi audio.' },
+          { code: 'SOCIAL', title: '6. Social Media & SEO', agent: 'social_media', desc: 'Membuat caption, hashtag relevan, dan rekomendasi posting.' },
+        ].map((stage) => {
+          const matched = agentList.find((a: any) => a.code === stage.agent);
+          return (
+            <Card key={stage.code} className="p-5 flex flex-col justify-between space-y-3">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[10px] text-accent uppercase font-bold tracking-wider">{stage.code}</span>
+                  <Pill ok={matched?.isActive ?? true}>{matched?.isActive ? 'AKTIF' : 'STANDBY'}</Pill>
+                </div>
+                <h3 className="font-display text-base font-semibold text-text mt-2">{stage.title}</h3>
+                <p className="text-xs text-muted mt-1 leading-relaxed">{stage.desc}</p>
+              </div>
+              <div className="pt-3 border-t border-line/60 flex items-center justify-between text-xs">
+                <span className="font-mono text-muted">v{matched?.currentVersion ?? 1} · {matched?.config?.model || 'claude-sonnet'}</span>
+                <span className="text-accent text-[11px] font-semibold">Siap Eksekusi</span>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export function AdminProductionView() {
+  const qc = useQueryClient();
+  const [filter, setFilter] = useState<'active' | 'failed' | 'done' | 'all'>('active');
+
+  const runs = useQuery({
+    queryKey: ['admin-runs', filter],
+    queryFn: () => {
+      const q = filter === 'active' ? 'QUEUED,RUNNING,CANCELLING' : filter === 'failed' ? 'FAILED' : filter === 'done' ? 'COMPLETED' : '';
+      return get<any[]>(`/admin/production/runs?limit=100${q ? `&status=${q}` : ''}`).catch(() => []);
+    },
+    refetchInterval: filter === 'active' ? 4000 : false,
+  });
+
+  const runList = Array.isArray(runs.data) ? runs.data : [];
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-200">
+      <div className="border-b border-line pb-4">
+        <p className="text-xs uppercase tracking-widest text-accent font-mono font-bold">SUPERADMIN</p>
+        <h1 className="font-display text-2xl font-medium tracking-tight text-text mt-0.5">
+          Antrean & Log Produksi Global
+        </h1>
+        <p className="mt-1 text-sm text-muted">
+          Monitoring seluruh proses render dan eksekusi AI member secara real-time.
+        </p>
+      </div>
+
+      <div className="inline-flex rounded-full border border-line bg-surface p-1 shadow-xs">
+        {[
+          { id: 'active', label: 'Aktif' },
+          { id: 'failed', label: 'Gagal' },
+          { id: 'done', label: 'Selesai' },
+          { id: 'all', label: 'Semua' },
+        ].map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setFilter(t.id as any)}
+            className={`rounded-full px-4 py-1.5 text-xs font-medium transition cursor-pointer ${
+              filter === t.id ? 'bg-accent text-accent-contrast shadow-xs font-semibold' : 'text-muted hover:text-text'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <Card className="p-0 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-surface-2 text-muted uppercase font-mono tracking-wider border-b border-line">
+              <tr>
+                <th className="px-5 py-3">Member</th>
+                <th className="px-5 py-3">Topik Video</th>
+                <th className="px-5 py-3">Status</th>
+                <th className="px-5 py-3">Tahap</th>
+                <th className="px-5 py-3">Progres</th>
+                <th className="px-5 py-3">Waktu Buat</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {runList.map((r: any) => (
+                <tr key={r.id} className="hover:bg-surface-2/40 transition">
+                  <td className="px-5 py-3.5">
+                    <span className="font-medium text-text">{r.owner?.displayName || 'Member'}</span>
+                    <span className="block font-mono text-[11px] text-muted">{r.owner?.email}</span>
+                  </td>
+                  <td className="px-5 py-3.5 max-w-xs">
+                    <span className="line-clamp-2 text-text font-medium">{r.topic || 'Video Tanpa Judul'}</span>
+                    {r.error?.message && <span className="block text-[11px] text-bad mt-0.5">{r.error.message}</span>}
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <Pill ok={r.status === 'COMPLETED' || r.status === 'RUNNING'}>{r.status}</Pill>
+                  </td>
+                  <td className="px-5 py-3.5 font-mono text-muted">{r.currentStage || '—'}</td>
+                  <td className="px-5 py-3.5 font-mono">
+                    <div className="flex items-center gap-2">
+                      <div className="w-20 bg-surface-2 rounded-full h-1.5 overflow-hidden">
+                        <div className="bg-accent h-full rounded-full" style={{ width: `${r.progress ?? 0}%` }} />
+                      </div>
+                      <span className="text-muted">{r.progress ?? 0}%</span>
+                    </div>
+                  </td>
+                  <td className="px-5 py-3.5 font-mono text-muted">
+                    {new Date(r.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                  </td>
+                </tr>
+              ))}
+              {runList.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-5 py-8 text-center text-muted">
+                    Tidak ada antrean produksi pada filter ini.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+export function AdminQuotasView() {
+  const qc = useQueryClient();
+  const quotas = useQuery({
+    queryKey: ['admin-quotas'],
+    queryFn: () => get<any[]>('/admin/production/quotas').catch(() => []),
+  });
+
+  const handleTickScheduler = async () => {
+    try {
+      const res = await mutate<{ created?: number }>('POST', '/admin/production/scheduler/tick', {});
+      alert(res?.created ? `${res.created} pesanan terjadwal dibuat!` : 'Tidak ada slot jadwal yang jatuh tempo saat ini.');
+      qc.invalidateQueries({ queryKey: ['admin-quotas'] });
+    } catch (err: any) {
+      alert(`Gagal menjalankan scheduler: ${err?.message || 'Error'}`);
+    }
+  };
+
+  const list = Array.isArray(quotas.data) ? quotas.data : [];
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-200">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-accent font-mono font-bold">SUPERADMIN</p>
+          <h1 className="font-display text-2xl font-medium tracking-tight text-text mt-0.5">
+            Otomasi & Batas Kuota Member
+          </h1>
+          <p className="mt-1 text-sm text-muted">
+            Monitoring pemakaian video harian dan concurrency render per lisensi.
+          </p>
+        </div>
+        <Button size="sm" onClick={handleTickScheduler}>
+          Jalankan Scheduler Sekarang
+        </Button>
+      </div>
+
+      <Card className="p-0 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-surface-2 text-muted uppercase font-mono tracking-wider border-b border-line">
+              <tr>
+                <th className="px-5 py-3">Member</th>
+                <th className="px-5 py-3">Video Hari Ini</th>
+                <th className="px-5 py-3">Produksi Aktif</th>
+                <th className="px-5 py-3">Maks Worker</th>
+                <th className="px-5 py-3">Cloud Render</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {list.map((r: any) => (
+                <tr key={r.id} className="hover:bg-surface-2/40 transition">
+                  <td className="px-5 py-3.5">
+                    <span className="font-medium text-text">{r.displayName}</span>
+                    <span className="block font-mono text-[11px] text-muted">{r.email}</span>
+                  </td>
+                  <td className="px-5 py-3.5 font-mono">
+                    {r.usedToday ?? 0} / {r.entitlements?.maxVideosPerDay ?? 10}
+                  </td>
+                  <td className="px-5 py-3.5 font-mono text-text font-semibold">{r.active ?? 0}</td>
+                  <td className="px-5 py-3.5 font-mono text-muted">{r.entitlements?.maxWorkers ?? 2} worker</td>
+                  <td className="px-5 py-3.5">
+                    <Pill ok={r.entitlements?.cloudRender}>{r.entitlements?.cloudRender ? 'AKTIF' : 'NONAKTIF'}</Pill>
+                  </td>
+                </tr>
+              ))}
+              {list.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-5 py-8 text-center text-muted">
+                    Belum ada member berlisensi aktif.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+export function AdminReleasesView() {
+  const releases = useQuery({
+    queryKey: ['admin-releases'],
+    queryFn: () => get<any[]>('/admin/releases').catch(() => []),
+  });
+
+  const list = Array.isArray(releases.data) ? releases.data : [];
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-200">
+      <div className="border-b border-line pb-4">
+        <p className="text-xs uppercase tracking-widest text-accent font-mono font-bold">SUPERADMIN</p>
+        <h1 className="font-display text-2xl font-medium tracking-tight text-text mt-0.5">
+          Manajemen Rilis Desktop (DMG & EXE)
+        </h1>
+        <p className="mt-1 text-sm text-muted">
+          Daftar paket installer resmi desktop DENTSWEB STUDIO dan telemetri pembaruan.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card className="p-4 space-y-1">
+          <p className="text-xs text-muted">macOS Apple Silicon</p>
+          <p className="font-display text-lg font-bold text-text">DENTSWEB-STUDIO-1.0.4-arm64.dmg</p>
+          <span className="text-[11px] text-accent font-mono">Versi Stabil 1.0.4</span>
+        </Card>
+        <Card className="p-4 space-y-1">
+          <p className="text-xs text-muted">macOS Intel</p>
+          <p className="font-display text-lg font-bold text-text">DENTSWEB-STUDIO-1.0.4-x64.dmg</p>
+          <span className="text-[11px] text-accent font-mono">Versi Stabil 1.0.4</span>
+        </Card>
+        <Card className="p-4 space-y-1">
+          <p className="text-xs text-muted">Windows 64-bit</p>
+          <p className="font-display text-lg font-bold text-text">DENTSWEB-STUDIO-Setup-1.0.4.exe</p>
+          <span className="text-[11px] text-accent font-mono">Versi Stabil 1.0.4</span>
+        </Card>
+      </div>
+
+      <Card className="p-0 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-surface-2 text-muted uppercase font-mono tracking-wider border-b border-line">
+              <tr>
+                <th className="px-5 py-3">Platform</th>
+                <th className="px-5 py-3">Arsitektur</th>
+                <th className="px-5 py-3">Versi</th>
+                <th className="px-5 py-3">File Installer</th>
+                <th className="px-5 py-3">Status</th>
+                <th className="px-5 py-3">Waktu Rilis</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {list.map((r: any) => (
+                <tr key={r.id} className="hover:bg-surface-2/40 transition">
+                  <td className="px-5 py-3.5 font-medium text-text">{r.platform}</td>
+                  <td className="px-5 py-3.5 font-mono text-muted">{r.arch}</td>
+                  <td className="px-5 py-3.5 font-mono font-bold text-accent">v{r.version}</td>
+                  <td className="px-5 py-3.5 font-mono text-muted">{r.filename}</td>
+                  <td className="px-5 py-3.5">
+                    <Pill ok={r.isActive}>{r.isActive ? 'AKTIF' : 'ARSIP'}</Pill>
+                  </td>
+                  <td className="px-5 py-3.5 font-mono text-muted">
+                    {new Date(r.publishedAt).toLocaleDateString('id-ID')}
+                  </td>
+                </tr>
+              ))}
+              {list.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-5 py-8 text-center text-muted">
+                    Installer lokal tersimpan di folder installers/ (v1.0.4 aktif).
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+export function AdminSupportView() {
+  const [filter, setFilter] = useState<'' | 'OPEN' | 'PENDING' | 'RESOLVED' | 'CLOSED'>('OPEN');
+
+  const tickets = useQuery({
+    queryKey: ['admin-tickets', filter],
+    queryFn: () => get<any[]>(`/admin/support/tickets${filter ? `?status=${filter}` : ''}`).catch(() => []),
+  });
+
+  const list = Array.isArray(tickets.data) ? tickets.data : [];
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-200">
+      <div className="border-b border-line pb-4">
+        <p className="text-xs uppercase tracking-widest text-accent font-mono font-bold">SUPERADMIN</p>
+        <h1 className="font-display text-2xl font-medium tracking-tight text-text mt-0.5">
+          Tiket Bantuan & Layanan Member
+        </h1>
+        <p className="mt-1 text-sm text-muted">
+          Pusat bantuan langsung pertanyaan teknis, kendala render, dan aktivasi lisensi.
+        </p>
+      </div>
+
+      <div className="inline-flex rounded-full border border-line bg-surface p-1 shadow-xs">
+        {[
+          { id: 'OPEN', label: 'Menunggu Tim' },
+          { id: 'PENDING', label: 'Menunggu Member' },
+          { id: 'RESOLVED', label: 'Selesai' },
+          { id: 'CLOSED', label: 'Ditutup' },
+          { id: '', label: 'Semua' },
+        ].map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setFilter(t.id as any)}
+            className={`rounded-full px-4 py-1.5 text-xs font-medium transition cursor-pointer ${
+              filter === t.id ? 'bg-accent text-accent-contrast shadow-xs font-semibold' : 'text-muted hover:text-text'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <Card className="p-0 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-surface-2 text-muted uppercase font-mono tracking-wider border-b border-line">
+              <tr>
+                <th className="px-5 py-3">Subjek Tiket</th>
+                <th className="px-5 py-3">Member</th>
+                <th className="px-5 py-3">Status</th>
+                <th className="px-5 py-3">Pembaruan Terakhir</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {list.map((r: any) => (
+                <tr key={r.id} className="hover:bg-surface-2/40 transition">
+                  <td className="px-5 py-3.5 font-medium text-text">{r.subject}</td>
+                  <td className="px-5 py-3.5">
+                    <span className="font-medium text-text">{r.owner?.displayName || 'Member'}</span>
+                    <span className="block font-mono text-[11px] text-muted">{r.owner?.email}</span>
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <Pill ok={r.status === 'RESOLVED' || r.status === 'OPEN'}>{r.status}</Pill>
+                  </td>
+                  <td className="px-5 py-3.5 font-mono text-muted">
+                    {new Date(r.updatedAt).toLocaleDateString('id-ID')}
+                  </td>
+                </tr>
+              ))}
+              {list.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-5 py-8 text-center text-muted">
+                    Tidak ada tiket pada kategori ini.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}

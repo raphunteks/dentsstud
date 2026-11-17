@@ -13,7 +13,17 @@ import { SuaraView } from './views/SuaraView';
 import { PengaturanView } from './views/PengaturanView';
 import { BantuanView } from './views/BantuanView';
 import { FolderImportView, LocalRenderView, OfflineProjectsView } from './views/DesktopEngineViews';
-import { AdminAIProvidersView, AdminLicensesView, AdminMembersView, AdminSystemView } from './views/SuperadminViews';
+import {
+  AdminAIProvidersView,
+  AdminLicensesView,
+  AdminMembersView,
+  AdminProductionView,
+  AdminQuotasView,
+  AdminReleasesView,
+  AdminSupportView,
+  AdminSystemView,
+  AdminWorkflowsView,
+} from './views/SuperadminViews';
 import type { Dash, Info, NavTab, OfflineStatus, SessionUser } from './types';
 
 export function App() {
@@ -102,10 +112,7 @@ function StudioShell({ user, info, offline }: { user: SessionUser; info?: Info; 
       <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
         {/* macOS Traffic Lights Drag Handle Header */}
         <header
-          className={clsx(
-            'flex h-11 items-center justify-between border-b border-line bg-surface/50 backdrop-blur-xs px-6 select-none shrink-0',
-            info?.platform === 'darwin' ? 'pl-20' : 'pl-6'
-          )}
+          className="flex h-11 items-center justify-between border-b border-line bg-surface/50 backdrop-blur-xs px-6 select-none shrink-0"
           style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
         >
           <div className="flex items-center gap-2">
@@ -165,6 +172,21 @@ function StudioShell({ user, info, offline }: { user: SessionUser; info?: Info; 
             )}
             {currentTab === 'admin-ai-providers' && (
               <AdminAIProvidersView />
+            )}
+            {currentTab === 'admin-workflows' && (
+              <AdminWorkflowsView />
+            )}
+            {currentTab === 'admin-production' && (
+              <AdminProductionView />
+            )}
+            {currentTab === 'admin-quotas' && (
+              <AdminQuotasView />
+            )}
+            {currentTab === 'admin-releases' && (
+              <AdminReleasesView />
+            )}
+            {currentTab === 'admin-support' && (
+              <AdminSupportView />
             )}
           </div>
         </main>

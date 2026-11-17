@@ -38,44 +38,8 @@ export function HasilView({ onNavigate }: HasilViewProps) {
     { id: 'TRASH', label: 'Sampah' },
   ];
 
-  // Dummy mock items if database has no rendered videos yet, so user can see the exact layout
-  const displayItems = results.data && results.data.length > 0
-    ? results.data
-    : [
-        {
-          kind: 'result' as const,
-          id: 'demo-1',
-          title: 'Magic Com Biasa Nggak Punya Timer: Cara Kerja Termostat Otomatis',
-          status: 'UPLOADED',
-          coverUrl: null,
-          captionPreview: 'Kenapa magic com bisa tahu nasi udah matang padahal nggak ada timernya? Yuk bongkar rahasia magnet termostatnya! #edukasi #teknologi #magiccom',
-          createdAt: new Date().toISOString(),
-          revision: 1,
-          deletedAt: null,
-        },
-        {
-          kind: 'result' as const,
-          id: 'demo-2',
-          title: 'Drift Itu Bukan Kehabisan Jatah: Fisika Gesekan Roda Belakang',
-          status: 'UPLOADED',
-          coverUrl: null,
-          captionPreview: 'Gimana mobil bisa meluncur miring tanpa terbalik? Simak rahasia transfer bobot dan sudut belokan! #otomotif #drifting #fisika',
-          createdAt: new Date().toISOString(),
-          revision: 1,
-          deletedAt: null,
-        },
-        {
-          kind: 'result' as const,
-          id: 'demo-3',
-          title: 'Freon AC Nggak Pernah Habis Tapi Bocor: Jangan Tertipu Teknisi!',
-          status: 'READY',
-          coverUrl: null,
-          captionPreview: 'Sistem AC itu tertutup rapat. Kalau freon habis, berarti pipa tembaganya bocor! #tipsrumah #serviceac #fakta',
-          createdAt: new Date().toISOString(),
-          revision: 1,
-          deletedAt: null,
-        },
-      ];
+  // Real items fetched from backend API (PostgreSQL/Upstash)
+  const displayItems = results.data ?? [];
 
   const filteredItems = displayItems.filter((it) => {
     if (activeSubTab === 'ALL') return true;
@@ -123,8 +87,41 @@ export function HasilView({ onNavigate }: HasilViewProps) {
         </Button>
       </div>
 
+      {results.isLoading && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="aspect-[9/16] rounded-xl bg-surface-2 animate-pulse border border-line" />
+          ))}
+        </div>
+      )}
+
+      {!results.isLoading && filteredItems.length === 0 && (
+        <Card className="p-12 text-center space-y-3">
+          <p className="font-display text-base font-medium text-text">
+            {activeSubTab === 'TRASH'
+              ? 'Sampah kosong'
+              : activeSubTab === 'FAILED'
+              ? 'Tidak ada produksi gagal'
+              : 'Belum ada video di sini'}
+          </p>
+          <p className="text-xs text-muted max-w-sm mx-auto">
+            {activeSubTab === 'READY'
+              ? 'Video yang lolos QC muncul di sini lengkap dengan caption, hashtag, dan cover.'
+              : 'Video berpindah tab sesuai statusnya.'}
+          </p>
+          {activeSubTab === 'READY' && (
+            <div className="pt-2">
+              <Button size="sm" onClick={() => onNavigate('buat-konten')}>
+                ＋ Buat Konten Sekarang
+              </Button>
+            </div>
+          )}
+        </Card>
+      )}
+
       {/* 9:16 Video Card Grid Matching Motion Lab Screenshot */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+      {!results.isLoading && filteredItems.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         {filteredItems.map((item) => (
           <Card
             key={item.id}
@@ -213,7 +210,8 @@ export function HasilView({ onNavigate }: HasilViewProps) {
             </div>
           </Card>
         ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

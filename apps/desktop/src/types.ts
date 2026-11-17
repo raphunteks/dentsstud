@@ -112,4 +112,9 @@ export type NavTab =
   | 'admin-members'
   | 'admin-licenses'
   | 'admin-ai-providers'
-  | 'admin-system';
+  | 'admin-workflows'
+  | 'admin-production'
+  | 'admin-quotas'
+  | 'admin-system'
+  | 'admin-releases'
+  | 'admin-support';

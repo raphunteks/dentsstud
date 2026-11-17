@@ -60,6 +60,8 @@
 }
 
 @theme inline {
+  --color-primary: var(--accent);
+  --color-primary-contrast: var(--accent-contrast);
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
