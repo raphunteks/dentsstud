@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Post, Query, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { AiConnectionStartInput, AiTestInput, type SessionUser } from '@dentweb/shared-types';
@@ -57,6 +57,16 @@ export class AiConnectionsController {
   @ApiZodBody(AiTestInput)
   test(@CurrentUser() user: SessionUser, @Param('id', ParseUUIDPipe) id: string, @ZBody(AiTestInput) body: { prompt: string }) {
     return this.svc.test(user.id, id, body.prompt);
+  }
+
+  @HttpCode(200)
+  @Post('connections/:id/model')
+  setModel(
+    @CurrentUser() user: SessionUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: { model: string },
+  ) {
+    return this.svc.setDefaultModel(user.id, id, body.model);
   }
 
   @Delete('connections/:id')

@@ -18,6 +18,12 @@ export function PengaturanView({ user, dash, offline }: PengaturanViewProps) {
   const [manualCode, setManualCode] = useState('');
   const [manualError, setManualError] = useState<string | null>(null);
 
+  const aiConns = useQuery({
+    queryKey: ['ai-conns'],
+    queryFn: () => get<{ id: string; provider: string; method: string; status: string; capabilities: { defaultModel?: string; models?: string[] } }[]>('/ai/connections').catch(() => []),
+  });
+  const activeConn = Array.isArray(aiConns.data) ? aiConns.data.find((c) => c.status === 'CONNECTED') : null;
+
   const exchangeManual = useMutation({
     mutationFn: async () => {
       const input = manualCode.trim();
@@ -229,6 +235,39 @@ export function PengaturanView({ user, dash, offline }: PengaturanViewProps) {
                 <span className="text-muted">Koneksi Server AI</span>
                 <Pill ok={dash?.ai.status === 'CONNECTED'}>{dash?.ai.status ?? 'CONNECTED'}</Pill>
               </div>
+
+              {activeConn && (
+                <div className="pt-2 border-t border-line/50">
+                  <label className="block text-[11px] font-semibold text-text mb-1">
+                    Model AI Aktif (Claude Pro / Max / Team):
+                  </label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <select
+                      value={activeConn.capabilities?.defaultModel ?? 'claude-3-7-sonnet-20250219'}
+                      onChange={async (e) => {
+                        const newModel = e.target.value;
+                        try {
+                          await mutate('POST', `/ai/connections/${activeConn.id}/model`, { model: newModel });
+                          qc.invalidateQueries({ queryKey: ['ai-conns'] });
+                          qc.invalidateQueries({ queryKey: ['dash'] });
+                        } catch (err: any) {
+                          alert('Gagal mengubah model: ' + (err?.message || 'Error'));
+                        }
+                      }}
+                      className="rounded-xl border border-line bg-surface-2 px-3 py-1.5 text-xs text-text font-medium focus:border-accent focus:outline-hidden"
+                    >
+                      <option value="claude-3-7-sonnet-20250219">Claude 3.7 Sonnet (Flagship 2025 · Hybrid Extended Thinking)</option>
+                      <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet v2 (Serbaguna · Sangat Pintar)</option>
+                      <option value="claude-3-opus-20240229">Claude 3 Opus (Analisis & Penulisan Kompleks)</option>
+                      <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (Ringan · Cepat Sekali)</option>
+                    </select>
+                    <span className="text-[10px] text-ok font-semibold px-2 py-0.5 rounded-full bg-ok/10">Aktif</span>
+                  </div>
+                  <p className="text-[10px] text-muted mt-1 leading-relaxed">
+                    *<strong>Claude 3.7 Sonnet</strong> adalah model flagship tertinggi & tercanggih dari Anthropic (Februari 2025) dengan penalaran mendalam.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="pt-2 flex flex-wrap gap-2">

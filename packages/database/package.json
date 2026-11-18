@@ -11,6 +11,7 @@
     "migrate:generate": "drizzle-kit generate",
     "migrate:deploy": "tsx scripts/migrate.ts",
     "seed": "tsx seeds/seed.ts",
+    "seed:presets": "tsx seeds/seed-presets.ts",
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {

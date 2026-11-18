@@ -162,7 +162,7 @@ export class AiConnectionsService {
       // fallback
     }
     if (!models.length) {
-      models = ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022'];
+      models = ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-opus-20240229', 'claude-3-5-haiku-20241022'];
     }
 
     const c = await this.upsert(userId, provider, 'OAUTH_PKCE', {
@@ -201,11 +201,12 @@ export class AiConnectionsService {
     if (c.method === 'API_KEY' && c.credentialRef) {
       const key = await this.readSecret(userId, c.credentialRef, 'ai:anthropic:api_key');
       const probe = await this.anthropic.probe(key);
+      const curCaps = (c.capabilities ?? {}) as { defaultModel?: string };
       const [u] = await this.db
         .update(aiConnections)
         .set({
           status: probe.status,
-          capabilities: probe.status === 'CONNECTED' ? { models: probe.models, defaultModel: this.anthropic.pickModel(probe.models) } : c.capabilities,
+          capabilities: probe.status === 'CONNECTED' ? { models: probe.models, defaultModel: curCaps.defaultModel ?? this.anthropic.pickModel(probe.models) } : c.capabilities,
           lastError: probe.status === 'CONNECTED' ? null : probe.error,
           lastCheckedAt: new Date(),
         })
@@ -217,11 +218,12 @@ export class AiConnectionsService {
     if (c.method === 'OAUTH_PKCE' && c.credentialRef) {
       const token = await this.getValidOAuthToken(userId, c);
       const probe = await this.anthropic.probe(token);
+      const curCaps = (c.capabilities ?? {}) as { defaultModel?: string };
       const [u] = await this.db
         .update(aiConnections)
         .set({
           status: probe.status,
-          capabilities: probe.status === 'CONNECTED' ? { models: probe.models, defaultModel: this.anthropic.pickModel(probe.models) } : c.capabilities,
+          capabilities: probe.status === 'CONNECTED' ? { models: probe.models, defaultModel: curCaps.defaultModel ?? this.anthropic.pickModel(probe.models) } : c.capabilities,
           lastError: probe.status === 'CONNECTED' ? null : probe.error,
           lastCheckedAt: new Date(),
         })
@@ -235,6 +237,34 @@ export class AiConnectionsService {
       return view(c);
     }
     return view(c);
+  }
+
+  async setDefaultModel(userId: string, id: string, model: string) {
+    const c = await this.own(userId, id);
+    const validModels = [
+      'claude-3-7-sonnet-20250219',
+      'claude-3-5-sonnet-20241022',
+      'claude-3-opus-20240229',
+      'claude-3-5-haiku-20241022',
+    ];
+    if (!validModels.includes(model)) {
+      throw Errors.invalid('INVALID_MODEL', `Model ${model} tidak didukung.`);
+    }
+    const currentCaps = (c.capabilities ?? {}) as { models?: string[]; defaultModel?: string };
+    const updatedCaps = {
+      ...currentCaps,
+      models: currentCaps.models?.length ? Array.from(new Set([...currentCaps.models, model])) : validModels,
+      defaultModel: model,
+    };
+    const [u] = await this.db
+      .update(aiConnections)
+      .set({
+        capabilities: updatedCaps,
+      })
+      .where(eq(aiConnections.id, c.id))
+      .returning();
+    await this.event(c.id, 'connection.model.updated', { model });
+    return view(u!);
   }
 
   /** "Tes Jawab": a real inference call. Never fabricates an answer. */

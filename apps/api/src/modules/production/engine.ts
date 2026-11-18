@@ -136,8 +136,9 @@ export class ProductionEngine {
     await this.event(runId, 'run.started', run.startedAt ? 'Produksi dilanjutkan dari checkpoint terakhir.' : 'Produksi dimulai.');
     try {
       if (!apiKey) throw new Fatal('Claude belum terhubung lewat API key. Produksi otomatis berjalan di server dan membutuhkan API key Anthropic milik Anda.');
-      const caps = (await this.ai.list(run.userId)).find((c) => c.method === 'API_KEY')?.capabilities as { defaultModel?: string } | undefined;
-      ctx.model = caps?.defaultModel ?? 'claude-sonnet-4-5';
+      const activeConn = (await this.ai.list(run.userId)).find((c) => c.status === 'CONNECTED' && (c.method === 'API_KEY' || c.method === 'OAUTH_PKCE'));
+      const caps = activeConn?.capabilities as { defaultModel?: string } | undefined;
+      ctx.model = caps?.defaultModel ?? 'claude-3-7-sonnet-20250219';
       const [wv] = await this.db.select().from(workflowVersions).where(eq(workflowVersions.id, run.workflowVersionId));
       const stages = ((wv!.definition as { stages: { code: string; agent: string; maxAttempts: number }[] }).stages);
 

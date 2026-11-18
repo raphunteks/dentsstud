@@ -47,7 +47,7 @@ export class AnthropicAdapter {
           return { status: 'INVALID', error: errBody.error?.message ?? 'Kredensial OAuth ditolak oleh Anthropic', httpStatus: testRes.status };
         }
         if (testRes.ok || testRes.status === 400 || testRes.status === 429) {
-          return { status: 'CONNECTED', models: ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022'] };
+          return { status: 'CONNECTED', models: ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-opus-20240229', 'claude-3-5-haiku-20241022'] };
         }
         return { status: 'UNAVAILABLE', error: `Anthropic API merespons ${testRes.status}`, httpStatus: testRes.status };
       }
@@ -63,13 +63,13 @@ export class AnthropicAdapter {
           signal,
         }).catch(() => null);
         if (fallbackRes && (fallbackRes.ok || fallbackRes.status === 400)) {
-          return { status: 'CONNECTED', models: ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022'] };
+          return { status: 'CONNECTED', models: ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-opus-20240229', 'claude-3-5-haiku-20241022'] };
         }
         return { status: 'UNAVAILABLE', error: `Anthropic API merespons ${res.status}`, httpStatus: res.status };
       }
       const body = (await res.json()) as { data?: { id: string }[] };
       const models = (body.data ?? []).map((m) => m.id);
-      return { status: 'CONNECTED', models: models.length ? models : ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022'] };
+      return { status: 'CONNECTED', models: models.length ? models : ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-opus-20240229', 'claude-3-5-haiku-20241022'] };
     } catch (e) {
       return { status: 'UNAVAILABLE', error: redact(`Tidak dapat menghubungi Anthropic: ${(e as Error).message}`) };
     }

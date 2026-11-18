@@ -205,14 +205,42 @@ export default function AiProvidersPage() {
         </div>
 
         {claudeConn && (
-          <div className="mt-4 rounded-lg bg-surface p-3 text-xs">
+          <div className="mt-4 rounded-lg bg-surface p-3 text-xs space-y-2.5">
             <div className="flex flex-wrap gap-4 text-muted">
               <span>Metode: <strong className="text-text">{claudeConn.method}</strong></span>
               <span>Hint: <strong className="text-text">{claudeConn.credentialHint ?? 'oauth-9router'}</strong></span>
-              {claudeConn.capabilities.defaultModel && (
-                <span>Model Default: <strong className="text-text">{claudeConn.capabilities.defaultModel}</strong></span>
-              )}
             </div>
+
+            <div className="pt-2 border-t border-line/50">
+              <label className="block text-[11px] font-semibold text-text mb-1.5">
+                Model AI Aktif (Claude Pro / Max / Team):
+              </label>
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  value={claudeConn.capabilities?.defaultModel ?? 'claude-3-7-sonnet-20250219'}
+                  onChange={async (e) => {
+                    const newModel = e.target.value;
+                    try {
+                      await api(`/ai/connections/${claudeConn.id}/model`, { method: 'POST', json: { model: newModel } });
+                      qc.invalidateQueries({ queryKey: ['admin-ai-connections'] });
+                    } catch (err: any) {
+                      alert('Gagal mengubah model: ' + (err?.message || 'Error'));
+                    }
+                  }}
+                  className="rounded-xl border border-line bg-surface-2 px-3 py-1.5 text-xs text-text font-medium focus:border-accent focus:outline-hidden"
+                >
+                  <option value="claude-3-7-sonnet-20250219">Claude 3.7 Sonnet (Flagship 2025 · Hybrid Extended Thinking)</option>
+                  <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet v2 (Serbaguna · Sangat Pintar)</option>
+                  <option value="claude-3-opus-20240229">Claude 3 Opus (Analisis & Penulisan Kompleks)</option>
+                  <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (Ringan · Cepat Sekali)</option>
+                </select>
+                <span className="text-[10px] text-ok font-semibold px-2 py-0.5 rounded-full bg-ok/10">Aktif</span>
+              </div>
+              <p className="text-[10px] text-muted mt-1.5 leading-relaxed">
+                *<strong>Claude 3.7 Sonnet</strong> adalah model flagship tertinggi & tercanggih dari Anthropic (Februari 2025) dengan penalaran mendalam.
+              </p>
+            </div>
+
             {testResult && (
               <div className="mt-2 rounded bg-surface-2 p-2 font-mono text-[11px] text-emerald-600">
                 {testResult}

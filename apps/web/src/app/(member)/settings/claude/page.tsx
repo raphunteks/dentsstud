@@ -180,11 +180,35 @@ export default function ClaudeSettingsPage() {
                 <Status value={c.status} />
               </div>
               {c.lastError && <p className="mt-3 text-sm text-bad">{c.lastError}</p>}
-              {c.capabilities.defaultModel && (
-                <p className="mt-3 text-sm text-muted">
-                  Model default: <span className="num text-text">{c.capabilities.defaultModel}</span> · {c.capabilities.models?.length ?? 0} model tersedia
+              <div className="mt-3 pt-3 border-t border-line/50">
+                <label className="block text-xs font-semibold text-text mb-1.5">
+                  Pilihan Model AI Aktif:
+                </label>
+                <div className="flex flex-wrap items-center gap-2">
+                  <select
+                    value={c.capabilities?.defaultModel ?? 'claude-3-7-sonnet-20250219'}
+                    onChange={async (e) => {
+                      const newModel = e.target.value;
+                      try {
+                        await api(`/ai/connections/${c.id}/model`, { method: 'POST', json: { model: newModel } });
+                        qc.invalidateQueries({ queryKey: ['ai-conns'] });
+                      } catch (err: any) {
+                        alert('Gagal mengubah model: ' + (err?.message || 'Error'));
+                      }
+                    }}
+                    className="rounded-xl border border-line bg-surface-2 px-3 py-1.5 text-xs text-text font-medium focus:border-accent focus:outline-hidden"
+                  >
+                    <option value="claude-3-7-sonnet-20250219">Claude 3.7 Sonnet (Flagship 2025 · Hybrid Extended Thinking)</option>
+                    <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet v2 (Serbaguna · Sangat Pintar)</option>
+                    <option value="claude-3-opus-20240229">Claude 3 Opus (Analisis & Penulisan Kompleks)</option>
+                    <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (Ringan · Cepat Sekali)</option>
+                  </select>
+                  <span className="text-[10px] text-ok font-semibold px-2 py-0.5 rounded-full bg-ok/10">Aktif</span>
+                </div>
+                <p className="text-[10px] text-muted mt-1 leading-relaxed">
+                  *<strong>Claude 3.7 Sonnet</strong> adalah model flagship tertinggi & tercanggih dari Anthropic (Februari 2025) dengan penalaran mendalam.
                 </p>
-              )}
+              </div>
               {answers[c.id] && (
                 <div className="mt-4 rounded-lg bg-surface-2 p-3 text-sm">
                   <p className="whitespace-pre-wrap">{answers[c.id]!.answer}</p>

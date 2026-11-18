@@ -69,6 +69,22 @@ export function AppShell({
 
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  useEffect(() => {
+    const saved = (typeof window !== 'undefined' && (localStorage.getItem('dentsweb-theme') as 'light' | 'dark')) || 'light';
+    setTheme(saved);
+    document.documentElement.setAttribute('data-theme', saved);
+  }, []);
+
+  const toggleTheme = () => {
+    setTheme((curr) => {
+      const next = curr === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('dentsweb-theme', next);
+      return next;
+    });
+  };
 
   // Accordion open/close state
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
@@ -332,7 +348,7 @@ export function AppShell({
         ) : null}
 
         {/* User Card */}
-        <div className={clsx('flex items-center gap-2', collapsed ? 'justify-center' : 'justify-between')}>
+        <div className={clsx('flex items-center gap-2', collapsed ? 'justify-center flex-col' : 'justify-between')}>
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-2 border border-line font-bold text-xs uppercase text-primary">
               {user.displayName?.substring(0, 2) || 'DW'}
@@ -347,16 +363,33 @@ export function AppShell({
             )}
           </div>
 
-          {!collapsed && (
+          {collapsed ? (
             <button
-              onClick={logout}
-              title="Keluar"
-              className="rounded-lg p-1.5 text-muted hover:bg-bad/10 hover:text-bad transition-colors"
+              onClick={toggleTheme}
+              title={theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
+              className="rounded-lg p-1.5 text-muted hover:bg-surface-2 hover:text-text transition-colors cursor-pointer text-xs mt-1"
             >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
+              {theme === 'dark' ? '☀️' : '🌙'}
             </button>
+          ) : (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={toggleTheme}
+                title={theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
+                className="rounded-lg p-1.5 text-muted hover:bg-surface-2 hover:text-text transition-colors cursor-pointer text-sm"
+              >
+                {theme === 'dark' ? '☀️' : '🌙'}
+              </button>
+              <button
+                onClick={logout}
+                title="Keluar"
+                className="rounded-lg p-1.5 text-muted hover:bg-bad/10 hover:text-bad transition-colors cursor-pointer"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </button>
+            </div>
           )}
         </div>
 
@@ -393,13 +426,22 @@ export function AppShell({
           </div>
           <span className="font-semibold text-sm">DENTSWEB STUDIO</span>
         </div>
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-expanded={mobileOpen}
-          className="rounded-lg border border-line px-3 py-1.5 text-xs font-medium"
-        >
-          {mobileOpen ? 'Tutup' : 'Menu'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            title={theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
+            className="rounded-lg border border-line p-1.5 text-muted hover:bg-surface-2 hover:text-text transition-colors cursor-pointer text-xs"
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-expanded={mobileOpen}
+            className="rounded-lg border border-line px-3 py-1.5 text-xs font-medium cursor-pointer"
+          >
+            {mobileOpen ? 'Tutup' : 'Menu'}
+          </button>
+        </div>
       </div>
 
       {/* MOBILE DRAWER */}

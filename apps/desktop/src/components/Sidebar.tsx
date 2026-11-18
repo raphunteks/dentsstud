@@ -58,6 +58,18 @@ export function Sidebar({
         : 'text-muted hover:bg-surface-2 hover:text-text'
     );
 
+  const adminIconClass = (tab: NavTab) =>
+    clsx(
+      'h-4 w-4 shrink-0 transition-colors',
+      currentTab === tab ? 'text-accent-contrast' : 'text-accent group-hover:text-text'
+    );
+
+  const miniAdminIconClass = (tab: NavTab) =>
+    clsx(
+      'h-5 w-5 transition-colors',
+      currentTab === tab ? 'text-accent-contrast' : 'text-accent group-hover:text-text'
+    );
+
   return (
     <aside
       className={clsx(
@@ -376,47 +388,47 @@ export function Sidebar({
                 {collapsed ? (
                   <>
                     <button onClick={() => onSelectTab('admin-members')} title="Member & Akses" className={miniItemClass('admin-members')}>
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <svg className={miniAdminIconClass('admin-members')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                       </svg>
                     </button>
                     <button onClick={() => onSelectTab('admin-licenses')} title="Lisensi & Device" className={miniItemClass('admin-licenses')}>
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <svg className={miniAdminIconClass('admin-licenses')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                       </svg>
                     </button>
                     <button onClick={() => onSelectTab('admin-ai-providers')} title="AI Provider & OAuth" className={miniItemClass('admin-ai-providers')}>
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <svg className={miniAdminIconClass('admin-ai-providers')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                     </button>
                     <button onClick={() => onSelectTab('admin-workflows')} title="Workflow Engine" className={miniItemClass('admin-workflows')}>
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <svg className={miniAdminIconClass('admin-workflows')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
                       </svg>
                     </button>
                     <button onClick={() => onSelectTab('admin-production')} title="Antrean Produksi" className={miniItemClass('admin-production')}>
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <svg className={miniAdminIconClass('admin-production')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                     </button>
                     <button onClick={() => onSelectTab('admin-quotas')} title="Kuota & Limit" className={miniItemClass('admin-quotas')}>
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <svg className={miniAdminIconClass('admin-quotas')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                       </svg>
                     </button>
                     <button onClick={() => onSelectTab('admin-system')} title="Sistem & VPS" className={miniItemClass('admin-system')}>
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <svg className={miniAdminIconClass('admin-system')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
                       </svg>
                     </button>
                     <button onClick={() => onSelectTab('admin-releases')} title="Rilis Desktop" className={miniItemClass('admin-releases')}>
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <svg className={miniAdminIconClass('admin-releases')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                       </svg>
                     </button>
                     <button onClick={() => onSelectTab('admin-support')} title="Tiket Support" className={miniItemClass('admin-support')}>
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <svg className={miniAdminIconClass('admin-support')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
                       </svg>
                     </button>
@@ -425,7 +437,7 @@ export function Sidebar({
                   <>
                     <button onClick={() => onSelectTab('admin-members')} className={navItemClass('admin-members')}>
                       <div className="flex items-center gap-3">
-                        <svg className="h-4 w-4 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <svg className={adminIconClass('admin-members')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
                         <span>Member & Akses</span>
@@ -433,7 +445,7 @@ export function Sidebar({
                     </button>
                     <button onClick={() => onSelectTab('admin-licenses')} className={navItemClass('admin-licenses')}>
                       <div className="flex items-center gap-3">
-                        <svg className="h-4 w-4 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <svg className={adminIconClass('admin-licenses')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                         </svg>
                         <span>Lisensi & Device</span>
@@ -441,7 +453,7 @@ export function Sidebar({
                     </button>
                     <button onClick={() => onSelectTab('admin-ai-providers')} className={navItemClass('admin-ai-providers')}>
                       <div className="flex items-center gap-3">
-                        <svg className="h-4 w-4 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <svg className={adminIconClass('admin-ai-providers')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                         <span>AI Provider & OAuth</span>
@@ -449,7 +461,7 @@ export function Sidebar({
                     </button>
                     <button onClick={() => onSelectTab('admin-workflows')} className={navItemClass('admin-workflows')}>
                       <div className="flex items-center gap-3">
-                        <svg className="h-4 w-4 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <svg className={adminIconClass('admin-workflows')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
                         </svg>
                         <span>Workflow Engine</span>
@@ -457,7 +469,7 @@ export function Sidebar({
                     </button>
                     <button onClick={() => onSelectTab('admin-production')} className={navItemClass('admin-production')}>
                       <div className="flex items-center gap-3">
-                        <svg className="h-4 w-4 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <svg className={adminIconClass('admin-production')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                         <span>Antrean Produksi</span>
@@ -465,7 +477,7 @@ export function Sidebar({
                     </button>
                     <button onClick={() => onSelectTab('admin-quotas')} className={navItemClass('admin-quotas')}>
                       <div className="flex items-center gap-3">
-                        <svg className="h-4 w-4 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <svg className={adminIconClass('admin-quotas')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
                         <span>Kuota & Limit</span>
@@ -473,7 +485,7 @@ export function Sidebar({
                     </button>
                     <button onClick={() => onSelectTab('admin-system')} className={navItemClass('admin-system')}>
                       <div className="flex items-center gap-3">
-                        <svg className="h-4 w-4 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <svg className={adminIconClass('admin-system')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
                         </svg>
                         <span>Sistem & VPS</span>
@@ -481,7 +493,7 @@ export function Sidebar({
                     </button>
                     <button onClick={() => onSelectTab('admin-releases')} className={navItemClass('admin-releases')}>
                       <div className="flex items-center gap-3">
-                        <svg className="h-4 w-4 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <svg className={adminIconClass('admin-releases')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                         <span>Rilis Desktop</span>
@@ -489,7 +501,7 @@ export function Sidebar({
                     </button>
                     <button onClick={() => onSelectTab('admin-support')} className={navItemClass('admin-support')}>
                       <div className="flex items-center gap-3">
-                        <svg className="h-4 w-4 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <svg className={adminIconClass('admin-support')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
                         <span>Tiket Support</span>
