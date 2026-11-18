@@ -97,6 +97,15 @@ export interface RunItem {
   error: { message?: string; stage?: string } | null;
 }
 
+export interface EventItem {
+  id: string;
+  eventType: string;
+  agentCode: string | null;
+  message: string;
+  createdAt: string;
+  metadata?: Record<string, unknown>;
+}
+
 export type NavTab =
   | 'beranda'
   | 'buat-konten'
