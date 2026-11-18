@@ -79,18 +79,17 @@ export class OAuthPkceService {
     const isClaude = provider === 'anthropic' || provider === 'claude';
     let redirectUri: string;
     if (isClaude) {
-      if (customRedirectUri && (customRedirectUri.includes('platform.claude.com') || customRedirectUri.includes('console.anthropic.com'))) {
-        redirectUri = customRedirectUri;
-      } else if (customRedirectUri && (customRedirectUri.includes('localhost') || customRedirectUri.startsWith('http://127.0.0.1'))) {
-        redirectUri = customRedirectUri;
-      } else {
-        // Default Anthropic supported redirect URI:
-        // Remote web requests use official platform callback (which displays copyable code on screen)
-        // Local requests use loopback
-        redirectUri = customRedirectUri?.includes('localhost')
-          ? 'http://localhost:3000/callback'
-          : 'https://platform.claude.com/oauth/code/callback';
-      }
+      // Anthropic's OAuth client ID (9d1c250a-e61b-44d9-88ed-5944d1962f5e) strictly accepts only:
+      // - http://localhost:3000/callback (for local development)
+      // - https://platform.claude.com/oauth/code/callback (for remote/production web where user copies code)
+      // Any custom domain like https://motion.dentsweb.my.id/callback is rejected with
+      // "Redirect URI ... is not supported by client".
+      const isLocal = customRedirectUri
+        ? customRedirectUri.includes('localhost') || customRedirectUri.includes('127.0.0.1')
+        : (this.env.WEB_ORIGIN?.includes('localhost') || this.env.WEB_ORIGIN?.includes('127.0.0.1'));
+      redirectUri = isLocal
+        ? 'http://localhost:3000/callback'
+        : 'https://platform.claude.com/oauth/code/callback';
     } else {
       redirectUri = customRedirectUri ?? cfg.redirectUri;
     }
@@ -170,24 +169,40 @@ export class OAuthPkceService {
     let authCode = raw;
     let codeState = params.state?.trim() || '';
 
-    // Jika yang ditempel adalah full URL callback
-    if (raw.includes('://') || raw.includes('callback?') || raw.includes('code=')) {
+    // Parse full URL callback, query string, URL fragment, or code#state format
+    if (raw.includes('://') || raw.includes('callback?') || raw.includes('code=') || raw.includes('#')) {
       try {
-        const u = new URL(raw.startsWith('http') ? raw : `http://localhost/${raw}`);
-        authCode = u.searchParams.get('code') || authCode;
-        if (!codeState) codeState = u.searchParams.get('state') || '';
+        const urlStr = raw.startsWith('http')
+          ? raw
+          : raw.includes('?') || raw.includes('#')
+            ? `http://localhost/${raw.replace(/^\/+/, '')}`
+            : `http://localhost/?${raw}`;
+        const u = new URL(urlStr);
+        if (u.searchParams.get('code')) {
+          authCode = u.searchParams.get('code')!;
+        }
+        if (!codeState && u.searchParams.get('state')) {
+          codeState = u.searchParams.get('state')!;
+        }
         if (u.hash) {
           const h = u.hash.replace(/^#\/?/, '');
           const hp = new URLSearchParams(h);
-          codeState = codeState || hp.get('state') || (!h.includes('=') ? h : '');
+          if (hp.get('code')) {
+            authCode = hp.get('code')!;
+          }
+          if (!codeState && hp.get('state')) {
+            codeState = hp.get('state')!;
+          } else if (!codeState && !h.includes('=')) {
+            codeState = h;
+          }
         }
       } catch {}
     }
 
     if (authCode.includes('#')) {
       const parts = authCode.split('#');
-      authCode = parts[0]!;
-      if (!codeState && parts[1]) codeState = parts[1];
+      authCode = parts[0]!.trim();
+      if (!codeState && parts[1]) codeState = parts[1].trim();
     }
 
     const stateToLookup = codeState || params.state;
@@ -240,16 +255,34 @@ export class OAuthPkceService {
     let body: string | URLSearchParams;
 
     if (isAnthropic) {
+      // Ensure redirect_uri strictly matches Anthropic accepted URIs and what was authorized:
+      let redirectUriToSend = tx.redirectUri;
+      if (raw.includes('platform.claude.com')) {
+        redirectUriToSend = 'https://platform.claude.com/oauth/code/callback';
+      } else if (raw.includes('localhost') || raw.includes('127.0.0.1')) {
+        redirectUriToSend = 'http://localhost:3000/callback';
+      } else if (redirectUriToSend.includes('localhost') || redirectUriToSend.includes('127.0.0.1')) {
+        redirectUriToSend = 'http://localhost:3000/callback';
+      } else {
+        redirectUriToSend = 'https://platform.claude.com/oauth/code/callback';
+      }
+
       headers = { 'content-type': 'application/json', accept: 'application/json' };
-      body = JSON.stringify({
+      const tokenPayload: Record<string, string> = {
         code: authCode,
-        state: codeState || params.state || 'auth_state',
         grant_type: 'authorization_code',
         client_id: cfg.clientId,
-        redirect_uri: tx.redirectUri,
+        redirect_uri: redirectUriToSend,
         code_verifier: verifier,
-        ...(cfg.clientSecret ? { client_secret: cfg.clientSecret } : {}),
-      });
+      };
+      const effectiveState = codeState || params.state;
+      if (effectiveState) {
+        tokenPayload.state = effectiveState;
+      }
+      if (cfg.clientSecret) {
+        tokenPayload.client_secret = cfg.clientSecret;
+      }
+      body = JSON.stringify(tokenPayload);
     } else {
       headers = { 'content-type': 'application/x-www-form-urlencoded', accept: 'application/json' };
       const form = new URLSearchParams({

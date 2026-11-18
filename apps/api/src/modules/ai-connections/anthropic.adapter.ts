@@ -15,9 +15,10 @@ export class AnthropicAdapter {
   constructor(@Inject(ENV) private readonly env: Env) {}
 
   private headers(credential: string): Record<string, string> {
-    if (credential.startsWith('sk-ant-oat') || (credential.length > 80 && !credential.startsWith('sk-ant-api'))) {
+    const token = credential.trim().replace(/^Bearer\s+/i, '');
+    if (token.startsWith('sk-ant-oat') || (token.length > 80 && !token.startsWith('sk-ant-api'))) {
       return {
-        'Authorization': `Bearer ${credential}`,
+        'Authorization': `Bearer ${token}`,
         'anthropic-version': VERSION,
         'anthropic-beta': 'oauth-2025-04-20,claude-code-20250219',
         'anthropic-dangerous-direct-browser-access': 'true',
@@ -26,17 +27,18 @@ export class AnthropicAdapter {
         'content-type': 'application/json',
       };
     }
-    return { 'x-api-key': credential, 'anthropic-version': VERSION, 'content-type': 'application/json' };
+    return { 'x-api-key': token, 'anthropic-version': VERSION, 'content-type': 'application/json' };
   }
 
   async probe(credential: string, signal = AbortSignal.timeout(15_000)): Promise<ProbeResult> {
-    const isOAuth = credential.startsWith('sk-ant-oat') || (credential.length > 80 && !credential.startsWith('sk-ant-api'));
+    const token = credential.trim().replace(/^Bearer\s+/i, '');
+    const isOAuth = token.startsWith('sk-ant-oat') || (token.length > 80 && !token.startsWith('sk-ant-api'));
     try {
       if (isOAuth) {
         // OAuth tokens for Claude Code (9Router style) are scoped for messages, not /v1/models
         const testRes = await fetch(`${this.env.ANTHROPIC_API_BASE}/v1/messages`, {
           method: 'POST',
-          headers: this.headers(credential),
+          headers: this.headers(token),
           body: JSON.stringify({ model: 'claude-3-5-haiku-20241022', max_tokens: 1, messages: [{ role: 'user', content: 'ping' }] }),
           signal,
         });
@@ -44,13 +46,13 @@ export class AnthropicAdapter {
           const errBody = (await testRes.json().catch(() => ({}))) as { error?: { message?: string } };
           return { status: 'INVALID', error: errBody.error?.message ?? 'Kredensial OAuth ditolak oleh Anthropic', httpStatus: testRes.status };
         }
-        if (testRes.ok || testRes.status === 400) {
+        if (testRes.ok || testRes.status === 400 || testRes.status === 429) {
           return { status: 'CONNECTED', models: ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022'] };
         }
         return { status: 'UNAVAILABLE', error: `Anthropic API merespons ${testRes.status}`, httpStatus: testRes.status };
       }
 
-      const res = await fetch(`${this.env.ANTHROPIC_API_BASE}/v1/models?limit=100`, { headers: this.headers(credential), signal });
+      const res = await fetch(`${this.env.ANTHROPIC_API_BASE}/v1/models?limit=100`, { headers: this.headers(token), signal });
       if (res.status === 401 || res.status === 403) return { status: 'INVALID', error: 'Kredensial ditolak oleh Anthropic', httpStatus: res.status };
       if (!res.ok) {
         // Fallback probe via lightweight messages

@@ -19,6 +19,7 @@
     "db:migrate:dev": "pnpm --filter @dentweb/database migrate:dev",
     "db:seed": "pnpm --filter @dentweb/database seed",
     "bootstrap:superadmin": "pnpm --filter @dentweb/api bootstrap:superadmin",
+    "cleanup:scheduler": "pnpm --filter @dentweb/api cleanup:scheduler",
     "dist:mac": "pnpm --filter @dentweb/desktop dist:mac",
     "dist:win": "pnpm --filter @dentweb/desktop dist:win"
   },

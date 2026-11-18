@@ -28,7 +28,7 @@ export class QueueService implements OnModuleDestroy {
   constructor(@Inject(ENV) env: Env) {
     const connection = redisConnection(env.REDIS_URL);
     const prefix = env.QUEUE_PREFIX;
-    const defaults = { removeOnComplete: { count: 1000 }, removeOnFail: { count: 5000 } };
+    const defaults = { removeOnComplete: { count: 20, age: 3600 }, removeOnFail: { count: 50, age: 86400 } };
     this.render = new Queue(RENDER_QUEUE, { connection, prefix, defaultJobOptions: { ...defaults, attempts: 2, backoff: { type: 'exponential', delay: 10_000 } } });
     this.production = new Queue(PRODUCTION_QUEUE, { connection, prefix, defaultJobOptions: { ...defaults, attempts: 1 } });
     this.scheduler = new Queue(SCHEDULER_QUEUE, { connection, prefix, defaultJobOptions: defaults });

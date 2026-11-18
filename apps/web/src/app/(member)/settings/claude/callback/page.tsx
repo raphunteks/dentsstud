@@ -19,10 +19,20 @@ export default function ClaudeOAuthCallbackPage() {
     let error = searchParams.get('error');
 
     if (typeof window !== 'undefined' && window.location.hash) {
-      const hashParams = new URLSearchParams(window.location.hash.replace(/^#\/?/, ''));
+      const hashRaw = window.location.hash.replace(/^#\/?/, '');
+      const hashParams = new URLSearchParams(hashRaw);
       code = code || hashParams.get('code');
       state = state || hashParams.get('state');
       error = error || hashParams.get('error');
+      if (!state && hashRaw && !hashRaw.includes('=')) {
+        state = hashRaw;
+      }
+    }
+
+    if (code && code.includes('#')) {
+      const parts = code.split('#');
+      code = parts[0]?.trim() || '';
+      if (!state && parts[1]) state = parts[1]?.trim() || '';
     }
 
     if (error) {

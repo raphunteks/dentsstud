@@ -35,8 +35,8 @@ function CallbackContent() {
 
     if (code && code.includes('#')) {
       const parts = code.split('#');
-      code = parts[0];
-      if (!state && parts[1]) state = parts[1];
+      code = parts[0]?.trim() || '';
+      if (!state && parts[1]) state = parts[1]?.trim() || '';
     }
 
     const dest = session.data?.user.role === 'SUPERADMIN' ? '/admin/ai-providers' : '/settings/claude';
@@ -116,7 +116,11 @@ function CallbackContent() {
                       json: {
                         provider: 'anthropic',
                         method: 'OAUTH_PKCE',
-                        redirectUri: typeof window !== 'undefined' && window.location.origin.includes('localhost')
+                        redirectUri: typeof window !== 'undefined' && (
+                          window.location.hostname === 'localhost' ||
+                          window.location.hostname === '127.0.0.1' ||
+                          window.location.origin.includes('localhost')
+                        )
                           ? 'http://localhost:3000/callback'
                           : 'https://platform.claude.com/oauth/code/callback',
                       },

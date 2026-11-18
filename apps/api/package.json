@@ -11,7 +11,8 @@
     "lint": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "bootstrap:superadmin": "node --env-file-if-exists=../../.env dist/scripts/bootstrap-superadmin.js",
-    "openapi": "node --env-file-if-exists=../../.env dist/scripts/export-openapi.js"
+    "openapi": "node --env-file-if-exists=../../.env dist/scripts/export-openapi.js",
+    "cleanup:scheduler": "node --env-file-if-exists=../../.env dist/scripts/cleanup-scheduler-keys.js"
   },
   "dependencies": {
     "@dentweb/database": "workspace:*",

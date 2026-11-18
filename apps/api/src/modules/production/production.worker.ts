@@ -52,7 +52,11 @@ export class ProductionWorker implements OnModuleInit, OnModuleDestroy {
       );
     }
     if (this.env.SCHEDULER_ENABLED) {
-      await this.queues.scheduler.upsertJobScheduler('production-tick', { every: 60_000 }, { name: 'tick' });
+      await this.queues.scheduler.upsertJobScheduler(
+        'production-tick',
+        { every: 60_000 },
+        { name: 'tick', opts: { removeOnComplete: true, removeOnFail: 10 } },
+      );
       this.workers.push(new Worker(SCHEDULER_QUEUE, async () => this.tick(new Date()), { connection, prefix: this.env.QUEUE_PREFIX, concurrency: 1 }));
     }
     for (const w of this.workers) w.on('failed', (job, err) => this.log.warn(`${w.name} job ${job?.id} failed: ${err.message}`));

@@ -20,32 +20,44 @@ export function PengaturanView({ user, dash, offline }: PengaturanViewProps) {
 
   const exchangeManual = useMutation({
     mutationFn: async () => {
-      let input = manualCode.trim();
+      const input = manualCode.trim();
       if (input.startsWith('sk-ant-')) {
         return mutate('POST', '/ai/connections/start', { provider: 'anthropic', method: 'API_KEY', apiKey: input });
       }
-      let code = '';
+      let code = input;
       let state = '';
-      if (input.includes('://') || input.includes('callback?')) {
+      if (input.includes('://') || input.includes('callback?') || input.includes('code=') || input.includes('#')) {
         try {
-          const url = new URL(input.startsWith('http') ? input : `http://localhost/${input}`);
-          code = url.searchParams.get('code') || '';
-          state = url.searchParams.get('state') || '';
+          const urlStr = input.startsWith('http')
+            ? input
+            : input.includes('?') || input.includes('#')
+              ? `http://localhost/${input.replace(/^\/+/, '')}`
+              : `http://localhost/?${input}`;
+          const url = new URL(urlStr);
+          if (url.searchParams.get('code')) {
+            code = url.searchParams.get('code')!;
+          }
+          if (url.searchParams.get('state')) {
+            state = url.searchParams.get('state')!;
+          }
           if (url.hash) {
             const h = url.hash.replace(/^#\/?/, '');
             const hp = new URLSearchParams(h);
-            state = state || hp.get('state') || (!h.includes('=') ? h : '');
+            if (hp.get('code')) {
+              code = hp.get('code')!;
+            }
+            if (hp.get('state')) {
+              state = hp.get('state')!;
+            } else if (!state && !h.includes('=')) {
+              state = h;
+            }
           }
         } catch {}
       }
-      if (!code) {
-        if (input.includes('#')) {
-          const parts = input.split('#');
-          code = parts[0]!;
-          state = state || parts[1] || '';
-        } else {
-          code = input;
-        }
+      if (code.includes('#')) {
+        const parts = code.split('#');
+        code = parts[0]!.trim();
+        if (!state && parts[1]) state = parts[1].trim();
       }
       if (!code) throw new Error('Kode otorisasi tidak ditemukan');
       return get(`/ai/connections/callback?code=${encodeURIComponent(code)}${state ? `&state=${encodeURIComponent(state)}` : ''}`);
