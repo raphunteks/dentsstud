@@ -78,7 +78,7 @@ export function SuaraView({ onNavigate }: SuaraViewProps) {
           Suara Narator (AI Voice)
         </h1>
         <p className="mt-1 text-sm text-muted">
-          Pilih karakter suara AI dari ElevenLabs dan Gemini TTS untuk video Anda.
+          Pilih karakter suara AI dari VoiceStudio, ElevenLabs, dan Gemini TTS untuk video Anda.
         </p>
       </div>
 

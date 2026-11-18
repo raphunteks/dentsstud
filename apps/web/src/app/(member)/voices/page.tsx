@@ -15,13 +15,21 @@ const EMOTIONS = ['', 'hangat', 'antusias', 'tenang', 'serius', 'ceria', 'dramat
 export default function VoiceStudio() {
   const qc = useQueryClient();
   const provs = useQuery({ queryKey: ['voice-provs'], queryFn: () => api<Prov[]>('/voices/providers') });
-  const [prov, setProv] = useState('gemini');
+  const [prov, setProv] = useState('cadangan');
   const [gender, setGender] = useState('');
   const voices = useQuery({ queryKey: ['voices', prov, gender], queryFn: () => api<Voice[]>(`/voices?provider=${prov}${gender ? `&gender=${gender}` : ''}`) });
   const pref = useQuery({ queryKey: ['voice-pref'], queryFn: () => api<Pref>('/voices/preferences/me') });
   const [sel, setSel] = useState<string | null>(null);
   const [cfg, setCfg] = useState({ emotion: '', speed: 1, pitch: 0, instructions: '' });
   const [preview, setPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (provs.data?.length && !provs.data.find((x) => x.provider === prov && x.isEnabled)) {
+      const active = provs.data.find((x) => x.isEnabled) || provs.data[0];
+      if (active) setProv(active.provider);
+    }
+  }, [provs.data, prov]);
+
   useEffect(() => {
     if (pref.data) {
       setSel(pref.data.voiceId);

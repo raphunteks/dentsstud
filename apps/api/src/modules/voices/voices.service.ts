@@ -189,15 +189,16 @@ export class VoicesService {
     const providers = await this.db.select().from(ttsProviderConfigs).orderBy(asc(ttsProviderConfigs.provider));
     return providers.map((p) => {
       const a = rows.find((r) => r.provider === p.provider);
+      const isCadanganConnected = p.provider === 'cadangan' && p.isEnabled;
       return {
         provider: p.provider,
         displayName: p.displayName,
         providerEnabled: p.isEnabled,
-        status: a?.status ?? 'NOT_CONFIGURED',
-        credentialHint: a?.credentialHint ?? null,
-        config: a?.config ?? {},
+        status: a?.status ?? (isCadanganConnected ? 'CONNECTED' : 'NOT_CONFIGURED'),
+        credentialHint: a?.credentialHint ?? (isCadanganConnected ? 'VoiceStudio Server' : null),
+        config: a?.config ?? (isCadanganConnected ? (p.config ?? {}) : {}),
         lastError: a?.lastError ?? null,
-        lastCheckedAt: a?.lastCheckedAt ?? null,
+        lastCheckedAt: a?.lastCheckedAt ?? p.lastCheckedAt ?? null,
         capabilities: this.adapters[p.provider as TtsProvider]?.capabilities,
       };
     });
@@ -205,8 +206,19 @@ export class VoicesService {
 
   private async memberCreds(userId: string, provider: string): Promise<Credentials> {
     const [a] = await this.db.select().from(memberTtsAccounts).where(and(eq(memberTtsAccounts.userId, userId), eq(memberTtsAccounts.provider, provider)));
-    if (!a) return {};
-    return { apiKey: await this.getSecret(userId, `tts:${provider}`, a.credentialRef), baseUrl: (a.config as { baseUrl?: string }).baseUrl };
+    const apiKey = a?.credentialRef ? await this.getSecret(userId, `tts:${provider}`, a.credentialRef) : undefined;
+    const baseUrl = (a?.config as { baseUrl?: string })?.baseUrl;
+    if (apiKey || baseUrl) {
+      return { apiKey, baseUrl };
+    }
+    // Fallback to global provider config if enabled (e.g. for server-managed VoiceStudio / cadangan engine)
+    const [c] = await this.db.select().from(ttsProviderConfigs).where(eq(ttsProviderConfigs.provider, provider));
+    if (c?.isEnabled) {
+      const cfg = c.config as { baseUrl?: string };
+      const globalKey = c.secretRef ? await this.getSecret(null, `tts:${provider}`, c.secretRef) : undefined;
+      return { apiKey: globalKey, baseUrl: cfg.baseUrl };
+    }
+    return {};
   }
 
   async putMemberAccount(userId: string, provider: string, i: { apiKey?: string; baseUrl?: string }) {
