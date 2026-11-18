@@ -93,12 +93,41 @@ app.whenReady().then(() => {
 process.on('uncaughtException', (e) => reportDesktopError(e));
 process.on('unhandledRejection', (e) => reportDesktopError(e));
 
-app.on('second-instance', () => {
+app.on('open-url', (event, url) => {
+  event.preventDefault();
   const [w] = BrowserWindow.getAllWindows();
   if (w) {
+    if (process.platform === 'darwin') {
+      app.dock?.show();
+      app.focus({ steal: true });
+    }
     if (w.isMinimized()) w.restore();
     w.show();
     w.focus();
+    if (url.includes('oauth-success') || url.includes('callback') || url.includes('code=')) {
+      w.webContents.send('dentweb:event', { channel: 'claude:connected', data: { status: 'CONNECTED', url } });
+      w.webContents.send('dentsweb:event', { channel: 'claude:connected', data: { status: 'CONNECTED', url } });
+      w.webContents.send('claude:connected');
+    }
+  }
+});
+
+app.on('second-instance', (_event, argv) => {
+  const [w] = BrowserWindow.getAllWindows();
+  if (w) {
+    if (process.platform === 'darwin') {
+      app.dock?.show();
+      app.focus({ steal: true });
+    }
+    if (w.isMinimized()) w.restore();
+    w.show();
+    w.focus();
+    const deepUrl = argv?.find((a) => typeof a === 'string' && (a.startsWith('dentsweb://') || a.startsWith('dentweb://')));
+    if (deepUrl && (deepUrl.includes('oauth-success') || deepUrl.includes('callback') || deepUrl.includes('code='))) {
+      w.webContents.send('dentweb:event', { channel: 'claude:connected', data: { status: 'CONNECTED', url: deepUrl } });
+      w.webContents.send('dentsweb:event', { channel: 'claude:connected', data: { status: 'CONNECTED', url: deepUrl } });
+      w.webContents.send('claude:connected');
+    }
   }
 });
 app.on('window-all-closed', () => {

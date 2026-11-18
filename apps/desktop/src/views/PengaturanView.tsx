@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { get, invoke, mutate } from '../bridge';
 import { Button, Card, Pill, errMsg } from '../components/UI';
 import type { Dash, OfflineStatus, SessionUser } from '../types';
@@ -98,6 +98,19 @@ export function PengaturanView({ user, dash, offline }: PengaturanViewProps) {
     queryKey: ['claude-detect'],
     queryFn: () => invoke<{ installed: boolean; version?: string; path?: string }>('claude:detect'),
   });
+
+  useEffect(() => {
+    const bridge = (window as any).dentsweb || (window as any).dentweb;
+    const unlisten = bridge?.onEvent?.((e: { channel: string }) => {
+      if (e.channel === 'claude:connected') {
+        qc.invalidateQueries({ queryKey: ['dash'] });
+        qc.invalidateQueries({ queryKey: ['claude-detect'] });
+      }
+    });
+    return () => {
+      if (typeof unlisten === 'function') unlisten();
+    };
+  }, [qc]);
 
   const testClaude = useMutation({
     mutationFn: () =>

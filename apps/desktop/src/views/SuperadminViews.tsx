@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { get, invoke, mutate } from '../bridge';
 import { Button, Card, Pill } from '../components/UI';
@@ -271,6 +271,18 @@ export function AdminAIProvidersView() {
   });
 
   const claudeConn = conns.data?.find((c: any) => c.provider === 'anthropic' || c.provider === 'claude');
+
+  useEffect(() => {
+    const bridge = (window as any).dentsweb || (window as any).dentweb;
+    const unlisten = bridge?.onEvent?.((e: { channel: string }) => {
+      if (e.channel === 'claude:connected') {
+        qc.invalidateQueries({ queryKey: ['admin-ai-connections'] });
+      }
+    });
+    return () => {
+      if (typeof unlisten === 'function') unlisten();
+    };
+  }, [qc]);
 
   const handleConnectClaudeOAuth = async (mode: 'auto' | 'manual' = 'auto') => {
     try {

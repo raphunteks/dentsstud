@@ -61,6 +61,9 @@ function CallbackContent() {
       .then(() => {
         setStatus('success');
         toast.success('Akun Claude berhasil terhubung via OAuth (9Router)!');
+        try {
+          window.location.href = 'dentsweb://oauth-success';
+        } catch {}
         setTimeout(() => router.replace(dest), 1500);
       })
       .catch((e) => {
@@ -93,9 +96,17 @@ function CallbackContent() {
             </div>
             <h2 className="text-xl font-semibold text-emerald-600">Berhasil Terhubung!</h2>
             <p className="mt-2 text-sm text-muted">Akun Claude Anda aktif via OAuth. Mengalihkan ke dashboard...</p>
-            <Button onClick={() => router.replace(targetPath)} className="mt-6 w-full">
-              Kembali Sekarang
-            </Button>
+            <div className="mt-6 flex flex-col gap-2">
+              <a
+                href="dentsweb://oauth-success"
+                className="inline-flex items-center justify-center rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-semibold text-stone-900 shadow hover:bg-amber-400 transition-colors"
+              >
+                Buka DENTSWEB STUDIO Desktop
+              </a>
+              <Button onClick={() => router.replace(targetPath)} variant="ghost" className="w-full">
+                Kembali ke Dashboard Web
+              </Button>
+            </div>
           </>
         )}
         {status === 'error' && (
