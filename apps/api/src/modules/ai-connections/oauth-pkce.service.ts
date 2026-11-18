@@ -47,8 +47,8 @@ export class OAuthPkceService {
     const defaultClaude: OAuthProviderConfig = {
       code: 'anthropic',
       clientId: '9d1c250a-e61b-44d9-88ed-5944d1962f5e',
-      authorizeUrl: 'https://claude.ai/oauth/authorize',
-      tokenUrl: 'https://api.anthropic.com/v1/oauth/token',
+      authorizeUrl: 'https://platform.claude.com/oauth/authorize',
+      tokenUrl: 'https://platform.claude.com/v1/oauth/token',
       scopes: ['org:create_api_key', 'user:profile', 'user:inference'],
       redirectUri: 'http://localhost:3000/callback',
     };
@@ -267,7 +267,14 @@ export class OAuthPkceService {
         redirectUriToSend = 'https://platform.claude.com/oauth/code/callback';
       }
 
-      headers = { 'content-type': 'application/json', accept: 'application/json' };
+      headers = {
+        'content-type': 'application/json',
+        accept: 'application/json',
+        'User-Agent': 'claude-code/2.1.296 (external, sdk-cli)',
+        'anthropic-beta': 'oauth-2025-04-20,claude-code-20250219',
+        'anthropic-dangerous-direct-browser-access': 'true',
+        'X-App': 'cli',
+      };
       const tokenPayload: Record<string, string> = {
         code: authCode,
         grant_type: 'authorization_code',
@@ -296,14 +303,33 @@ export class OAuthPkceService {
       body = form;
     }
 
-    const res = await fetch(cfg.tokenUrl, {
+    let res = await fetch(cfg.tokenUrl, {
       method: 'POST',
       headers,
       body,
       signal: AbortSignal.timeout(20_000),
-    }).catch((e: Error) => {
-      throw Errors.unavailable('OAUTH_TOKEN_UNREACHABLE', redact(e.message));
-    });
+    }).catch(() => null);
+
+    // Fallback URL if platform.claude.com token URL fails or is rate limited/unreachable
+    if (isAnthropic && (!res || !res.ok)) {
+      const fallbackUrl = 'https://api.anthropic.com/v1/oauth/token';
+      const fallbackRes = await fetch(fallbackUrl, {
+        method: 'POST',
+        headers,
+        body,
+        signal: AbortSignal.timeout(20_000),
+      }).catch((e: Error) => {
+        throw Errors.unavailable('OAUTH_TOKEN_UNREACHABLE', redact(e.message));
+      });
+      if (fallbackRes.ok || !res) {
+        res = fallbackRes;
+      }
+    }
+
+    if (!res) {
+      throw Errors.unavailable('OAUTH_TOKEN_UNREACHABLE', 'Tidak dapat menghubungi server Anthropic');
+    }
+
     const json = (await res.json().catch(() => ({}))) as any;
     if (!res.ok || !json.access_token) {
       let errDetail =
@@ -312,8 +338,8 @@ export class OAuthPkceService {
           : typeof json.error === 'string'
             ? json.error
             : json.error?.message || json.message || `HTTP ${res.status}`;
-      if (errDetail.includes('invalid_grant') || errDetail.includes('Invalid \'code\'')) {
-        errDetail = 'Kode otorisasi sudah digunakan atau kedaluwarsa oleh Anthropic. Silakan klik "Connect Claude via OAuth" untuk otorisasi ulang.';
+      if (res.status === 403 || errDetail.includes('invalid_grant') || errDetail.includes('Invalid \'code\'')) {
+        errDetail = 'Kode autentikasi tidak valid atau telah kedaluwarsa. Jika Anda mendapatkan kode ini dari perintah "claude" di Terminal, mohon tempelkan langsung ke Terminal Anda. Jika ingin menghubungkan via DENTSWEB, silakan klik tombol [ Buka via Kode ] terlebih dahulu.';
       }
       throw Errors.invalid('OAUTH_TOKEN_FAILED', `Penukaran token gagal (${res.status}: ${redact(errDetail)})`);
     }

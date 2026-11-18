@@ -44,7 +44,11 @@ export default function ClaudeSettingsPage() {
       }
       let code = input;
       let state = '';
-      if (input.includes('://') || input.includes('callback?') || input.includes('code=') || input.includes('#')) {
+      if (input.includes('#') && !input.includes('://')) {
+        const parts = input.split('#');
+        code = parts[0]?.trim() || '';
+        state = parts[1]?.trim() || '';
+      } else if (input.includes('://') || input.includes('callback?') || input.includes('code=')) {
         try {
           const urlStr = input.startsWith('http')
             ? input
