@@ -117,28 +117,28 @@ function RunPanel({ id }: { id: string }) {
           <span className="num w-12 text-right font-mono text-sm font-semibold text-accent">{r.progress}%</span>
         </div>
         {r.error?.message && <p role="alert" className="mt-4 rounded-xl border border-bad/40 bg-bad/5 px-4 py-3 text-sm text-bad">{r.error.message}</p>}
-        <ol className="mt-5 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2.5 min-w-0">
+        <ol className="mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 min-w-0">
           {STAGES.map(([code, label], i) => {
             const st = stageState(code);
             return (
               <li
                 key={code}
                 className={clsx(
-                  'min-w-0 rounded-xl border p-3 flex flex-col justify-between transition-colors',
+                  'min-w-0 rounded-xl border p-3.5 flex flex-col justify-between transition-colors',
                   st === 'RUNNING' && 'border-accent bg-accent/10 ring-2 ring-accent/20 shadow-sm',
                   st === 'COMPLETED' && 'border-emerald-500/40 bg-emerald-500/5',
                   st === 'FAILED' && 'border-red-500/40 bg-red-500/5',
                   st === 'WAITING' && 'border-line bg-surface-2/40 opacity-70'
                 )}
               >
-                <div className="flex items-center justify-between text-[11px] font-mono text-muted mb-1">
-                  <span>{String(i + 1).padStart(2, '0')}</span>
+                <div className="flex items-center justify-between text-[11px] font-mono text-muted mb-1.5">
+                  <span className="font-semibold">{String(i + 1).padStart(2, '0')}</span>
                   {st === 'COMPLETED' && <span className="text-emerald-600 dark:text-emerald-400 font-bold">✓</span>}
                   {st === 'RUNNING' && <span className="inline-block size-2 rounded-full bg-accent animate-ping" />}
                   {st === 'FAILED' && <span className="text-red-500 font-bold">✕</span>}
                 </div>
-                <p className="truncate text-xs sm:text-sm font-semibold text-text">{label}</p>
-                <p className={clsx('mt-1 text-[11px] font-medium', st === 'COMPLETED' ? 'text-emerald-600 dark:text-emerald-400' : st === 'FAILED' ? 'text-bad' : st === 'RUNNING' ? 'text-accent font-semibold' : 'text-muted')}>
+                <p className="text-xs sm:text-sm font-semibold text-text leading-tight">{label}</p>
+                <p className={clsx('mt-2 text-[11px] font-medium', st === 'COMPLETED' ? 'text-emerald-600 dark:text-emerald-400' : st === 'FAILED' ? 'text-bad' : st === 'RUNNING' ? 'text-accent font-semibold' : 'text-muted')}>
                   {st === 'COMPLETED' ? 'Selesai' : st === 'RUNNING' ? 'Berjalan…' : st === 'FAILED' ? 'Gagal' : 'Menunggu'}
                 </p>
               </li>
@@ -223,66 +223,76 @@ function ProgressInner() {
     <div className="space-y-6 min-w-0 max-w-full">
       <PageHead eyebrow="Produksi" title="Progress" actions={<Link href="/create-content" className="inline-flex h-10 items-center rounded-[10px] bg-accent px-4 text-sm font-medium text-accent-contrast">Buat konten</Link>} />
 
-      {/* Mobile & Tablet Run Selector (< lg) */}
-      <div className="lg:hidden space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <Tabs label="Filter produksi" value={filter} onChange={setFilter} items={[{ value: 'active', label: 'Aktif' }, { value: 'all', label: 'Semua' }]} />
-          <span className="text-xs text-muted">{list.length} tugas</span>
+      {/* Top: Unified Run Selector (Aktif / Semua) across Desktop, Tablet & Mobile */}
+      <div className="space-y-3 rounded-2xl border border-line bg-surface/80 p-4 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Tabs label="Filter produksi" value={filter} onChange={setFilter} items={[{ value: 'active', label: 'Aktif' }, { value: 'all', label: 'Semua' }]} />
+            <span className="rounded-full bg-surface-2 px-2.5 py-0.5 font-mono text-xs text-muted border border-line">
+              {list.length} antrean
+            </span>
+          </div>
+          {runs.isFetching && !runs.isLoading && (
+            <span className="text-[11px] font-mono text-muted animate-pulse">Menyelaraskan data…</span>
+          )}
         </div>
-        {runs.isLoading && <Skeleton className="h-16 rounded-card" />}
-        {list.length > 0 && (
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-            {list.map((r) => (
-              <button
-                key={r.id}
-                onClick={() => router.replace(`/progress?run=${r.id}`)}
-                className={clsx(
-                  'shrink-0 w-64 rounded-xl border p-3 text-left transition-colors',
-                  current === r.id ? 'border-accent bg-accent/10 ring-2 ring-accent/20' : 'border-line bg-surface hover:border-text/30'
-                )}
-              >
-                <p className="truncate text-xs font-semibold text-text">{r.topic ?? 'Topik dipilih AI'}</p>
-                <div className="mt-2 flex items-center justify-between text-[11px] text-muted">
-                  <Status value={r.status} />
-                  <span className="font-mono font-bold text-accent">{r.progress}%</span>
-                </div>
-              </button>
-            ))}
+
+        {runs.isLoading && <Skeleton className="h-20 rounded-xl" />}
+        {runs.isError && <ErrorNote error={runs.error} onRetry={() => runs.refetch()} />}
+
+        {!runs.isLoading && list.length === 0 && (
+          <div className="py-4 text-center">
+            <p className="text-sm font-medium text-text">Tidak ada antrean produksi pada tab {filter === 'active' ? 'Aktif' : 'Semua'}.</p>
+            <p className="text-xs text-muted mt-1">Klik tombol &ldquo;Buat konten&rdquo; untuk memulai produksi video baru.</p>
+          </div>
+        )}
+
+        {!runs.isLoading && list.length > 0 && (
+          <div className="flex gap-3 overflow-x-auto pb-1 pt-1 scrollbar-thin">
+            {list.map((r) => {
+              const isSelected = current === r.id;
+              return (
+                <button
+                  key={r.id}
+                  type="button"
+                  onClick={() => router.replace(`/progress?run=${r.id}`)}
+                  className={clsx(
+                    'group shrink-0 w-72 rounded-xl border p-3.5 text-left transition-all duration-200 cursor-pointer shadow-xs',
+                    isSelected
+                      ? 'border-accent bg-accent/10 ring-2 ring-accent/30 shadow-sm'
+                      : 'border-line bg-surface hover:border-text/30 hover:bg-surface-2/60'
+                  )}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="truncate text-xs sm:text-sm font-semibold text-text group-hover:text-accent transition-colors">
+                      {r.topic ?? 'Topik dipilih AI'}
+                    </p>
+                    <span className="font-mono text-xs font-bold text-accent">{r.progress}%</span>
+                  </div>
+                  <div className="mt-2.5 flex items-center justify-between text-[11px] text-muted">
+                    <Status value={r.status} />
+                    <span className="font-mono text-[10px]">{fmtDate(r.createdAt)}</span>
+                  </div>
+                  <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-surface-2">
+                    <div
+                      className={clsx('h-full transition-all duration-300', isSelected ? 'bg-accent' : 'bg-muted/40')}
+                      style={{ width: `${Math.min(100, Math.max(0, r.progress))}%` }}
+                    />
+                  </div>
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
 
-      {/* Main Grid: Desktop sidebar on left + RunPanel on right */}
-      <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] min-w-0 max-w-full">
-        <div className="hidden lg:block space-y-3">
-          <Tabs label="Filter produksi" value={filter} onChange={setFilter} items={[{ value: 'active', label: 'Aktif' }, { value: 'all', label: 'Semua' }]} />
-          {runs.isError && <div className="mt-3"><ErrorNote error={runs.error} onRetry={() => runs.refetch()} /></div>}
-          {runs.isLoading && <Skeleton className="mt-3 h-64 rounded-card" />}
-          <ul className="mt-3 grid gap-2 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-            {list.map((r) => (
-              <li key={r.id}>
-                <button
-                  onClick={() => router.replace(`/progress?run=${r.id}`)}
-                  aria-current={current === r.id}
-                  className={clsx('w-full rounded-xl border px-4 py-3 text-left transition-colors', current === r.id ? 'border-accent bg-accent/5 ring-1 ring-accent/30' : 'border-line bg-surface hover:border-text/30')}
-                >
-                  <span className="flex items-center justify-between gap-2">
-                    <span className="truncate text-sm font-semibold text-text">{r.topic ?? 'Topik dipilih AI'}</span>
-                    <span className="num font-mono text-xs font-bold text-accent">{r.progress}%</span>
-                  </span>
-                  <span className="mt-1.5 flex items-center justify-between gap-2 text-xs text-muted">
-                    <Status value={r.status} />
-                    <span>{fmtDate(r.createdAt)}</span>
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-          {!runs.isLoading && list.length === 0 && <div className="mt-3"><Empty title="Tidak ada produksi aktif" body="Pesanan baru akan muncul di sini dengan progres setiap tahap." /></div>}
-        </div>
-        <div className="min-w-0 max-w-full overflow-hidden">
-          {current ? <RunPanel key={current} id={current} /> : <Empty title="Pilih produksi" body="Pilih salah satu produksi untuk melihat tahap, aktivitas agen dan log teknis." />}
-        </div>
+      {/* KE BAWAH: Full-width Detail Panel (Gambar 2) without cramped side column */}
+      <div className="min-w-0 max-w-full overflow-hidden">
+        {current ? (
+          <RunPanel key={current} id={current} />
+        ) : (
+          <Empty title="Pilih produksi" body="Pilih salah satu produksi di atas untuk melihat tahap, aktivitas agen dan log teknis." />
+        )}
       </div>
     </div>
   );

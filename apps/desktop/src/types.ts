@@ -84,6 +84,25 @@ export interface ResultItem {
   deletedAt: string | null;
 }
 
+export interface ResultDetail {
+  id: string;
+  title: string;
+  status: string;
+  revision: number;
+  parentResultId: string | null;
+  createdAt: string;
+  deletedAt: string | null;
+  file: { format: string; sizeBytes: number; checksum?: string };
+  videoUrl: string;
+  coverUrl: string | null;
+  social: { caption: string; hashtags: string[]; firstComment: string; coverText: string | null } | null;
+  run: { id: string; topic: string | null; projectId: string | null; kind?: string } | null;
+  sources: { id: string; url: string; title: string }[];
+  factCheck: { claims: { claim: string; status: string; note?: string; sources?: string[] }[]; verdict: { verified: number; unverified: number; contradicted: number } } | null;
+  qc: { passed: boolean; checks: { name: string; passed: boolean; note: string }[] } | null;
+  revisions: { id: string; revision: number; createdAt: string }[];
+}
+
 export interface RunItem {
   id: string;
   status: string;

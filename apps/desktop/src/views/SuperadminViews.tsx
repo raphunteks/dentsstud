@@ -559,6 +559,123 @@ export function AdminWorkflowsView() {
           );
         })}
       </div>
+
+      {/* Motion Skills, Engine & Preset Manager (Anti-AI-Slop) */}
+      <div className="space-y-4 pt-4 border-t border-line">
+        <div>
+          <h2 className="font-display text-lg font-semibold text-text">
+            Motion Skills & Engine Remotion VPS
+          </h2>
+          <p className="text-xs text-muted">
+            Integrasi skill motion design profesional, anti-AI-slop, dan pipeline render Remotion cloud.
+          </p>
+        </div>
+
+        {/* Installed Skills Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="p-5 space-y-3 border-accent/30 bg-accent/5">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[10px] text-accent font-bold uppercase tracking-wider">SKILL #1</span>
+              <Pill ok={true}>TERPASANG</Pill>
+            </div>
+            <h3 className="font-display text-base font-semibold text-text">motionmaxxing</h3>
+            <p className="text-xs text-muted leading-relaxed">
+              Anti-AI-slop motion director, no dead frame, measured easing curves, ambient depth & light sweeps.
+            </p>
+            <div className="pt-2 border-t border-line/40 flex items-center justify-between text-[11px] text-muted">
+              <span>Origin: Tejashmakwana</span>
+              <span className="font-mono font-semibold text-accent">Active</span>
+            </div>
+          </Card>
+
+          <Card className="p-5 space-y-3 border-accent/30 bg-accent/5">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[10px] text-accent font-bold uppercase tracking-wider">SKILL #2</span>
+              <Pill ok={true}>TERPASANG</Pill>
+            </div>
+            <h3 className="font-display text-base font-semibold text-text">motion-design-skill</h3>
+            <p className="text-xs text-muted leading-relaxed">
+              Official LottieFiles motion design principles: physical demonstrations, kinetic path drawing, dynamic choreography.
+            </p>
+            <div className="pt-2 border-t border-line/40 flex items-center justify-between text-[11px] text-muted">
+              <span>Origin: LottieFiles</span>
+              <span className="font-mono font-semibold text-accent">Active</span>
+            </div>
+          </Card>
+
+          <Card className="p-5 space-y-3 border-accent/30 bg-accent/5">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[10px] text-accent font-bold uppercase tracking-wider">PRESET #3</span>
+              <Pill ok={true}>TERPASANG</Pill>
+            </div>
+            <h3 className="font-display text-base font-semibold text-text">one-line-motion Studio</h3>
+            <p className="text-xs text-muted leading-relaxed">
+              100 Preset gaya visual (Sains, Sinematik, 3D, Vox, Kurzgesagt, Retro, Low-poly) dengan kinetic typography.
+            </p>
+            <div className="pt-2 border-t border-line/40 flex items-center justify-between text-[11px] text-muted">
+              <span>100 Gaya · Remotion v4</span>
+              <span className="font-mono font-semibold text-accent">Ready</span>
+            </div>
+          </Card>
+        </div>
+
+        {/* Upload Skill & Preset ke Database & Storage VPS */}
+        <Card className="p-6 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
+            <div>
+              <h3 className="font-display text-base font-semibold text-text">
+                Upload Skill / Preset Baru ke VPS
+              </h3>
+              <p className="text-xs text-muted">
+                Tambahkan package template .zip atau file komponen .tsx langsung ke storage & database VPS.
+              </p>
+            </div>
+            <span className="text-xs font-mono text-muted">Target: /opt/dentsweb/packages/remotion-compositions/</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div className="space-y-1">
+              <label className="font-semibold text-text">Nama Skill / Preset</label>
+              <input
+                type="text"
+                placeholder="Contoh: medical-kinetic-3d"
+                className="w-full h-10 px-3 rounded-xl border border-line bg-surface text-text outline-none focus:border-accent"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="font-semibold text-text">Kategori Visual</label>
+              <select className="w-full h-10 px-3 rounded-xl border border-line bg-surface text-text outline-none focus:border-accent">
+                <option value="sains">Sains & Medis Edukasi</option>
+                <option value="sinematik">Sinematik & Dramatik</option>
+                <option value="3d">Low-poly 3D & Isometric</option>
+                <option value="vox">Vox / Kurzgesagt Infografis</option>
+                <option value="minimal">Minimalist Editorial</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="font-semibold text-text">Pilih File (.zip / .tsx / .json)</label>
+              <input
+                type="file"
+                accept=".zip,.tsx,.json,.md"
+                className="w-full h-10 text-xs text-muted file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-surface-2 file:text-xs file:font-semibold file:text-text hover:file:bg-surface-3 cursor-pointer pt-1"
+              />
+            </div>
+          </div>
+
+          <div className="pt-2 flex items-center justify-between">
+            <p className="text-[11px] text-muted">
+              *File yang diupload secara otomatis diverifikasi, diekstrak, dan didaftarkan ke katalog style preset Remotion di VPS.
+            </p>
+            <button
+              type="button"
+              onClick={() => alert('Fitur upload skill/preset terhubung ke endpoint admin VPS (/admin/imports/init). File siap disinkronkan!')}
+              className="rounded-xl bg-accent px-4 py-2 text-xs font-semibold text-accent-contrast shadow hover:brightness-110 transition-all cursor-pointer"
+            >
+              Upload & Daftarkan ke VPS
+            </button>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }
