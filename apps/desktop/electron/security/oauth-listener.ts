@@ -81,8 +81,8 @@ export function startLocalCallbackListener(onSuccess?: () => void) {
   });
 
   try {
-    server.listen(3000, '127.0.0.1', () => {
-      console.log('[oauth-listener] Listening on http://127.0.0.1:3000/callback');
+    server.listen(3000, () => {
+      console.log('[oauth-listener] Listening on http://localhost:3000/callback (dual-stack IPv4/IPv6)');
     });
     activeServer = server;
   } catch (err: any) {
