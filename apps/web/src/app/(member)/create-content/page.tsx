@@ -194,6 +194,7 @@ export default function CreateContentPage() {
     ['Gaya', preset?.name ?? 'Gaya bawaan'],
     ['Referensi', refs.length ? `${refs.length} video` : '—'],
     ['Hook', hookMode === 'AUTO' ? 'Otomatis' : hookMode === 'NONE' ? 'Tanpa hook' : hooks.data?.find((h) => h.id === hookId)?.name ?? '—'],
+    ['Estimasi', effQty === 1 ? '± 1 - 2 menit' : `± ${Math.max(1, Math.ceil(effQty / workers) * 2)} menit`],
   ];
 
   if (ready.isLoading) return <><PageHead eyebrow="Produksi" title="Buat Konten" /><Skeleton className="h-96 rounded-card" /></>;

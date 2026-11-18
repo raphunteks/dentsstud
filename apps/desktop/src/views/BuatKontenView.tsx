@@ -40,6 +40,10 @@ export function BuatKontenView({ onSuccess, onNavigate }: BuatKontenViewProps) {
     queryKey: ['hooks-all'],
     queryFn: () => get<HookItem[]>('/hooks').catch(() => []),
   });
+  const readyQuery = useQuery({
+    queryKey: ['production-readiness'],
+    queryFn: () => get<{ license: string; claudeApiKey: boolean; entitlements: { maxWorkers: number; maxVideosPerDay: number; cloudRender: boolean } }>('/production/readiness').catch(() => null),
+  });
 
   const presetsList = presetsQuery.data?.items ?? [];
   const voicesList = voicesQuery.data ?? [];
@@ -400,7 +404,9 @@ export function BuatKontenView({ onSuccess, onNavigate }: BuatKontenViewProps) {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted">Estimasi</span>
-                <span className="font-mono text-accent font-semibold">± 15-25 menit</span>
+                <span className="font-mono text-accent font-semibold">
+                  {effQty === 1 ? '± 1 - 2 menit' : `± ${Math.max(1, Math.ceil((effQty / Math.min(workers, effQty)) * 2))} menit`}
+                </span>
               </div>
             </div>
 
@@ -413,6 +419,11 @@ export function BuatKontenView({ onSuccess, onNavigate }: BuatKontenViewProps) {
               >
                 {submit.isPending ? 'Mengirim tugas…' : '▶ Mulai produksi'}
               </Button>
+              {readyQuery.data && !readyQuery.data.claudeApiKey && (
+                <p className="mt-2 text-[11px] text-amber-500 text-center">
+                  ⚠️ Claude belum terhubung di server. Buka tab AI Provider & OAuth untuk menyambungkan.
+                </p>
+              )}
               {topicMode !== 'BEBAS' && lines.length === 0 && (
                 <p className="mt-2 text-[11px] text-amber-500 text-center">
                   Masukkan topik sebelum memulai produksi.

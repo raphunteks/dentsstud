@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, desc, eq } from 'drizzle-orm';
-import { type Database, aiConnectionEvents, aiConnections, aiProviderRegistry, secretVault } from '@dentweb/database';
+import { and, desc, eq, inArray } from 'drizzle-orm';
+import { type Database, aiConnectionEvents, aiConnections, aiProviderRegistry, secretVault, users } from '@dentweb/database';
 import type { AiConnectionStartInput, AiConnectionStatus } from '@dentweb/shared-types';
 import { DB } from '../../infra/tokens.js';
 import { AuditService } from '../../infra/infra.module.js';
@@ -242,6 +242,11 @@ export class AiConnectionsService {
   async setDefaultModel(userId: string, id: string, model: string) {
     const c = await this.own(userId, id);
     const validModels = [
+      'claude-haiku-4-5',
+      'claude-sonnet-5-5',
+      'claude-opus-5-5',
+      'claude-sonnet-4-5',
+      'claude-haiku-5-5',
       'claude-3-7-sonnet-20250219',
       'claude-3-5-sonnet-20241022',
       'claude-3-opus-20240229',
@@ -309,7 +314,7 @@ export class AiConnectionsService {
 
   /** Decrypted API key or OAuth Bearer token for server-side agent execution (never exposed via HTTP). */
   async resolveApiKey(userId: string): Promise<string | null> {
-    // 1. Try API_KEY connection
+    // 1. Try user's own API_KEY connection
     const [apiKeyConn] = await this.db
       .select()
       .from(aiConnections)
@@ -318,13 +323,56 @@ export class AiConnectionsService {
       return this.readSecret(userId, apiKeyConn.credentialRef, 'ai:anthropic:api_key');
     }
 
-    // 2. Try OAUTH_PKCE connection (9Router flow)
+    // 2. Try user's own OAUTH_PKCE connection (active)
     const [oauthConn] = await this.db
       .select()
       .from(aiConnections)
       .where(and(eq(aiConnections.userId, userId), eq(aiConnections.provider, 'anthropic'), eq(aiConnections.method, 'OAUTH_PKCE'), eq(aiConnections.status, 'CONNECTED')));
     if (oauthConn?.credentialRef) {
       return this.getValidOAuthToken(userId, oauthConn);
+    }
+
+    // 3. User's own OAUTH_PKCE with credentialRef (self-heal if status was marked UNAVAILABLE by old probe)
+    const [anyOauth] = await this.db
+      .select()
+      .from(aiConnections)
+      .where(and(eq(aiConnections.userId, userId), eq(aiConnections.provider, 'anthropic'), eq(aiConnections.method, 'OAUTH_PKCE')));
+    if (anyOauth?.credentialRef) {
+      try {
+        const token = await this.getValidOAuthToken(userId, anyOauth);
+        if (token) {
+          await this.db
+            .update(aiConnections)
+            .set({ status: 'CONNECTED', lastError: null, lastCheckedAt: new Date() })
+            .where(eq(aiConnections.id, anyOauth.id));
+          return token;
+        }
+      } catch {
+        // proceed to superadmin fallback
+      }
+    }
+
+    // 4. Fallback for MEMBER role: use Superadmin's active connection if member has not connected their own key
+    const [memberUser] = await this.db.select({ role: users.role }).from(users).where(eq(users.id, userId));
+    if (memberUser?.role === 'MEMBER') {
+      const [superConn] = await this.db
+        .select({ c: aiConnections })
+        .from(aiConnections)
+        .innerJoin(users, eq(users.id, aiConnections.userId))
+        .where(
+          and(
+            eq(users.role, 'SUPERADMIN'),
+            eq(aiConnections.provider, 'anthropic'),
+            inArray(aiConnections.method, ['OAUTH_PKCE', 'API_KEY']),
+            eq(aiConnections.status, 'CONNECTED'),
+          ),
+        );
+      if (superConn?.c.credentialRef) {
+        if (superConn.c.method === 'API_KEY') {
+          return this.readSecret(superConn.c.userId, superConn.c.credentialRef, 'ai:anthropic:api_key');
+        }
+        return this.getValidOAuthToken(superConn.c.userId, superConn.c);
+      }
     }
 
     return null;
