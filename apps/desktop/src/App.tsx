@@ -22,6 +22,7 @@ import {
   AdminReleasesView,
   AdminSupportView,
   AdminSystemView,
+  AdminVoicesView,
   AdminWorkflowsView,
 } from './views/SuperadminViews';
 import type { Dash, Info, NavTab, OfflineStatus, SessionUser } from './types';
@@ -173,6 +174,9 @@ function StudioShell({ user, info, offline }: { user: SessionUser; info?: Info; 
               )}
               {currentTab === 'admin-ai-providers' && (
                 <AdminAIProvidersView />
+              )}
+              {currentTab === 'admin-voices' && (
+                <AdminVoicesView />
               )}
               {currentTab === 'admin-workflows' && (
                 <AdminWorkflowsView />

@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { and, asc, count, eq, sql } from 'drizzle-orm';
 import { type Database, styleCategories, visualPresets, voiceProfiles, hookPresets, productionRuns, videoResults } from '@dentweb/database';
 import type { SessionUser } from '@dentweb/shared-types';
-import { CurrentUser } from '../../common/auth-context.js';
+import { CurrentUser, Public } from '../../common/auth-context.js';
 import { DB } from '../../infra/tokens.js';
 import { AiConnectionsModule } from '../ai-connections/ai-connections.module.js';
 import { AiConnectionsService } from '../ai-connections/ai-connections.service.js';
@@ -20,6 +20,7 @@ export class CatalogController {
     private readonly licenses: LicenseService,
   ) {}
 
+  @Public()
   @Get('styles/categories')
   async categories() {
     const rows = await this.db

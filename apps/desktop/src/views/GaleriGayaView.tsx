@@ -1,7 +1,7 @@
 import { useDeferredValue, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
-import { get } from '../bridge';
+import { get, toMediaUrl } from '../bridge';
 import { Card, Input, Modal, Button } from '../components/UI';
 import type { NavTab } from '../types';
 
@@ -133,15 +133,24 @@ export function GaleriGayaView({ onNavigate }: GaleriGayaViewProps) {
               onClick={() => setSelectedPreset(item)}
               className="group relative cursor-pointer overflow-hidden p-0 hover:border-accent hover:shadow-md transition-all duration-200"
             >
-              {/* Visual Thumbnail */}
+              {/* Visual Preview / Video or Thumbnail */}
               <div className="relative aspect-[3/4] w-full bg-gradient-to-br from-neutral-800 to-neutral-900 flex flex-col justify-between p-3 text-white overflow-hidden">
-                {item.thumbnailUrl && (
+                {item.previewUrl ? (
+                  <video
+                    src={toMediaUrl(item.previewUrl)}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                ) : item.thumbnailUrl ? (
                   <img
-                    src={item.thumbnailUrl}
+                    src={toMediaUrl(item.thumbnailUrl)}
                     alt={item.name}
                     className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
-                )}
+                ) : null}
                 <div className="relative z-10 flex items-center justify-between">
                   <span className="rounded bg-black/60 px-2 py-0.5 text-[9px] uppercase font-semibold text-white/90">
                     {item.category?.name || 'Gaya'}
@@ -177,7 +186,7 @@ export function GaleriGayaView({ onNavigate }: GaleriGayaViewProps) {
             <div className="relative aspect-[9/16] max-h-[50vh] mx-auto w-full max-w-xs rounded-xl bg-gradient-to-br from-neutral-800 to-neutral-950 flex items-center justify-center overflow-hidden">
               {selectedPreset.previewUrl ? (
                 <video
-                  src={selectedPreset.previewUrl}
+                  src={toMediaUrl(selectedPreset.previewUrl)}
                   autoPlay
                   muted
                   loop
@@ -186,7 +195,7 @@ export function GaleriGayaView({ onNavigate }: GaleriGayaViewProps) {
                 />
               ) : selectedPreset.thumbnailUrl ? (
                 <img
-                  src={selectedPreset.thumbnailUrl}
+                  src={toMediaUrl(selectedPreset.thumbnailUrl)}
                   alt={selectedPreset.name}
                   className="size-full object-cover"
                 />

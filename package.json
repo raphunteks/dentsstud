@@ -1,7 +1,7 @@
 {
   "name": "dentweb-studio",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.8",
   "type": "module",
   "packageManager": "pnpm@10.28.0",
   "engines": {
@@ -21,7 +21,8 @@
     "bootstrap:superadmin": "pnpm --filter @dentweb/api bootstrap:superadmin",
     "cleanup:scheduler": "pnpm --filter @dentweb/api cleanup:scheduler",
     "dist:mac": "pnpm --filter @dentweb/desktop dist:mac",
-    "dist:win": "pnpm --filter @dentweb/desktop dist:win"
+    "dist:win": "pnpm --filter @dentweb/desktop dist:win",
+    "dist:all": "pnpm --filter @dentweb/desktop dist:all"
   },
   "devDependencies": {
     "@types/node": "22.20.5",

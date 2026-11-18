@@ -28,3 +28,14 @@ export async function invoke<T>(channel: string, payload?: unknown): Promise<T> 
 }
 export const get = <T,>(path: string) => invoke<T>('api:get', { path });
 export const mutate = <T,>(method: string, path: string, body?: Record<string, unknown>) => invoke<T>('api:mutate', { method, path, body });
+
+export const DEFAULT_MEDIA_BASE = 'https://motion.dentsweb.my.id';
+
+export function toMediaUrl(url: string | null | undefined): string {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('blob:')) {
+    return url;
+  }
+  return `${DEFAULT_MEDIA_BASE}${url.startsWith('/') ? '' : '/'}${url}`;
+}
+

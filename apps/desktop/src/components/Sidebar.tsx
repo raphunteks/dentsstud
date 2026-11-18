@@ -402,6 +402,11 @@ export function Sidebar({
                         <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                     </button>
+                    <button onClick={() => onSelectTab('admin-voices')} title="Provider & Suara TTS" className={miniItemClass('admin-voices')}>
+                      <svg className={miniAdminIconClass('admin-voices')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" />
+                      </svg>
+                    </button>
                     <button onClick={() => onSelectTab('admin-workflows')} title="Workflow Engine" className={miniItemClass('admin-workflows')}>
                       <svg className={miniAdminIconClass('admin-workflows')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
@@ -457,6 +462,14 @@ export function Sidebar({
                           <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                         <span>AI Provider & OAuth</span>
+                      </div>
+                    </button>
+                    <button onClick={() => onSelectTab('admin-voices')} className={navItemClass('admin-voices')}>
+                      <div className="flex items-center gap-3">
+                        <svg className={adminIconClass('admin-voices')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" />
+                        </svg>
+                        <span>Provider & Suara TTS</span>
                       </div>
                     </button>
                     <button onClick={() => onSelectTab('admin-workflows')} className={navItemClass('admin-workflows')}>

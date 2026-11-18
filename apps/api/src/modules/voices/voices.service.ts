@@ -110,7 +110,7 @@ export class VoicesService {
     return this.view(v);
   }
 
-  async create(actorId: string, i: { provider: TtsProvider; providerVoiceId: string; slug: string; name: string; language: string; description?: string; voiceAttributes?: object; capabilities?: object; synthesisConfig?: object }) {
+  async create(actorId: string, i: { provider: TtsProvider; providerVoiceId: string; slug: string; name: string; language: string; description?: string; voiceAttributes?: object; capabilities?: object; synthesisConfig?: object; sampleAssetId?: string | null }) {
     this.adapter(i.provider);
     try {
       const [v] = await this.db.insert(voiceProfiles).values({ ...i, description: i.description ?? '', status: 'DRAFT', createdBy: actorId }).returning();
@@ -122,13 +122,27 @@ export class VoicesService {
     }
   }
 
-  async update(actorId: string, id: string, i: Partial<{ name: string; description: string; language: string; providerVoiceId: string; voiceAttributes: object; capabilities: object; synthesisConfig: object }>) {
+  async update(actorId: string, id: string, i: Partial<{ name: string; description: string; language: string; providerVoiceId: string; voiceAttributes: object; capabilities: object; synthesisConfig: object; sampleAssetId: string | null }>) {
     const cur = await this.get(id, false);
     // Changing the engine identity invalidates the previous verification.
     const synthesisConfig = i.providerVoiceId && i.providerVoiceId !== cur.providerVoiceId ? { ...(i.synthesisConfig ?? (cur.synthesisConfig as object)), verified: null } : i.synthesisConfig;
     const [v] = await this.db.update(voiceProfiles).set({ ...i, synthesisConfig }).where(eq(voiceProfiles.id, id)).returning();
     await this.audit.log({ actorId, action: 'voice.update', targetType: 'voice_profile', targetId: id });
     return this.view(v!);
+  }
+
+  async setSample(actorId: string, id: string, assetId: string) {
+    const v = await this.get(id, false);
+    const synthesisConfig = { ...(v.synthesisConfig as object), verified: { ok: true, at: new Date().toISOString(), manual: true } };
+    const [u] = await this.db.update(voiceProfiles).set({ sampleAssetId: assetId, synthesisConfig }).where(eq(voiceProfiles.id, id)).returning();
+    await this.audit.log({ actorId, action: 'voice.set_sample', targetType: 'voice_profile', targetId: id });
+    return this.view(u!);
+  }
+
+  async setSampleBuffer(actorId: string, id: string, filename: string, buf: Buffer) {
+    const mime = filename.endsWith('.wav') ? 'audio/wav' : 'audio/mpeg';
+    const asset = await this.media.ingestBuffer(actorId, buf, filename, mime, { voiceId: id, kind: 'voice-sample' });
+    return this.setSample(actorId, id, asset.id);
   }
 
   async remove(actorId: string, id: string) {
@@ -272,7 +286,7 @@ export class VoicesService {
     return this.getPreference(userId);
   }
 
-  async providersPublic(userId: string) {
+  async providersPublic(userId?: string) {
     const rows = await this.db
       .select({
         provider: ttsProviderConfigs.provider, displayName: ttsProviderConfigs.displayName, isEnabled: ttsProviderConfigs.isEnabled,
@@ -280,7 +294,7 @@ export class VoicesService {
       })
       .from(ttsProviderConfigs)
       .orderBy(asc(ttsProviderConfigs.provider));
-    const accounts = await this.memberAccounts(userId);
+    const accounts = userId ? await this.memberAccounts(userId) : [];
     return rows.map((r) => ({ ...r, capabilities: this.adapters[r.provider as TtsProvider]?.capabilities, accountStatus: accounts.find((a) => a.provider === r.provider)?.status ?? 'NOT_CONFIGURED' }));
   }
 }

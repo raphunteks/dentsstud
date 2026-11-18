@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
-import { get, mutate } from '../bridge';
+import { get, mutate, toMediaUrl } from '../bridge';
 import { Card, Button, Pill } from '../components/UI';
 import type { NavTab } from '../types';
 
@@ -61,7 +61,7 @@ export function SuaraView({ onNavigate }: SuaraViewProps) {
     } else {
       setPlayingId(v.id);
       if (v.sampleUrl) {
-        const audio = new Audio(v.sampleUrl);
+        const audio = new Audio(toMediaUrl(v.sampleUrl));
         audio.play().catch(() => null);
         audio.onended = () => setPlayingId(null);
       } else {

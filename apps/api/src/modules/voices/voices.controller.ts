@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { TTS_PROVIDERS, VoiceCapabilities } from '@dentweb/content-schema';
 import type { SessionUser } from '@dentweb/shared-types';
 import { ApiZodBody, ZBody, ZodPipe } from '../../common/zod.js';
-import { CurrentUser, Roles } from '../../common/auth-context.js';
+import { CurrentUser, Public, Roles } from '../../common/auth-context.js';
 import { VoicesService } from './voices.service.js';
 
 const slug = z.string().min(2).max(150).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
@@ -13,6 +13,7 @@ const Attrs = z.object({ gender: z.enum(['male', 'female', 'neutral']).optional(
 const VoiceInput = z.object({
   provider: z.enum(TTS_PROVIDERS), providerVoiceId: z.string().min(1).max(255), slug, name: z.string().min(2).max(150), language: z.string().min(2).max(40),
   description: z.string().max(2000).optional(), voiceAttributes: Attrs.optional(), capabilities: VoiceCapabilities.optional(),
+  sampleAssetId: z.uuid().nullish(),
   synthesisConfig: z.object({ model: z.string().max(120).optional(), stability: z.number().min(0).max(1).optional(), similarityBoost: z.number().min(0).max(1).optional() }).optional(),
 });
 const VoicePatch = VoiceInput.omit({ provider: true, slug: true }).partial();
@@ -29,9 +30,10 @@ const Provider = new ZodPipe(z.enum(TTS_PROVIDERS));
 export class VoicesController {
   constructor(private readonly svc: VoicesService) {}
 
+  @Public()
   @Get('providers')
-  providers(@CurrentUser() me: SessionUser) {
-    return this.svc.providersPublic(me.id);
+  providers(@CurrentUser() me: SessionUser | undefined) {
+    return this.svc.providersPublic(me?.id);
   }
 
   @Get('preferences/me')
@@ -45,11 +47,13 @@ export class VoicesController {
     return this.svc.putPreference(me.id, b);
   }
 
+  @Public()
   @Get()
   list(@Query(new ZodPipe(ListQuery)) q: z.infer<typeof ListQuery>) {
     return this.svc.list(q, true);
   }
 
+  @Public()
   @Get(':id')
   get(@Param('id', ParseUUIDPipe) id: string) {
     return this.svc.get(id, true);
@@ -126,6 +130,25 @@ export class AdminVoicesController {
   @ApiZodBody(TestInput)
   test(@CurrentUser() me: SessionUser, @Param('id', ParseUUIDPipe) id: string, @ZBody(TestInput) b: { text?: string }) {
     return this.svc.adminTest(me.id, id, b.text);
+  }
+
+  @HttpCode(200)
+  @Post('voices/:id/sample')
+  @ApiZodBody(z.object({ assetId: z.uuid() }))
+  setSample(@CurrentUser() me: SessionUser, @Param('id', ParseUUIDPipe) id: string, @ZBody(z.object({ assetId: z.uuid() })) b: { assetId: string }) {
+    return this.svc.setSample(me.id, id, b.assetId);
+  }
+
+  @HttpCode(200)
+  @Post('voices/:id/sample-base64')
+  @ApiZodBody(z.object({ filename: z.string().min(1).max(255), base64: z.string().min(1) }))
+  setSampleBase64(
+    @CurrentUser() me: SessionUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @ZBody(z.object({ filename: z.string().min(1).max(255), base64: z.string().min(1) })) b: { filename: string; base64: string },
+  ) {
+    const buf = Buffer.from(b.base64, 'base64');
+    return this.svc.setSampleBuffer(me.id, id, b.filename, buf);
   }
 
   @HttpCode(200)

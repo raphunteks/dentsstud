@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { get, invoke, mutate } from '../bridge';
-import { Button, Card, Pill } from '../components/UI';
+import { get, invoke, mutate, toMediaUrl } from '../bridge';
+import { Button, Card, Pill, Input, Select, Modal } from '../components/UI';
 
 interface Member {
   id: string;
@@ -885,18 +885,18 @@ export function AdminReleasesView() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="p-4 space-y-1">
           <p className="text-xs text-muted">macOS Apple Silicon</p>
-          <p className="font-display text-lg font-bold text-text">DENTSWEB-STUDIO-1.0.4-arm64.dmg</p>
-          <span className="text-[11px] text-accent font-mono">Versi Stabil 1.0.4</span>
+          <p className="font-display text-lg font-bold text-text">DENTSWEB-STUDIO-1.0.8-arm64.dmg</p>
+          <span className="text-[11px] text-accent font-mono">Versi Stabil 1.0.8</span>
         </Card>
         <Card className="p-4 space-y-1">
           <p className="text-xs text-muted">macOS Intel</p>
-          <p className="font-display text-lg font-bold text-text">DENTSWEB-STUDIO-1.0.4-x64.dmg</p>
-          <span className="text-[11px] text-accent font-mono">Versi Stabil 1.0.4</span>
+          <p className="font-display text-lg font-bold text-text">DENTSWEB-STUDIO-1.0.8-x64.dmg</p>
+          <span className="text-[11px] text-accent font-mono">Versi Stabil 1.0.8</span>
         </Card>
         <Card className="p-4 space-y-1">
           <p className="text-xs text-muted">Windows 64-bit</p>
-          <p className="font-display text-lg font-bold text-text">DENTSWEB-STUDIO-Setup-1.0.4.exe</p>
-          <span className="text-[11px] text-accent font-mono">Versi Stabil 1.0.4</span>
+          <p className="font-display text-lg font-bold text-text">DENTSWEB-STUDIO-Setup-1.0.8.exe</p>
+          <span className="text-[11px] text-accent font-mono">Versi Stabil 1.0.8</span>
         </Card>
       </div>
 
@@ -931,7 +931,7 @@ export function AdminReleasesView() {
               {list.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-5 py-8 text-center text-muted">
-                    Installer lokal tersimpan di folder installers/ (v1.0.4 aktif).
+                    Installer lokal tersimpan di folder installers/ (v1.0.8 aktif).
                   </td>
                 </tr>
               )}
@@ -1024,5 +1024,504 @@ export function AdminSupportView() {
         </div>
       </Card>
     </div>
+  );
+}
+
+interface VoiceProvider {
+  provider: string;
+  displayName: string;
+  isEnabled: boolean;
+  hasCredential: boolean;
+  config: { baseUrl?: string; model?: string };
+  lastStatus: string | null;
+  lastCheckedAt: string | null;
+  capabilities: Record<string, boolean>;
+}
+
+interface VoiceProfile {
+  id: string;
+  provider: string;
+  providerVoiceId: string;
+  slug: string;
+  name: string;
+  language: string;
+  status: string;
+  voiceAttributes: { gender?: string; tone?: string };
+  sampleUrl: string | null;
+  synthesisConfig: { verified?: { ok: boolean; at: string; error?: string } };
+}
+
+export function AdminVoicesView() {
+  const qc = useQueryClient();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [testingId, setTestingId] = useState<string | null>(null);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [newVoice, setNewVoice] = useState({
+    provider: 'gemini',
+    providerVoiceId: '',
+    name: '',
+    language: 'id-ID',
+    gender: 'female',
+  });
+
+  const providers = useQuery({
+    queryKey: ['admin-voice-providers'],
+    queryFn: () => get<VoiceProvider[]>('/admin/voice-providers').catch(() => []),
+  });
+
+  const voices = useQuery({
+    queryKey: ['admin-voices'],
+    queryFn: () => get<VoiceProfile[]>('/admin/voices').catch(() => []),
+  });
+
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ['admin-voice-providers'] });
+    qc.invalidateQueries({ queryKey: ['admin-voices'] });
+  };
+
+  const handleToggle = async (p: VoiceProvider) => {
+    try {
+      await mutate('PATCH', `/admin/voice-providers/${p.provider}`, { isEnabled: !p.isEnabled });
+      refresh();
+    } catch (e: any) {
+      alert(e.message || 'Gagal mengubah status');
+    }
+  };
+
+  const handleSaveConfig = async (provider: string, apiKey: string, baseUrl: string, model: string) => {
+    try {
+      const payload: any = { model: model || null };
+      if (apiKey) payload.apiKey = apiKey;
+      if (provider === 'cadangan') payload.baseUrl = baseUrl || null;
+      await mutate('PATCH', `/admin/voice-providers/${provider}`, payload);
+      alert(`Konfigurasi ${provider} berhasil diperbarui.`);
+      refresh();
+    } catch (e: any) {
+      alert(e.message || 'Gagal menyimpan konfigurasi');
+    }
+  };
+
+  const handleTestSynthesis = async (id: string) => {
+    setTestingId(id);
+    try {
+      const res = await mutate<{ ok: boolean; audioUrl: string }>('POST', `/admin/voices/${id}/test`, {});
+      if (res?.audioUrl) {
+        const audio = new Audio(toMediaUrl(res.audioUrl));
+        audio.play().catch(() => null);
+        setPlayingId(id);
+        audio.onended = () => setPlayingId(null);
+      }
+      refresh();
+    } catch (e: any) {
+      alert(e.message || 'Test synthesis gagal');
+    } finally {
+      setTestingId(null);
+    }
+  };
+
+  const handleUploadSample = async (id: string, file: File) => {
+    setUploadingId(id);
+    try {
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onload = () => {
+          const res = reader.result as string;
+          const comma = res.indexOf(',');
+          resolve(comma >= 0 ? res.slice(comma + 1) : res);
+        };
+        reader.onerror = reject;
+      });
+      reader.readAsDataURL(file);
+      const base64 = await base64Promise;
+      await mutate('POST', `/admin/voices/${id}/sample-base64`, { filename: file.name, base64 });
+      alert('Sampel suara MP3 berhasil diunggah & diverifikasi ke VPS!');
+      refresh();
+    } catch (e: any) {
+      alert(e.message || 'Gagal mengunggah sampel suara');
+    } finally {
+      setUploadingId(null);
+    }
+  };
+
+  const handlePublish = async (id: string, currentStatus: string) => {
+    try {
+      const action = currentStatus === 'PUBLISHED' ? 'disable' : 'publish';
+      await mutate('POST', `/admin/voices/${id}/${action}`, {});
+      refresh();
+    } catch (e: any) {
+      alert(e.message || 'Gagal mengubah status suara');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Hapus suara ini dari katalog?')) return;
+    try {
+      await mutate('DELETE', `/admin/voices/${id}`);
+      refresh();
+    } catch (e: any) {
+      alert(e.message || 'Gagal menghapus suara');
+    }
+  };
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const slug = newVoice.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      await mutate('POST', '/admin/voices', {
+        provider: newVoice.provider,
+        providerVoiceId: newVoice.providerVoiceId,
+        slug,
+        name: newVoice.name,
+        language: newVoice.language,
+        voiceAttributes: { gender: newVoice.gender },
+        capabilities: {
+          emotion: newVoice.provider === 'gemini',
+          speed: true,
+          pitch: false,
+          instructions: newVoice.provider === 'gemini',
+        },
+      });
+      setModalOpen(false);
+      setNewVoice({ provider: 'gemini', providerVoiceId: '', name: '', language: 'id-ID', gender: 'female' });
+      refresh();
+      alert('Suara berhasil dibuat sebagai DRAFT. Silakan uji coba atau unggah sampel sebelum mempublikasikannya.');
+    } catch (e: any) {
+      alert(e.message || 'Gagal membuat suara baru');
+    }
+  };
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-200">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-accent font-mono font-bold">SUPERADMIN</p>
+          <h1 className="font-display text-2xl font-medium tracking-tight text-text mt-0.5">
+            Manajemen Provider & Suara Narator TTS
+          </h1>
+          <p className="mt-1 text-sm text-muted">
+            Integrasi multi-engine ElevenLabs, Gemini Audio TTS, dan VoiceStudio (self-hosted / cadangan) dengan penyimpanan database & storage VPS.
+          </p>
+        </div>
+        <Button onClick={() => setModalOpen(true)}>＋ Tambah Suara Baru</Button>
+      </div>
+
+      {/* VoiceStudio Integration Banner */}
+      <div className="rounded-2xl border border-accent/30 bg-accent/5 p-5">
+        <div className="flex items-start gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-contrast font-bold text-lg">
+            VS
+          </div>
+          <div className="space-y-1">
+            <h3 className="font-display text-base font-bold text-text flex items-center gap-2">
+              Dukungan Open-Source VoiceStudio (debpalash/VoiceStudio)
+              <span className="rounded bg-accent/20 px-2 py-0.5 text-[10px] font-semibold text-accent">Gratis & Mandiri</span>
+            </h3>
+            <p className="text-xs text-muted leading-relaxed">
+              Anda dapat menjalankan repository <code className="bg-surface px-1.5 py-0.5 rounded text-accent font-mono font-semibold">VoiceStudio</code> atau engine Piper/Kokoro di VPS/Localhost yang mengekspos endpoint OpenAI-compatible <code className="bg-surface px-1.5 py-0.5 rounded font-mono">POST /v1/audio/speech</code>. Cukup aktifkan provider <strong>Cadangan</strong> di bawah dan masukkan URL engine tersebut.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Provider Cards */}
+      <div>
+        <h2 className="font-display text-lg font-medium text-text mb-3">Konfigurasi Engine TTS</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {providers.data?.map((p) => (
+            <ProviderConfigCard
+              key={p.provider}
+              provider={p}
+              onToggle={() => handleToggle(p)}
+              onSave={(apiKey, baseUrl, model) => handleSaveConfig(p.provider, apiKey, baseUrl, model)}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Voices List Table */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-display text-lg font-medium text-text">Katalog Suara di Platform</h2>
+          <span className="text-xs text-muted font-mono">{voices.data?.length || 0} suara terdaftar</span>
+        </div>
+
+        <Card className="p-0 overflow-hidden border border-line bg-surface">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-surface-2/60 text-muted border-b border-line uppercase text-[10px] tracking-wider font-mono">
+                <tr>
+                  <th className="px-4 py-3">Nama & Karakter</th>
+                  <th className="px-4 py-3">Provider & ID</th>
+                  <th className="px-4 py-3">Status Verifikasi</th>
+                  <th className="px-4 py-3">Audio Sampel</th>
+                  <th className="px-4 py-3">Unggah MP3 Manual</th>
+                  <th className="px-4 py-3 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {voices.data?.map((v) => {
+                  const isVerified = v.synthesisConfig?.verified?.ok;
+                  const isPlaying = playingId === v.id;
+                  const isTesting = testingId === v.id;
+                  const isUploading = uploadingId === v.id;
+
+                  return (
+                    <tr key={v.id} className="hover:bg-surface-2/30 transition">
+                      <td className="px-4 py-3">
+                        <span className="font-semibold text-text text-sm">{v.name}</span>
+                        <div className="text-[11px] text-muted flex items-center gap-1.5 mt-0.5">
+                          <span>{v.language}</span>
+                          <span>•</span>
+                          <span className="capitalize">{v.voiceAttributes?.gender || 'Netral'}</span>
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-3 font-mono text-[11px]">
+                        <span className="rounded bg-surface-2 px-2 py-0.5 font-bold uppercase text-[10px]">
+                          {v.provider}
+                        </span>
+                        <span className="block text-muted truncate max-w-[140px] mt-1" title={v.providerVoiceId}>
+                          {v.providerVoiceId}
+                        </span>
+                      </td>
+
+                      <td className="px-4 py-3">
+                        <Pill ok={isVerified}>
+                          {isVerified ? 'Terverifikasi' : 'Belum Teruji'}
+                        </Pill>
+                      </td>
+
+                      <td className="px-4 py-3">
+                        {v.sampleUrl ? (
+                          <button
+                            onClick={() => {
+                              if (isPlaying) {
+                                setPlayingId(null);
+                              } else {
+                                setPlayingId(v.id);
+                                const a = new Audio(toMediaUrl(v.sampleUrl!));
+                                a.play().catch(() => null);
+                                a.onended = () => setPlayingId(null);
+                              }
+                            }}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface-2 px-3 py-1 text-[11px] font-semibold text-text hover:bg-surface-2/80 transition cursor-pointer"
+                          >
+                            <span>{isPlaying ? '■ Stop' : '▶ Putar Audio'}</span>
+                          </button>
+                        ) : (
+                          <span className="text-muted text-[11px] italic">Tidak ada audio</span>
+                        )}
+                      </td>
+
+                      <td className="px-4 py-3">
+                        <label className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-2.5 py-1 text-[11px] text-muted hover:text-text hover:border-accent cursor-pointer transition">
+                          <span>{isUploading ? 'Mengunggah…' : '📁 Pilih .MP3'}</span>
+                          <input
+                            type="file"
+                            accept=".mp3,.wav,.ogg"
+                            className="hidden"
+                            disabled={isUploading}
+                            onChange={(e) => {
+                              const f = e.target.files?.[0];
+                              if (f) handleUploadSample(v.id, f);
+                            }}
+                          />
+                        </label>
+                      </td>
+
+                      <td className="px-4 py-3 text-right space-x-1.5 whitespace-nowrap">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          disabled={isTesting}
+                          onClick={() => handleTestSynthesis(v.id)}
+                        >
+                          {isTesting ? 'Menguji…' : '⚡ Test TTS'}
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          variant={v.status === 'PUBLISHED' ? 'ghost' : 'primary'}
+                          onClick={() => handlePublish(v.id, v.status)}
+                        >
+                          {v.status === 'PUBLISHED' ? 'Nonaktifkan' : 'Publikasikan'}
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-red-500 hover:text-red-600"
+                          onClick={() => handleDelete(v.id)}
+                        >
+                          Hapus
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {(!voices.data || voices.data.length === 0) && (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-12 text-center text-muted">
+                      Belum ada suara terdaftar. Klik "+ Tambah Suara Baru" untuk menambahkan karakter suara.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      </div>
+
+      {/* Modal Tambah Suara */}
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Tambah Suara Narator">
+        <form onSubmit={handleCreate} className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-text mb-1">Provider Engine</label>
+            <Select
+              value={newVoice.provider}
+              onChange={(e) => setNewVoice({ ...newVoice, provider: e.target.value })}
+            >
+              <option value="gemini">Gemini API (Audio Modality)</option>
+              <option value="elevenlabs">ElevenLabs</option>
+              <option value="cadangan">VoiceStudio / Cadangan (OpenAI /v1/audio/speech)</option>
+            </Select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-text mb-1">
+              Voice ID / Nama Voice di Provider
+            </label>
+            <Input
+              placeholder={newVoice.provider === 'gemini' ? 'Misal: Kore, Aoede, Fenrir' : newVoice.provider === 'elevenlabs' ? 'Voice ID ElevenLabs (21 karakter)' : 'Nama suara di engine VoiceStudio'}
+              value={newVoice.providerVoiceId}
+              onChange={(e) => setNewVoice({ ...newVoice, providerVoiceId: e.target.value })}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-text mb-1">Nama Tampilan Karakter</label>
+            <Input
+              placeholder="Contoh: Sarah - Narator Edukasi Santai"
+              value={newVoice.name}
+              onChange={(e) => setNewVoice({ ...newVoice, name: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-text mb-1">Bahasa</label>
+              <Input
+                placeholder="id-ID"
+                value={newVoice.language}
+                onChange={(e) => setNewVoice({ ...newVoice, language: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-text mb-1">Karakter / Gender</label>
+              <Select
+                value={newVoice.gender}
+                onChange={(e) => setNewVoice({ ...newVoice, gender: e.target.value })}
+              >
+                <option value="female">Wanita</option>
+                <option value="male">Pria</option>
+                <option value="neutral">Netral</option>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-line">
+            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)}>
+              Batal
+            </Button>
+            <Button type="submit">
+              Simpan Sebagai Draft
+            </Button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  );
+}
+
+function ProviderConfigCard({
+  provider: p,
+  onToggle,
+  onSave,
+}: {
+  provider: VoiceProvider;
+  onToggle: () => void;
+  onSave: (apiKey: string, baseUrl: string, model: string) => void;
+}) {
+  const [apiKey, setApiKey] = useState('');
+  const [baseUrl, setBaseUrl] = useState(p.config?.baseUrl || '');
+  const [model, setModel] = useState(p.config?.model || '');
+
+  return (
+    <Card className="p-5 flex flex-col justify-between space-y-4 border border-line bg-surface">
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-display text-base font-bold text-text">{p.displayName}</h3>
+            <span className="text-[10px] text-muted font-mono uppercase">{p.provider}</span>
+          </div>
+          <Pill ok={p.isEnabled}>{p.isEnabled ? 'Aktif' : 'Nonaktif'}</Pill>
+        </div>
+
+        <p className="text-[11px] text-muted leading-tight">
+          Kredensial: {p.hasCredential ? '✓ Tersimpan di database VPS (terenkripsi)' : 'Belum diisi'}
+        </p>
+
+        {p.provider === 'cadangan' ? (
+          <div>
+            <label className="block text-[11px] font-medium text-text mb-1">
+              URL Engine VoiceStudio (OpenAI-compatible)
+            </label>
+            <Input
+              placeholder="http://localhost:8000 atau http://vps-ip:8000"
+              value={baseUrl}
+              onChange={(e) => setBaseUrl(e.target.value)}
+              className="text-xs h-9 font-mono"
+            />
+          </div>
+        ) : (
+          <div>
+            <label className="block text-[11px] font-medium text-text mb-1">
+              API Key ({p.displayName})
+            </label>
+            <Input
+              type="password"
+              placeholder={p.hasCredential ? '••••••••••••••••••••' : 'Masukkan API Key baru'}
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              className="text-xs h-9 font-mono"
+            />
+          </div>
+        )}
+
+        <div>
+          <label className="block text-[11px] font-medium text-text mb-1">
+            Model Default (Opsional)
+          </label>
+          <Input
+            placeholder={p.provider === 'gemini' ? 'gemini-2.0-flash' : p.provider === 'elevenlabs' ? 'eleven_multilingual_v2' : 'kokoro / piper'}
+            value={model}
+            onChange={(e) => setModel(e.target.value)}
+            className="text-xs h-9"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 pt-3 border-t border-line">
+        <Button size="sm" onClick={() => onSave(apiKey, baseUrl, model)}>
+          Simpan Kredensial
+        </Button>
+        <Button size="sm" variant={p.isEnabled ? 'ghost' : 'primary'} onClick={onToggle}>
+          {p.isEnabled ? 'Nonaktifkan' : 'Aktifkan'}
+        </Button>
+      </div>
+    </Card>
   );
 }

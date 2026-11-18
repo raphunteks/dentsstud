@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
-import { get, invoke, mutate } from '../bridge';
+import { get, invoke, mutate, toMediaUrl } from '../bridge';
 import { Button, Card, Input, Textarea, Pill } from '../components/UI';
 import type { NavTab, ResultDetail, ResultItem } from '../types';
 
@@ -109,7 +109,7 @@ function HasilDetailView({
   });
 
   const downloadFile = (url: string) => {
-    void invoke('shell:open-external', { url });
+    void invoke('shell:open-external', { url: toMediaUrl(url) });
   };
 
   if (q.isLoading) {
@@ -188,8 +188,8 @@ function HasilDetailView({
         <div className="space-y-4">
           <Card className="overflow-hidden p-0 border border-line bg-black shadow-md rounded-2xl">
             <video
-              src={d.videoUrl}
-              poster={d.coverUrl ?? undefined}
+              src={toMediaUrl(d.videoUrl)}
+              poster={toMediaUrl(d.coverUrl) || undefined}
               controls
               playsInline
               className="max-h-[68vh] w-full bg-black object-contain aspect-[9/16]"
@@ -564,7 +564,7 @@ export function HasilView({ onNavigate }: HasilViewProps) {
               <div className="relative aspect-[9/16] w-full bg-gradient-to-br from-neutral-800 to-neutral-900 overflow-hidden">
                 {item.coverUrl ? (
                   <img
-                    src={item.coverUrl}
+                    src={toMediaUrl(item.coverUrl)}
                     alt={item.title}
                     className="size-full object-cover group-hover:scale-102 transition duration-300"
                   />

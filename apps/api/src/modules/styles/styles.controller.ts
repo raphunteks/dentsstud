@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { PresetRecipe } from '@dentweb/content-schema';
 import type { SessionUser } from '@dentweb/shared-types';
 import { ApiZodBody, ZBody, ZodPipe } from '../../common/zod.js';
-import { CurrentUser, Roles } from '../../common/auth-context.js';
+import { CurrentUser, Public, Roles } from '../../common/auth-context.js';
 import { StylesService } from './styles.service.js';
 
 const slug = z.string().min(2).max(150).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
@@ -27,11 +27,19 @@ const RollbackInput = z.object({ version: z.number().int().min(1) });
 export class StylesController {
   constructor(private readonly svc: StylesService) {}
 
+  @Public()
+  @Get()
+  all(@Query(new ZodPipe(ListQuery)) q: z.infer<typeof ListQuery>) {
+    return this.svc.list({ ...q, categorySlug: q.category, status: undefined }, true);
+  }
+
+  @Public()
   @Get('presets')
   presets(@Query(new ZodPipe(ListQuery)) q: z.infer<typeof ListQuery>) {
     return this.svc.list({ ...q, categorySlug: q.category, status: undefined }, true);
   }
 
+  @Public()
   @Get('presets/:id')
   preset(@Param('id', ParseUUIDPipe) id: string) {
     return this.svc.getPublished(id);
