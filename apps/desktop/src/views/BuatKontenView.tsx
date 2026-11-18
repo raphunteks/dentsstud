@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { get, mutate } from '../bridge';
 import { Button, Card, Input, Pill, Select, Textarea, errMsg } from '../components/UI';
 import type { HookItem, NavTab, StylePreset, VoiceItem } from '../types';
@@ -18,48 +18,11 @@ export function BuatKontenView({ onSuccess, onNavigate }: BuatKontenViewProps) {
   const [format, setFormat] = useState<'9:16' | '16:9' | '1:1'>('9:16');
   const [topicMode, setTopicMode] = useState<'BEBAS' | 'UMUM' | 'PERSIS'>('PERSIS');
   const [topic, setTopic] = useState('Teknologi AI masa depan dan dampaknya');
-  const [voiceId, setVoiceId] = useState<string>('depa');
+  const [voiceId, setVoiceId] = useState<string>('none');
   const [presetCategory, setPresetCategory] = useState<string>('all');
-  const [presetId, setPresetId] = useState<string>('3d-hologram');
+  const [presetId, setPresetId] = useState<string>('');
   const [hookMode, setHookMode] = useState<'AUTO' | 'PRESET' | 'NONE'>('AUTO');
   const [notes, setNotes] = useState('');
-
-  // Fetch presets and voices
-  const presets = useQuery({
-    queryKey: ['presets'],
-    queryFn: () => get<{ items: StylePreset[] }>('/styles/presets?limit=100').catch(() => ({ items: [] })),
-  });
-
-  const voices = useQuery({
-    queryKey: ['voices'],
-    queryFn: () => get<VoiceItem[]>('/voices').catch(() => []),
-  });
-
-  const hooks = useQuery({
-    queryKey: ['hooks'],
-    queryFn: () => get<HookItem[]>('/hooks').catch(() => []),
-  });
-
-  const submit = useMutation({
-    mutationFn: () =>
-      mutate('POST', '/production/runs', {
-        format,
-        topicMode,
-        topic: topicMode === 'BEBAS' ? null : topic,
-        voiceId: voiceId || null,
-        presetId: presetId || null,
-        hookMode,
-        quantity,
-        workerConcurrency: workers,
-        notes: notes || null,
-      }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['dash'] });
-      qc.invalidateQueries({ queryKey: ['runs'] });
-      onSuccess();
-      onNavigate('progress');
-    },
-  });
 
   const catsQuery = useQuery({
     queryKey: ['categories'],
@@ -73,14 +36,69 @@ export function BuatKontenView({ onSuccess, onNavigate }: BuatKontenViewProps) {
     queryKey: ['voices-all'],
     queryFn: () => get<Array<{ id: string; name: string; provider: string; language: string; voiceAttributes?: { gender?: string } }>>('/voices').catch(() => []),
   });
+  const hooksQuery = useQuery({
+    queryKey: ['hooks-all'],
+    queryFn: () => get<HookItem[]>('/hooks').catch(() => []),
+  });
+
+  const presetsList = presetsQuery.data?.items ?? [];
+  const voicesList = voicesQuery.data ?? [];
+
+  // Auto-select first preset once available if none selected
+  useEffect(() => {
+    if (presetsList.length > 0 && (!presetId || !presetsList.some((p) => p.id === presetId))) {
+      setPresetId(presetsList[0]!.id);
+    }
+  }, [presetsList, presetId]);
+
+  const lines = useMemo(
+    () => topic.split('\n').map((l) => l.trim()).filter((l) => l.length >= 2),
+    [topic],
+  );
+  const effQty = topicMode === 'PERSIS' ? Math.max(1, lines.length) : quantity;
+
+  const submit = useMutation({
+    mutationFn: () => {
+      const isTts = voiceId !== 'none' && voiceId !== 'auto' && Boolean(voiceId);
+      const selectedVoice = isTts ? voicesList.find((v) => v.id === voiceId) : null;
+      const isCustomPreset = presetId && presetId !== 'auto' && presetsList.some((p) => p.id === presetId);
+      const targetPresetId = isCustomPreset ? presetId : (presetsList[0]?.id ?? null);
+
+      return mutate('POST', '/production/orders', {
+        quantity: effQty,
+        workers: Math.min(workers, effQty),
+        format,
+        topicMode,
+        topic: topicMode === 'UMUM' ? (lines[0] ?? topic) : topicMode === 'PERSIS' ? '' : topic,
+        topics: topicMode === 'PERSIS' ? lines : [],
+        voice: selectedVoice
+          ? { mode: 'TTS', voiceId: selectedVoice.id }
+          : { mode: 'NONE' },
+        presetId: targetPresetId,
+        referenceAssetIds: [],
+        hook: { mode: hookMode, hookId: null },
+        notes: notes.trim(),
+        start: true,
+      });
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['dash'] });
+      qc.invalidateQueries({ queryKey: ['runs'] });
+      qc.invalidateQueries({ queryKey: ['production-readiness'] });
+      onSuccess();
+      onNavigate('progress');
+    },
+  });
 
   const CATEGORIES = [
     { id: 'all', name: 'Semua' },
     ...(catsQuery.data?.categories?.map((c) => ({ id: c.slug, name: c.name })) ?? []),
   ];
 
-  const presetsList = presetsQuery.data?.items ?? [];
-  const voicesList = voicesQuery.data ?? [];
+  const selectedPreset = presetsList.find((p) => p.id === presetId);
+  const presetDisplayName = selectedPreset?.name ?? (presetsList.length > 0 ? presetsList[0]!.name : 'Standar Otomatis AI');
+  const selectedVoice = voicesList.find((v) => v.id === voiceId);
+  const voiceDisplayName = voiceId === 'none' ? 'Tanpa Narasi (Hening)' : selectedVoice ? selectedVoice.name : 'Otomatis';
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
@@ -358,7 +376,7 @@ export function BuatKontenView({ onSuccess, onNavigate }: BuatKontenViewProps) {
             <div className="space-y-2.5 text-xs">
               <div className="flex justify-between">
                 <span className="text-muted">Jumlah</span>
-                <span className="font-semibold text-text">{quantity} video</span>
+                <span className="font-semibold text-text">{effQty} video</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted">Format</span>
@@ -366,15 +384,19 @@ export function BuatKontenView({ onSuccess, onNavigate }: BuatKontenViewProps) {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted">Worker</span>
-                <span className="font-semibold text-text">{workers} bersamaan</span>
+                <span className="font-semibold text-text">{Math.min(workers, effQty)} bersamaan</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted">Suara</span>
-                <span className="font-semibold text-text capitalize">{voiceId}</span>
+                <span className="font-semibold text-text truncate max-w-[170px] text-right" title={voiceDisplayName}>
+                  {voiceDisplayName}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted">Gaya</span>
-                <span className="font-semibold text-text capitalize">{presetId.replace('-', ' ')}</span>
+                <span className="font-semibold text-text truncate max-w-[170px] text-right" title={presetDisplayName}>
+                  {presetDisplayName}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted">Estimasi</span>
@@ -386,11 +408,16 @@ export function BuatKontenView({ onSuccess, onNavigate }: BuatKontenViewProps) {
               <Button
                 size="lg"
                 className="w-full text-sm font-semibold"
-                disabled={submit.isPending}
+                disabled={submit.isPending || (topicMode !== 'BEBAS' && lines.length === 0)}
                 onClick={() => submit.mutate()}
               >
                 {submit.isPending ? 'Mengirim tugas…' : '▶ Mulai produksi'}
               </Button>
+              {topicMode !== 'BEBAS' && lines.length === 0 && (
+                <p className="mt-2 text-[11px] text-amber-500 text-center">
+                  Masukkan topik sebelum memulai produksi.
+                </p>
+              )}
               {submit.isError && (
                 <p className="mt-2 text-xs text-bad text-center">
                   {errMsg(submit.error)}

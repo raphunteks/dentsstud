@@ -28,12 +28,12 @@ export function ProgressView({ onNavigate }: ProgressViewProps) {
   });
 
   const STAGES = [
-    { id: 'RESEARCH', label: 'Riset' },
-    { id: 'SCRIPT', label: 'Naskah' },
-    { id: 'FACT_CHECK', label: 'Cek fakta' },
-    { id: 'MOTION', label: 'Motion & render' },
-    { id: 'QC', label: 'QC' },
-    { id: 'SOCIAL', label: 'Paket sosial' },
+    { id: 'RESEARCH', label: 'Riset', desc: 'Fakta & Sumber' },
+    { id: 'SCRIPT', label: 'Naskah', desc: 'Narasi & Scene' },
+    { id: 'FACT_CHECK', label: 'Cek Fakta', desc: 'Verifikasi Klaim' },
+    { id: 'MOTION', label: 'Motion & Render', desc: 'Remotion Video' },
+    { id: 'QC', label: 'QC', desc: 'Kualitas & Durasi' },
+    { id: 'SOCIAL', label: 'Paket Sosial', desc: 'Caption & Cover' },
   ];
 
   return (
@@ -152,15 +152,35 @@ export function ProgressView({ onNavigate }: ProgressViewProps) {
 
               {/* Pipeline Stage Pills */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 pt-2 border-t border-line">
-                {STAGES.map((s, idx) => (
-                  <div
-                    key={s.id}
-                    className="rounded-lg border border-line bg-surface-2/40 p-2 text-center"
-                  >
-                    <span className="block text-[10px] text-muted font-mono">0{idx + 1}</span>
-                    <span className="block text-xs font-medium text-text mt-0.5">{s.label}</span>
-                  </div>
-                ))}
+                {STAGES.map((s, idx) => {
+                  const stageOrder = ['RESEARCH', 'SCRIPT', 'FACT_CHECK', 'MOTION', 'QC', 'SOCIAL'];
+                  const currentIdx = stageOrder.indexOf(r.currentStage || '');
+                  const isCompleted = r.status === 'COMPLETED' || (r.status === 'RUNNING' && currentIdx > idx);
+                  const isActive = (r.status === 'RUNNING' && (r.currentStage === s.id || (currentIdx === -1 && idx === 0))) || (r.status === 'QUEUED' && idx === 0);
+                  const isFailed = r.status === 'FAILED' && (r.currentStage === s.id || (currentIdx === -1 && idx === 0));
+
+                  return (
+                    <div
+                      key={s.id}
+                      className={clsx(
+                        'rounded-lg border p-2 text-center transition-all',
+                        isCompleted && 'border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+                        isActive && 'border-accent bg-accent/15 text-accent ring-2 ring-accent/30 font-semibold shadow-sm',
+                        isFailed && 'border-red-500/40 bg-red-500/10 text-red-500 font-semibold',
+                        !isCompleted && !isActive && !isFailed && 'border-line bg-surface-2/40 text-muted opacity-60',
+                      )}
+                    >
+                      <div className="flex items-center justify-between text-[10px] font-mono mb-1">
+                        <span>0{idx + 1}</span>
+                        {isCompleted && <span className="font-bold">✓</span>}
+                        {isActive && <span className="inline-block size-2 rounded-full bg-accent animate-ping" />}
+                        {isFailed && <span className="font-bold">✕</span>}
+                      </div>
+                      <span className="block text-xs font-semibold mt-0.5">{s.label}</span>
+                      <span className="block text-[9px] text-muted truncate mt-0.5">{s.desc}</span>
+                    </div>
+                  );
+                })}
               </div>
             </Card>
           ))}
