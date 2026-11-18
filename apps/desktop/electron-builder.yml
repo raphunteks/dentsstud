@@ -27,6 +27,19 @@ mac:
   notarize: false
 dmg:
   artifactName: DENTSWEB-STUDIO-${version}-${arch}.dmg
+  background: build/background.tiff
+  iconSize: 128
+  window:
+    width: 660
+    height: 440
+  contents:
+    - x: 180
+      y: 220
+      type: file
+    - x: 480
+      y: 220
+      type: link
+      path: /Applications
 win:
   target:
     - target: nsis
