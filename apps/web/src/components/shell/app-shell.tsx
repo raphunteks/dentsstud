@@ -85,6 +85,7 @@ const ROUTE_ICONS: Record<string, typeof IconHome> = {
   '/voices': IconVoices,
   '/studio/projects': IconStudio,
   '/studio/render': IconSystem,
+  '/kelas': IconHelp,
   '/settings/claude': IconClaude,
   '/settings/voice-accounts': IconVoices,
   '/settings/brand': IconSettings,
@@ -109,6 +110,7 @@ const ROUTE_ICONS: Record<string, typeof IconHome> = {
   '/admin/system': IconSystem,
   '/admin/office': IconUsers,
   '/admin/social': IconReleases,
+  '/admin/lms': IconWorkflow,
 };
 
 function ThemeIcon({ dark }: { dark: boolean }) {

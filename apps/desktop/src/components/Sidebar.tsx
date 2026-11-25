@@ -43,6 +43,7 @@ export function Sidebar({
     utama: true,
     produksi: true,
     studio: true,
+    belajar: true,
     engine: true,
     admin: true,
     pengaturan: true,
@@ -102,6 +103,11 @@ export function Sidebar({
           ],
         },
         {
+          id: 'belajar',
+          title: 'Belajar',
+          items: [{ id: 'kelas-lms', label: 'Kelas & Materi', icon: 'layers' }],
+        },
+        {
           id: 'studio',
           title: 'Studio',
           items: [
@@ -141,6 +147,7 @@ export function Sidebar({
                   { id: 'admin-system' as NavTab, label: '14 Sistem & VPS', icon: 'server' as IconName },
                   { id: 'admin-office' as NavTab, label: '15 Kantor & RBAC', icon: 'monitor' as IconName },
                   { id: 'admin-social' as NavTab, label: '16 Social Publisher', icon: 'upload' as IconName },
+                  { id: 'admin-lms' as NavTab, label: '17 Kelas & LMS', icon: 'layers' as IconName },
                 ],
               },
             ]

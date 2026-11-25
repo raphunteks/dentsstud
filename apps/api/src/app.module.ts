@@ -20,6 +20,7 @@ import { ProjectsModule } from './modules/projects/projects.module.js';
 import { RenderModule } from './modules/rendering/render.module.js';
 import { ProductionModule } from './modules/production/production.module.js';
 import { SocialModule } from './modules/social/social.module.js';
+import { LmsModule } from './modules/lms/lms.module.js';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { SocialModule } from './modules/social/social.module.js';
     RenderModule,
     ProductionModule,
     SocialModule,
+    LmsModule,
     HealthModule,
     OpsModule,
   ],

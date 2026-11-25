@@ -12,13 +12,19 @@ export function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   // Never intercept login or register in edge middleware
-  if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
+  if (
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/register') ||
+    pathname.startsWith('/kelas/login') ||
+    pathname.startsWith('/kelas/register')
+  ) {
     return NextResponse.next();
   }
 
-  // Protected routes: if no session cookie, redirect to login
+  // Protected routes: if no session cookie, redirect to appropriate login
   if (!hasSession) {
-    const loginUrl = new URL('/login', req.url);
+    const loginPath = pathname === '/kelas' || pathname.startsWith('/kelas/') ? '/kelas/login' : '/login';
+    const loginUrl = new URL(loginPath, req.url);
     loginUrl.searchParams.set('next', pathname);
     return NextResponse.redirect(loginUrl);
   }
@@ -34,9 +40,12 @@ export const config = {
     '/create-content/:path*',
     '/progress/:path*',
     '/results/:path*',
+    '/social/:path*',
     '/help/:path*',
     '/studio/:path*',
     '/styles/:path*',
     '/voices/:path*',
+    '/kelas',
+    '/kelas/:path*',
   ],
 };

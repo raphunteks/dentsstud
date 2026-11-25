@@ -17,6 +17,7 @@ import { BantuanView } from './views/BantuanView';
 import { FolderImportView, LocalRenderView, OfflineProjectsView } from './views/DesktopEngineViews';
 import { AdminOfficeView } from './views/AdminOfficeView';
 import { AdminSocialView, SocialView } from './views/SocialView';
+import { AdminLmsView, LmsView } from './views/LmsView';
 import {
   AdminAIProvidersView,
   AdminAnalyticsView,
@@ -291,10 +292,10 @@ function StudioShell({
 
   const handleNavigate = (
     tab: NavTab,
-    opts?: { presetId?: string; voiceId?: string; resultsTab?: 'READY' | 'UPLOADED' | 'FAILED' | 'ALL' | 'TRASH'; socialResultId?: string }
+    opts?: { presetId?: string; voiceId?: string; topic?: string; notes?: string; resultsTab?: 'READY' | 'UPLOADED' | 'FAILED' | 'ALL' | 'TRASH'; socialResultId?: string }
   ) => {
-    if (opts?.presetId || opts?.voiceId) {
-      setCreatePrefill({ presetId: opts.presetId, voiceId: opts.voiceId });
+    if (opts?.presetId || opts?.voiceId || opts?.topic || opts?.notes) {
+      setCreatePrefill({ presetId: opts.presetId, voiceId: opts.voiceId, topic: opts.topic, notes: opts.notes });
     }
     if (opts?.resultsTab) {
       setResultsSubTab(opts.resultsTab);
@@ -451,7 +452,7 @@ function StudioShell({
               </div>
             )}
 
-            <span className="num font-mono text-[11px]">v{info?.version ?? '1.0.16'}</span>
+            <span className="num font-mono text-[11px]">v{info?.version ?? '1.0.17'}</span>
           </div>
         </header>
 
@@ -476,6 +477,7 @@ function StudioShell({
                   {currentTab === 'progress' && <ProgressView onNavigate={handleNavigate} />}
                   {currentTab === 'hasil' && <HasilView onNavigate={handleNavigate} initialSubTab={resultsSubTab} />}
                   {currentTab === 'sosial-media' && <SocialView initialResultId={socialResultId} />}
+                  {currentTab === 'kelas-lms' && <LmsView onNavigate={handleNavigate} />}
                   {currentTab === 'galeri-gaya' && <GaleriGayaView onNavigate={handleNavigate} />}
                   {currentTab === 'suara' && <SuaraView onNavigate={handleNavigate} />}
                   {currentTab === 'pengaturan' && (
@@ -501,6 +503,7 @@ function StudioShell({
                   {currentTab === 'admin-system' && <AdminSystemView />}
                   {currentTab === 'admin-office' && <AdminOfficeView />}
                   {currentTab === 'admin-social' && <AdminSocialView />}
+                  {currentTab === 'admin-lms' && <AdminLmsView />}
                 </>
               )}
             </ErrorBoundary>

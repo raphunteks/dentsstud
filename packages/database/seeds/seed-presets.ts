@@ -155,7 +155,7 @@ export function buildPresetVersionPayload(item: (typeof PRESETS_DATA)[number]) {
     files: [{ path: 'recipe.json', sha256: recipeSha, role: 'recipe' as const }],
     recommendedMusic: item.music,
     recommendedVoice: item.voice,
-    tags: [item.categorySlug, 'reels', 'tiktok', 'remotion', 'one-line-motion'],
+    tags: [item.categorySlug, 'reels', 'tiktok', 'remotion', 'dentsweb-motion'],
   };
 
   const checksum = crypto.createHash('sha256').update(JSON.stringify({ manifest, recipe })).digest('hex');

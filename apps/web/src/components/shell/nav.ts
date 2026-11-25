@@ -31,6 +31,7 @@ export const MEMBER_NAV: NavGroup[] = [
       { href: '/voices', label: 'Suara' },
       { href: '/studio/projects', label: 'Motion Editor' },
       { href: '/studio/render', label: 'Render Center' },
+      { href: '/kelas', label: 'Kelas DENTSWEB MOTION' },
     ],
   },
   {
@@ -82,6 +83,7 @@ export const ADMIN_NAV: NavGroup[] = [
       { href: '/admin/system', label: '14 Sistem & VPS' },
       { href: '/admin/office', label: '15 Kantor & RBAC' },
       { href: '/admin/social', label: '16 Social Publisher' },
+      { href: '/admin/lms', label: '17 Kelas & LMS' },
     ],
   },
 ];

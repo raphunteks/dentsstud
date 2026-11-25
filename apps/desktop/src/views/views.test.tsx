@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AdminLicensesView, AdminMembersView, AdminSystemView, AdminWorkflowsView, AdminProductionView, AdminQuotasView, AdminReleasesView, AdminSupportView } from './SuperadminViews';
 import { AdminOfficeView } from './AdminOfficeView';
 import { AdminSocialView, SocialView } from './SocialView';
+import { AdminLmsView, LmsView } from './LmsView';
 import { HasilView } from './HasilView';
 import { ErrorBoundary } from '../components/UI';
 import { CHANNEL_NAMES } from '../../electron/ipc/channels';
@@ -55,6 +56,8 @@ describe('Desktop Superadmin and Member Views Integrity', () => {
       <AdminOfficeView key="8" />,
       <AdminSocialView key="9" />,
       <SocialView key="10" />,
+      <AdminLmsView key="11" />,
+      <LmsView key="12" onNavigate={() => {}} />,
     ];
 
     for (const view of views) {

@@ -1538,7 +1538,7 @@ export function AdminWorkflowsView() {
                     className="text-xs text-muted file:mr-2 file:rounded-md file:border file:border-line file:bg-surface file:px-2.5 file:py-1 file:text-xs file:text-text cursor-pointer"
                   />
                 </div>
-                <Input placeholder="Nama Skill (mis. one-line-motion)" value={skillName} onChange={(e) => setSkillName(e.target.value)} className="h-9 text-xs" />
+                <Input placeholder="Nama Skill (mis. dentsweb-motion)" value={skillName} onChange={(e) => setSkillName(e.target.value)} className="h-9 text-xs" />
                 <Input placeholder="Deskripsi singkat" value={skillDesc} onChange={(e) => setSkillDesc(e.target.value)} className="h-9 text-xs" />
                 <Textarea rows={6} placeholder="Instruksi Markdown Skill (# Rules, Timing, Easing...)" value={skillBody} onChange={(e) => setSkillBody(e.target.value)} className="text-xs font-mono" />
                 <div>
@@ -1904,7 +1904,7 @@ export function AdminQuotasView() {
 /** 11. Rilis Desktop (Upload .dmg/.exe, Dynamic version from app:info, Toggle Active, Download Links) */
 export function AdminReleasesView({ info }: { info?: Info }) {
   const qc = useQueryClient();
-  const curVer = info?.version ?? '1.0.16';
+  const curVer = info?.version ?? '1.0.17';
 
   const [platform, setPlatform] = useState<'darwin' | 'win32'>('darwin');
   const [arch, setArch] = useState<'arm64' | 'x64' | 'universal'>('arm64');

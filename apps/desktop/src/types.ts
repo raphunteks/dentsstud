@@ -96,6 +96,8 @@ export type UpdateState =
 export interface CreatePrefill {
   presetId?: string;
   voiceId?: string;
+  topic?: string;
+  notes?: string;
 }
 
 export interface ResultDetail {
@@ -145,6 +147,7 @@ export type NavTab =
   | 'progress'
   | 'hasil'
   | 'sosial-media'
+  | 'kelas-lms'
   | 'galeri-gaya'
   | 'suara'
   | 'pengaturan'
@@ -167,4 +170,5 @@ export type NavTab =
   | 'admin-support'
   | 'admin-analytics'
   | 'admin-office'
-  | 'admin-social';
+  | 'admin-social'
+  | 'admin-lms';

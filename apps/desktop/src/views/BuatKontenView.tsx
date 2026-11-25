@@ -70,6 +70,11 @@ export function BuatKontenView({ onSuccess, onNavigate, prefill }: BuatKontenVie
       setVoiceMode('TTS');
       setVoiceId(prefill.voiceId);
     }
+    if (prefill?.topic) {
+      setTopicMode('PERSIS');
+      setTopic(prefill.topic);
+    }
+    if (prefill?.notes) setNotes(prefill.notes);
   }, [prefill]);
 
   // Pre-fill default voice from /voices/preferences/me

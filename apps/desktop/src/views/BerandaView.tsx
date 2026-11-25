@@ -84,7 +84,7 @@ export function BerandaView({ dash, offline, onNavigate }: BerandaViewProps) {
               <h2 className="font-display text-xl font-medium text-text">Katalog gaya visual siap pakai</h2>
             </div>
             <p className="mt-1 text-xs sm:text-sm text-muted max-w-2xl">
-              Pilih gaya visual resmi One-Line Motion dan tim agent akan menyesuaikannya ke format Reels/TikTok 9:16 berbahasa Indonesia.
+              Pilih gaya visual resmi DENTSWEB MOTION dan tim agent akan menyesuaikannya ke format Reels/TikTok 9:16 berbahasa Indonesia.
             </p>
           </div>
           <Button variant="ghost" onClick={() => onNavigate('galeri-gaya')} className="text-xs sm:text-sm">

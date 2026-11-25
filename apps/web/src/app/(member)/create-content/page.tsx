@@ -95,6 +95,7 @@ function CreateContentInner() {
   const sp = useSearchParams();
   const qPreset = sp.get('preset');
   const qVoice = sp.get('voice');
+  const qTopic = sp.get('topic');
   const ready = useQuery({ queryKey: ['production-readiness'], queryFn: () => api<Ready>('/production/readiness') });
   const voices = useQuery({ queryKey: ['voices-all'], queryFn: () => api<Voice[]>('/voices') });
   const presets = useQuery({ queryKey: ['presets-all'], queryFn: () => api<{ items: Preset[] }>('/styles/presets?limit=100') });
@@ -104,8 +105,8 @@ function CreateContentInner() {
   const [quantity, setQuantity] = useState(1);
   const [workers, setWorkers] = useState(1);
   const [format, setFormat] = useState<Format>('9:16');
-  const [topicMode, setTopicMode] = useState<TopicMode>('BEBAS');
-  const [topic, setTopic] = useState('');
+  const [topicMode, setTopicMode] = useState<TopicMode>(qTopic ? 'PERSIS' : 'BEBAS');
+  const [topic, setTopic] = useState(qTopic ?? '');
   const [voiceMode, setVoiceMode] = useState<VoiceMode>('NONE');
   const [voiceId, setVoiceId] = useState<string>('');
   const [upload, setUpload] = useState<Media | null>(null);
