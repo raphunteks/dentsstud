@@ -138,6 +138,7 @@ export function Sidebar({
                   { id: 'admin-support' as NavTab, label: '12 Support & Help', icon: 'ticket' as IconName },
                   { id: 'admin-analytics' as NavTab, label: '13 Analitik & Error', icon: 'search' as IconName },
                   { id: 'admin-system' as NavTab, label: '14 Sistem & VPS', icon: 'server' as IconName },
+                  { id: 'admin-office' as NavTab, label: '15 Kantor & RBAC', icon: 'monitor' as IconName },
                 ],
               },
             ]

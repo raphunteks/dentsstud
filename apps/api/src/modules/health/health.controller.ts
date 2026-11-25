@@ -28,7 +28,7 @@ export class HealthController {
       }
     };
     const [db, redis] = await Promise.all([check(() => this.db.execute(sql`select 1`)), check(() => this.redis.ping())]);
-    return { status: db === 'up' && redis === 'up' ? 'ok' : 'degraded', db, redis, smtp: this.mail.configured ? 'configured' : 'not_configured', version: process.env.APP_VERSION ?? '1.0.13' };
+    return { status: db === 'up' && redis === 'up' ? 'ok' : 'degraded', db, redis, smtp: this.mail.configured ? 'configured' : 'not_configured', version: process.env.APP_VERSION ?? '1.0.14' };
   }
 }
 

@@ -1,8 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, count, desc, eq, gt, ilike, isNull, lt, or, sql, sum, type SQL } from 'drizzle-orm';
+import { hash } from '@node-rs/argon2';
+import { randomBytes } from 'node:crypto';
+import { and, count, desc, eq, gt, ilike, inArray, isNull, lt, or, sql, sum, type SQL } from 'drizzle-orm';
 import type { Redis } from 'ioredis';
 import {
-  type Database, aiConnections, auditLogs, devices, featureFlags, hookPresets, incidents, licenses, mediaAssets, productionRuns,
+  type Database, aiConnections, auditLogs, authIdentities, devices, featureFlags, hookPresets, incidents, licenses, mediaAssets, productionRuns,
   renderJobs, sessions, styleCategories, systemSettings, users, visualPresets, voiceProfiles, workerNodes,
 } from '@dentweb/database';
 import type { PageQuery } from '@dentweb/shared-types';
@@ -26,6 +28,16 @@ import {
   type ParsedSkillBundle,
   type RawSkillFile,
 } from './skills.helper.js';
+
+const ARGON = { memoryCost: 19456, timeCost: 2, parallelism: 1, outputLen: 32 } as const;
+
+function generateTempPassword(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  const bytes = randomBytes(12);
+  let out = 'Dw';
+  for (let i = 0; i < 10; i++) out += chars[bytes[i]! % chars.length];
+  return `${out}9`;
+}
 
 @Injectable()
 export class AdminService {
@@ -106,6 +118,14 @@ export class AdminService {
       .select({
         id: users.id, email: users.email, displayName: users.displayName, role: users.role, status: users.status, createdAt: users.createdAt,
         licenseStatus: sql<string | null>`(select case when l.status = 'ACTIVE' and l.valid_until is not null and l.valid_until <= now() then 'EXPIRED' else l.status end from ${licenses} l where l.user_id = ${users.id} order by l.created_at desc limit 1)`,
+        licenseValidUntil: sql<string | null>`(select l.valid_until from ${licenses} l where l.user_id = ${users.id} order by l.created_at desc limit 1)`,
+        licenseMaxDevices: sql<number | null>`(select l.max_devices from ${licenses} l where l.user_id = ${users.id} order by l.created_at desc limit 1)`,
+        activeDevicesCount: sql<number>`(select count(*)::int from ${devices} d where d.user_id = ${users.id} and d.revoked_at is null)`,
+        activeSessionsCount: sql<number>`(select count(*)::int from ${sessions} s where s.user_id = ${users.id} and s.revoked_at is null and s.expires_at > now())`,
+        lastSeenAt: sql<string | null>`greatest(
+          (select max(s.last_seen_at) from ${sessions} s where s.user_id = ${users.id}),
+          (select max(d.last_seen_at) from ${devices} d where d.user_id = ${users.id})
+        )`,
       })
       .from(users)
       .where(and(...where))
@@ -147,6 +167,237 @@ export class AdminService {
     await this.sessions.revoke(sessionId);
     await this.audit.log({ actorId, action: 'session.revoke', targetType: 'session', targetId: sessionId });
     return { ok: true };
+  }
+
+  async createMember(
+    actorId: string,
+    input: { displayName: string; email: string; password?: string; role?: 'MEMBER' | 'SUPERADMIN'; grantLicenseDays?: number; maxDevices?: number },
+    ip?: string,
+  ) {
+    const email = input.email.trim().toLowerCase();
+    const [existing] = await this.db.select({ id: users.id }).from(users).where(eq(users.email, email));
+    if (existing) throw Errors.conflict('EMAIL_EXISTS', 'Email sudah terdaftar');
+
+    const temporaryPassword = input.password?.trim() || generateTempPassword();
+    const secretHash = await hash(temporaryPassword, ARGON);
+
+    const user = await this.db.transaction(async (tx) => {
+      const [u] = await tx
+        .insert(users)
+        .values({
+          email,
+          displayName: input.displayName.trim(),
+          role: input.role ?? 'MEMBER',
+          status: 'ACTIVE',
+        })
+        .returning();
+      await tx.insert(authIdentities).values({
+        userId: u!.id,
+        provider: 'password',
+        providerSubject: email,
+        secretHash,
+      });
+      return u!;
+    });
+
+    if (input.grantLicenseDays && input.grantLicenseDays > 0) {
+      const validUntil = new Date(Date.now() + input.grantLicenseDays * 86_400_000).toISOString();
+      await this.licenses.grant(
+        actorId,
+        {
+          userId: user.id,
+          maxDevices: input.maxDevices ?? 2,
+          validUntil,
+          entitlements: { maxWorkers: 2, maxVideosPerDay: 10, cloudRender: true, cloudRenderMinutesPerMonth: 120 },
+        },
+        ip,
+      );
+    }
+
+    await this.audit.log({ actorId, action: 'member.create', targetType: 'user', targetId: user.id, metadata: { email, role: user.role }, ip });
+    return { user, temporaryPassword };
+  }
+
+  async updateMember(
+    actorId: string,
+    id: string,
+    patch: { displayName?: string; email?: string; role?: 'MEMBER' | 'SUPERADMIN'; status?: 'ACTIVE' | 'SUSPENDED' | 'DISABLED' },
+    ip?: string,
+  ) {
+    if (actorId === id && (patch.role === 'MEMBER' || (patch.status && patch.status !== 'ACTIVE'))) {
+      throw Errors.invalid('SELF_EDIT_FORBIDDEN', 'Tidak dapat menurunkan role atau menonaktifkan akun sendiri');
+    }
+    const [cur] = await this.db.select().from(users).where(and(eq(users.id, id), isNull(users.deletedAt)));
+    if (!cur) throw Errors.notFound('Member');
+
+    const nextEmail = patch.email ? patch.email.trim().toLowerCase() : undefined;
+    if (nextEmail && nextEmail !== cur.email) {
+      const [dup] = await this.db.select({ id: users.id }).from(users).where(eq(users.email, nextEmail));
+      if (dup) throw Errors.conflict('EMAIL_EXISTS', 'Email sudah digunakan oleh akun lain');
+    }
+
+    const [updated] = await this.db
+      .update(users)
+      .set({
+        ...(patch.displayName ? { displayName: patch.displayName.trim() } : {}),
+        ...(nextEmail ? { email: nextEmail } : {}),
+        ...(patch.role ? { role: patch.role } : {}),
+        ...(patch.status ? { status: patch.status } : {}),
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning();
+
+    if (nextEmail && nextEmail !== cur.email) {
+      await this.db
+        .update(authIdentities)
+        .set({ providerSubject: nextEmail })
+        .where(and(eq(authIdentities.userId, id), eq(authIdentities.provider, 'password')));
+    }
+    if (patch.status && patch.status !== 'ACTIVE') {
+      await this.sessions.revokeAllForUser(id);
+    }
+    if (patch.status && patch.status !== cur.status) {
+      await this.notifications.notify(id, 'member.status_changed', { status: patch.status }).catch(() => undefined);
+    }
+    await this.audit.log({ actorId, action: 'member.update', targetType: 'user', targetId: id, metadata: patch, ip });
+    return updated!;
+  }
+
+  async resetMemberPassword(
+    actorId: string,
+    id: string,
+    input: { newPassword?: string; revokeSessions?: boolean },
+    ip?: string,
+  ) {
+    const [u] = await this.db.select().from(users).where(and(eq(users.id, id), isNull(users.deletedAt)));
+    if (!u) throw Errors.notFound('Member');
+    const temporaryPassword = input.newPassword?.trim() || generateTempPassword();
+    const secretHash = await hash(temporaryPassword, ARGON);
+
+    const [existingAuth] = await this.db
+      .select({ id: authIdentities.id })
+      .from(authIdentities)
+      .where(and(eq(authIdentities.userId, id), eq(authIdentities.provider, 'password')));
+    if (existingAuth) {
+      await this.db.update(authIdentities).set({ secretHash, providerSubject: u.email }).where(eq(authIdentities.id, existingAuth.id));
+    } else {
+      await this.db.insert(authIdentities).values({ userId: id, provider: 'password', providerSubject: u.email, secretHash });
+    }
+
+    if (input.revokeSessions !== false) {
+      await this.sessions.revokeAllForUser(id);
+    }
+    await this.audit.log({ actorId, action: 'member.reset_password', targetType: 'user', targetId: id, metadata: { revokeSessions: input.revokeSessions !== false }, ip });
+    return { ok: true, temporaryPassword };
+  }
+
+  async revokeAllSessions(actorId: string, id: string, ip?: string) {
+    const [u] = await this.db.select({ id: users.id }).from(users).where(and(eq(users.id, id), isNull(users.deletedAt)));
+    if (!u) throw Errors.notFound('Member');
+    const revoked = await this.db
+      .update(sessions)
+      .set({ revokedAt: new Date() })
+      .where(and(eq(sessions.userId, id), isNull(sessions.revokedAt)))
+      .returning({ id: sessions.id });
+    await this.audit.log({ actorId, action: 'member.revoke_all_sessions', targetType: 'user', targetId: id, metadata: { revokedCount: revoked.length }, ip });
+    return { ok: true, revokedCount: revoked.length };
+  }
+
+  async officePresence() {
+    const now = new Date();
+    const nowMs = now.getTime();
+    const [allUsers, activeSess, activeDevs, activeRuns, activeRenders, recentLogs] = await Promise.all([
+      this.db.select({ id: users.id, displayName: users.displayName, email: users.email, role: users.role, status: users.status }).from(users).where(isNull(users.deletedAt)).orderBy(desc(users.createdAt)).limit(200),
+      this.db.select({ userId: sessions.userId, client: sessions.client, lastSeenAt: sessions.lastSeenAt }).from(sessions).where(and(isNull(sessions.revokedAt), gt(sessions.expiresAt, now))),
+      this.db.select({ userId: devices.userId, platform: devices.platform, lastSeenAt: devices.lastSeenAt }).from(devices).where(isNull(devices.revokedAt)),
+      this.db
+        .select({ userId: productionRuns.userId, topic: productionRuns.topic, currentStage: productionRuns.currentStage, progress: productionRuns.progress, status: productionRuns.status })
+        .from(productionRuns)
+        .where(inArray(productionRuns.status, ['QUEUED', 'RUNNING'])),
+      this.db
+        .select({ userId: renderJobs.userId, mode: renderJobs.mode, progress: renderJobs.progress, status: renderJobs.status })
+        .from(renderJobs)
+        .where(inArray(renderJobs.status, ['QUEUED', 'RUNNING'])),
+      this.db
+        .select({ id: auditLogs.id, action: auditLogs.action, createdAt: auditLogs.createdAt, actorEmail: users.email })
+        .from(auditLogs)
+        .leftJoin(users, eq(users.id, auditLogs.actorId))
+        .orderBy(desc(auditLogs.createdAt))
+        .limit(15),
+    ]);
+
+    const members = allUsers.map((u) => {
+      const uSess = activeSess.filter((s) => s.userId === u.id);
+      const uDevs = activeDevs.filter((d) => d.userId === u.id);
+      const uRun = activeRuns.find((r) => r.userId === u.id);
+      const uRender = activeRenders.find((r) => r.userId === u.id);
+
+      const latestSess = uSess.sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime())[0];
+      const latestDev = uDevs.sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime())[0];
+      const lastSeenDate = [latestSess?.lastSeenAt, latestDev?.lastSeenAt]
+        .filter((d): d is Date => Boolean(d))
+        .sort((a, b) => b.getTime() - a.getTime())[0] ?? null;
+      const ageMs = lastSeenDate ? nowMs - lastSeenDate.getTime() : Infinity;
+
+      let presence: 'PRODUCING' | 'ONLINE' | 'IDLE' | 'OFFLINE' = 'OFFLINE';
+      let room: 'RENDER_ROOM' | 'WORKSPACE' | 'MEETING' | 'LOUNGE' = 'LOUNGE';
+      let activity = 'Sedang offline';
+      let stage: string | null = null;
+      let progress: number | null = null;
+
+      if (uRun || uRender) {
+        presence = 'PRODUCING';
+        room = 'RENDER_ROOM';
+        stage = uRun?.currentStage ?? (uRender ? `RENDER_${uRender.mode}` : 'PRODUCTION');
+        progress = uRun?.progress ?? uRender?.progress ?? 0;
+        activity = uRun?.topic ? `Produksi: ${uRun.topic}` : `Render ${uRender?.mode ?? 'video'} (${progress}%)`;
+      } else if (uSess.length > 0 && ageMs <= 15 * 60_000) {
+        presence = 'ONLINE';
+        room = u.role === 'SUPERADMIN' ? 'MEETING' : 'WORKSPACE';
+        activity = u.role === 'SUPERADMIN' ? 'Memantau Control Center' : 'Aktif di DENTSWEB Studio';
+      } else if (uSess.length > 0 || ageMs <= 24 * 60 * 60_000) {
+        presence = 'IDLE';
+        room = 'LOUNGE';
+        activity = 'Sesi aktif (istirahat)';
+      }
+
+      return {
+        id: u.id,
+        displayName: u.displayName,
+        email: u.email,
+        role: u.role,
+        status: u.status,
+        presence,
+        room,
+        activity,
+        stage,
+        progress,
+        platform: latestDev?.platform ?? latestSess?.client ?? null,
+        lastSeenAt: lastSeenDate ? lastSeenDate.toISOString() : null,
+        activeSessions: uSess.length,
+      };
+    });
+
+    const summary = {
+      total: members.length,
+      producing: members.filter((m) => m.presence === 'PRODUCING').length,
+      online: members.filter((m) => m.presence === 'ONLINE').length,
+      idle: members.filter((m) => m.presence === 'IDLE').length,
+      offline: members.filter((m) => m.presence === 'OFFLINE').length,
+    };
+
+    return {
+      members,
+      summary,
+      recentEvents: recentLogs.map((l) => ({
+        id: l.id,
+        actorEmail: l.actorEmail ?? 'system',
+        action: l.action,
+        createdAt: l.createdAt.toISOString(),
+      })),
+      serverTime: now.toISOString(),
+    };
   }
 
   async allLicenses(q: PageQuery & { status?: string }) {

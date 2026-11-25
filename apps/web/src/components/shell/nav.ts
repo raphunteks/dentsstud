@@ -79,6 +79,7 @@ export const ADMIN_NAV: NavGroup[] = [
       { href: '/admin/support', label: '12 Tiket Support' },
       { href: '/admin/analytics', label: '13 Analitik & Error' },
       { href: '/admin/system', label: '14 Sistem & VPS' },
+      { href: '/admin/office', label: '15 Kantor & RBAC' },
     ],
   },
 ];

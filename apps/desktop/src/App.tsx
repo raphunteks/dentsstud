@@ -14,6 +14,7 @@ import { SuaraView } from './views/SuaraView';
 import { PengaturanView } from './views/PengaturanView';
 import { BantuanView } from './views/BantuanView';
 import { FolderImportView, LocalRenderView, OfflineProjectsView } from './views/DesktopEngineViews';
+import { AdminOfficeView } from './views/AdminOfficeView';
 import {
   AdminAIProvidersView,
   AdminAnalyticsView,
@@ -403,7 +404,7 @@ function StudioShell({
               </div>
             )}
 
-            <span className="num font-mono text-[11px]">v{info?.version ?? '1.0.13'}</span>
+            <span className="num font-mono text-[11px]">v{info?.version ?? '1.0.14'}</span>
           </div>
         </header>
 
@@ -450,6 +451,7 @@ function StudioShell({
                   {currentTab === 'admin-support' && <AdminSupportView />}
                   {currentTab === 'admin-analytics' && <AdminAnalyticsView />}
                   {currentTab === 'admin-system' && <AdminSystemView />}
+                  {currentTab === 'admin-office' && <AdminOfficeView />}
                 </>
               )}
             </ErrorBoundary>

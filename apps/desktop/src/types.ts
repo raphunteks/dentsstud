@@ -164,4 +164,5 @@ export type NavTab =
   | 'admin-system'
   | 'admin-releases'
   | 'admin-support'
-  | 'admin-analytics';
+  | 'admin-analytics'
+  | 'admin-office';

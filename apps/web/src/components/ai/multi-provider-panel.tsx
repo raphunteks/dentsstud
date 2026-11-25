@@ -323,7 +323,10 @@ export function MultiProviderPanel({ isAdmin = false }: { isAdmin?: boolean }) {
 
                 {c.method !== 'CLAUDE_CODE_LOCAL' && (
                   <div className="mt-3 border-t border-line/50 pt-3">
-                    <label className="mb-1.5 block text-xs font-semibold text-text">Model Aktif</label>
+                    <div className="mb-1.5 flex items-center justify-between gap-2">
+                      <label className="text-xs font-semibold text-text">Model Aktif</label>
+                      <span className="num font-mono text-[10px] text-muted">{models.length} model</span>
+                    </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <select
                         value={c.capabilities?.defaultModel ?? models[0] ?? ''}
@@ -374,7 +377,7 @@ export function MultiProviderPanel({ isAdmin = false }: { isAdmin?: boolean }) {
                     </Button>
                   )}
                   <Button variant="ghost" className="h-9 text-xs" loading={check.isPending && check.variables === c.id} onClick={() => check.mutate(c.id)}>
-                    Cek koneksi
+                    Segarkan Model
                   </Button>
                   {c.method !== 'CLAUDE_CODE_LOCAL' && (
                     <Button variant="ghost" className="h-9 text-xs" loading={test.isPending && test.variables === c.id} onClick={() => test.mutate(c.id)}>

@@ -15,6 +15,12 @@ interface Member {
   role: string;
   status: string;
   createdAt: string;
+  licenseStatus?: string | null;
+  licenseValidUntil?: string | null;
+  licenseMaxDevices?: number | null;
+  activeDevicesCount?: number;
+  activeSessionsCount?: number;
+  lastSeenAt?: string | null;
 }
 
 interface License {
@@ -54,14 +60,41 @@ function toArr<T = any>(v: unknown): T[] {
   return [];
 }
 
-/** 02. Member Management (Search, Filter, Status Toggle, Detail Modal with License/Device/Session CRUD) */
+function memberDaysLeft(validUntil?: string | null): number | null {
+  if (!validUntil) return null;
+  const ts = Date.parse(validUntil);
+  if (!Number.isFinite(ts)) return null;
+  return Math.ceil((ts - Date.now()) / 86_400_000);
+}
+
+/** 02. Member Management (KPI Bar, Filters, CSV Export, Register Modal, Edit Profile/Role, Reset Password, Force Logout, Quick Extend License) */
 export function AdminMembersView() {
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [licenseFilter, setLicenseFilter] = useState('ALL');
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [grantDays, setGrantDays] = useState(30);
   const [grantDevices, setGrantDevices] = useState(2);
+  const [feedback, setFeedback] = useState<{ ok: boolean; text: string; copyText?: string } | null>(null);
+
+  // Register Member Modal state
+  const [showRegister, setShowRegister] = useState(false);
+  const [regName, setRegName] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regRole, setRegRole] = useState<'MEMBER' | 'SUPERADMIN'>('MEMBER');
+  const [regDays, setRegDays] = useState(30);
+  const [regMaxDev, setRegMaxDev] = useState(2);
+
+  // Edit Member & Reset Password inside Detail Modal
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editRole, setEditRole] = useState('MEMBER');
+  const [editStatus, setEditStatus] = useState('ACTIVE');
+  const [resetPwInput, setResetPwInput] = useState('');
+  const [resetRevokeAll, setResetRevokeAll] = useState(true);
+  const [copiedKey, setCopiedKey] = useState(false);
 
   const members = useQuery({
     queryKey: ['admin-members'],
@@ -74,80 +107,265 @@ export function AdminMembersView() {
     enabled: !!selectedMemberId,
   });
 
+  useEffect(() => {
+    const u = detailQ.data?.user;
+    if (!u) return;
+    setEditName(u.displayName ?? '');
+    setEditEmail(u.email ?? '');
+    setEditRole(u.role ?? 'MEMBER');
+    setEditStatus(u.status ?? 'ACTIVE');
+  }, [detailQ.data?.user?.id]);
+
+  const invalidateMembers = () => {
+    qc.invalidateQueries({ queryKey: ['admin-members'] });
+    qc.invalidateQueries({ queryKey: ['admin-licenses'] });
+    if (selectedMemberId) qc.invalidateQueries({ queryKey: ['admin-member-detail', selectedMemberId] });
+  };
+
   const setStatus = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
       mutate('PATCH', `/admin/members/${id}/status`, { status }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin-members'] });
-      if (selectedMemberId) qc.invalidateQueries({ queryKey: ['admin-member-detail', selectedMemberId] });
+    onSuccess: () => invalidateMembers(),
+    onError: (e) => setFeedback({ ok: false, text: errMsg(e) }),
+  });
+
+  const registerMember = useMutation({
+    mutationFn: () =>
+      mutate<{ user?: Member; temporaryPassword?: string }>('POST', '/admin/members', {
+        displayName: regName.trim(),
+        email: regEmail.trim(),
+        ...(regPassword.trim() ? { password: regPassword.trim() } : {}),
+        role: regRole,
+        ...(regDays > 0 ? { validDays: regDays, maxDevices: regMaxDev } : {}),
+      }),
+    onSuccess: (res) => {
+      const pw = res?.temporaryPassword ?? regPassword.trim();
+      setFeedback({
+        ok: true,
+        text: `Member ${res?.user?.email ?? regEmail} berhasil didaftarkan${pw ? ` · Password sementara: ${pw}` : ''}`,
+        copyText: pw ? `Email: ${res?.user?.email ?? regEmail}\nPassword: ${pw}` : undefined,
+      });
+      setShowRegister(false);
+      setRegName('');
+      setRegEmail('');
+      setRegPassword('');
+      setRegRole('MEMBER');
+      invalidateMembers();
     },
+    onError: (e) => setFeedback({ ok: false, text: `Gagal mendaftarkan member: ${errMsg(e)}` }),
+  });
+
+  const editMember = useMutation({
+    mutationFn: (id: string) =>
+      mutate('PATCH', `/admin/members/${id}`, {
+        displayName: editName.trim(),
+        email: editEmail.trim(),
+        role: editRole,
+        status: editStatus,
+      }),
+    onSuccess: () => {
+      setFeedback({ ok: true, text: 'Profil & role member diperbarui.' });
+      invalidateMembers();
+    },
+    onError: (e) => setFeedback({ ok: false, text: `Gagal menyimpan profil: ${errMsg(e)}` }),
+  });
+
+  const resetPassword = useMutation({
+    mutationFn: (id: string) =>
+      mutate<{ ok: boolean; temporaryPassword?: string }>('POST', `/admin/members/${id}/reset-password`, {
+        ...(resetPwInput.trim() ? { newPassword: resetPwInput.trim() } : {}),
+        revokeSessions: resetRevokeAll,
+      }),
+    onSuccess: (res) => {
+      const pw = res?.temporaryPassword ?? resetPwInput.trim();
+      setResetPwInput('');
+      setFeedback({
+        ok: true,
+        text: `Password berhasil direset${pw ? ` · Password baru: ${pw}` : ''}`,
+        copyText: pw || undefined,
+      });
+      invalidateMembers();
+    },
+    onError: (e) => setFeedback({ ok: false, text: `Gagal reset password: ${errMsg(e)}` }),
+  });
+
+  const revokeAllSessions = useMutation({
+    mutationFn: (id: string) =>
+      mutate<{ ok: boolean; revokedCount?: number }>('POST', `/admin/members/${id}/revoke-all-sessions`, {}),
+    onSuccess: (res) => {
+      setFeedback({ ok: true, text: `Semua sesi diakhiri (${res?.revokedCount ?? 0} sesi).` });
+      invalidateMembers();
+    },
+    onError: (e) => setFeedback({ ok: false, text: errMsg(e) }),
   });
 
   const grantLic = useMutation({
-    mutationFn: (userId: string) =>
+    mutationFn: ({ userId, days, maxDevices }: { userId: string; days: number; maxDevices: number }) =>
       mutate('POST', '/admin/licenses/grant', {
         userId,
-        validUntil: new Date(Date.now() + grantDays * 86_400_000).toISOString(),
-        maxDevices: grantDevices,
+        validUntil: new Date(Date.now() + days * 86_400_000).toISOString(),
+        maxDevices,
       }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin-licenses'] });
-      qc.invalidateQueries({ queryKey: ['admin-members'] });
-      if (selectedMemberId) qc.invalidateQueries({ queryKey: ['admin-member-detail', selectedMemberId] });
+    onSuccess: (_, vars) => {
+      setFeedback({ ok: true, text: `Lisensi +${vars.days} hari (maks ${vars.maxDevices} device) diberikan.` });
+      invalidateMembers();
     },
+    onError: (e) => setFeedback({ ok: false, text: errMsg(e) }),
   });
 
   const revokeLic = useMutation({
     mutationFn: (licenseId: string) => mutate('POST', `/admin/licenses/${licenseId}/revoke`, {}),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin-licenses'] });
-      if (selectedMemberId) qc.invalidateQueries({ queryKey: ['admin-member-detail', selectedMemberId] });
-    },
+    onSuccess: () => invalidateMembers(),
   });
 
   const revokeDevice = useMutation({
     mutationFn: (deviceId: string) => mutate('DELETE', `/admin/devices/${deviceId}`),
-    onSuccess: () => {
-      if (selectedMemberId) qc.invalidateQueries({ queryKey: ['admin-member-detail', selectedMemberId] });
-    },
+    onSuccess: () => invalidateMembers(),
   });
 
   const revokeSession = useMutation({
     mutationFn: (sessionId: string) => mutate('DELETE', `/admin/sessions/${sessionId}`),
-    onSuccess: () => {
-      if (selectedMemberId) qc.invalidateQueries({ queryKey: ['admin-member-detail', selectedMemberId] });
-    },
+    onSuccess: () => invalidateMembers(),
   });
 
-  const list = (members.data ?? []).filter((m) => {
+  const allMembers = members.data ?? [];
+  const kpi = {
+    total: allMembers.length,
+    active: allMembers.filter((m) => m.status === 'ACTIVE').length,
+    licensed: allMembers.filter((m) => {
+      const d = memberDaysLeft(m.licenseValidUntil);
+      return d !== null && d > 0;
+    }).length,
+    expiredOrNone: allMembers.filter((m) => {
+      const d = memberDaysLeft(m.licenseValidUntil);
+      return d === null || d <= 0;
+    }).length,
+    suspended: allMembers.filter((m) => m.status === 'SUSPENDED' || m.status === 'DISABLED').length,
+  };
+
+  const list = allMembers.filter((m) => {
     const okStatus = statusFilter === 'ALL' || m.status === statusFilter;
+    const days = memberDaysLeft(m.licenseValidUntil);
+    const okLic =
+      licenseFilter === 'ALL' ||
+      (licenseFilter === 'ACTIVE' && days !== null && days > 0) ||
+      (licenseFilter === 'EXPIRING' && days !== null && days > 0 && days <= 14) ||
+      (licenseFilter === 'EXPIRED' && (days === null || days <= 0));
     const okSearch =
       !search.trim() ||
       m.email.toLowerCase().includes(search.toLowerCase()) ||
       m.displayName.toLowerCase().includes(search.toLowerCase());
-    return okStatus && okSearch;
+    return okStatus && okLic && okSearch;
   });
+
+  function copyToClipboard(text: string) {
+    navigator.clipboard?.writeText(text).then(() => {
+      setCopiedKey(true);
+      setTimeout(() => setCopiedKey(false), 2000);
+    }).catch(() => undefined);
+  }
+
+  function exportCsv() {
+    const header = ['Nama', 'Email', 'Role', 'Status', 'Lisensi Valid Until', 'Max Devices', 'Active Devices', 'Active Sessions'];
+    const rows = list.map((m) => [
+      m.displayName,
+      m.email,
+      m.role,
+      m.status,
+      m.licenseValidUntil ?? '',
+      String(m.licenseMaxDevices ?? ''),
+      String(m.activeDevicesCount ?? 0),
+      String(m.activeSessionsCount ?? 0),
+    ]);
+    const csv = [header, ...rows].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `dentsweb-members-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
         <div>
           <p className="text-xs uppercase tracking-widest text-accent font-mono font-bold">02 · SUPERADMIN</p>
-          <h1 className="font-display text-2xl font-medium tracking-tight text-text mt-0.5">Manajemen Member</h1>
-          <p className="mt-1 text-sm text-muted">Cari, filter, ubah status akun, dan kelola lisensi/perangkat member.</p>
+          <h1 className="font-display text-2xl font-medium tracking-tight text-text mt-0.5">Manajemen Member & Akses</h1>
+          <p className="mt-1 text-sm text-muted">Registrasi member, kelola status, reset password, paksa logout, dan perpanjang lisensi.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Input placeholder="Cari nama / email..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-52 h-9 text-xs" />
-          <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-36 h-9 text-xs">
-            <option value="ALL">Semua Status</option>
-            <option value="ACTIVE">ACTIVE</option>
-            <option value="SUSPENDED">SUSPENDED</option>
-            <option value="DISABLED">DISABLED</option>
-          </Select>
+          <Button size="sm" variant="outline" onClick={exportCsv}>
+            <Icon name="download" className="w-3.5 h-3.5 mr-1.5 inline" />
+            Export CSV
+          </Button>
+          <Button size="sm" onClick={() => setShowRegister(true)}>
+            <Icon name="plus" className="w-3.5 h-3.5 mr-1.5 inline" />
+            Registrasi Member
+          </Button>
         </div>
       </div>
 
-      {setStatus.isError && <p className="text-xs text-bad">{errMsg(setStatus.error)}</p>}
+      {/* KPI Summary Bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <Card className="p-3.5">
+          <p className="text-[11px] font-mono uppercase text-muted">Total Member</p>
+          <p className="num text-xl font-semibold text-text mt-0.5">{kpi.total}</p>
+        </Card>
+        <Card className="p-3.5">
+          <p className="text-[11px] font-mono uppercase text-muted">Aktif</p>
+          <p className="num text-xl font-semibold text-ok mt-0.5">{kpi.active}</p>
+        </Card>
+        <Card className="p-3.5">
+          <p className="text-[11px] font-mono uppercase text-muted">Lisensi Aktif</p>
+          <p className="num text-xl font-semibold text-accent mt-0.5">{kpi.licensed}</p>
+        </Card>
+        <Card className="p-3.5">
+          <p className="text-[11px] font-mono uppercase text-muted">Expired / Kosong</p>
+          <p className="num text-xl font-semibold text-warn mt-0.5">{kpi.expiredOrNone}</p>
+        </Card>
+        <Card className="p-3.5">
+          <p className="text-[11px] font-mono uppercase text-muted">Suspended</p>
+          <p className="num text-xl font-semibold text-bad mt-0.5">{kpi.suspended}</p>
+        </Card>
+      </div>
+
+      {feedback && (
+        <div
+          className={`rounded-xl border px-4 py-2.5 text-xs flex flex-wrap items-center justify-between gap-3 ${
+            feedback.ok ? 'border-accent/40 bg-accent/10 text-text' : 'border-bad/40 bg-bad/10 text-bad'
+          }`}
+        >
+          <span className="font-mono break-all">{feedback.text}</span>
+          <div className="flex items-center gap-2 shrink-0">
+            {feedback.copyText && (
+              <Button size="sm" variant="outline" onClick={() => copyToClipboard(feedback.copyText!)}>
+                <Icon name="copy" className="w-3 h-3 mr-1 inline" />
+                {copiedKey ? 'Tersalin' : 'Salin'}
+              </Button>
+            )}
+            <button onClick={() => setFeedback(null)} className="text-muted hover:text-text cursor-pointer">Tutup</button>
+          </div>
+        </div>
+      )}
+
+      {/* Search & Filter Toolbar */}
+      <div className="flex flex-wrap gap-2">
+        <Input placeholder="Cari nama / email..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-60 h-9 text-xs" />
+        <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-36 h-9 text-xs">
+          <option value="ALL">Semua Status</option>
+          <option value="ACTIVE">ACTIVE</option>
+          <option value="SUSPENDED">SUSPENDED</option>
+          <option value="DISABLED">DISABLED</option>
+        </Select>
+        <Select value={licenseFilter} onChange={(e) => setLicenseFilter(e.target.value)} className="w-44 h-9 text-xs">
+          <option value="ALL">Semua Lisensi</option>
+          <option value="ACTIVE">Lisensi Aktif</option>
+          <option value="EXPIRING">Segera Expired (&le;14h)</option>
+          <option value="EXPIRED">Expired / Kosong</option>
+        </Select>
+      </div>
 
       <Card className="p-0 overflow-hidden">
         <div className="overflow-x-auto">
@@ -158,39 +376,61 @@ export function AdminMembersView() {
                 <th className="px-4 py-3">Email</th>
                 <th className="px-4 py-3">Role</th>
                 <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Lisensi &amp; Expired</th>
+                <th className="px-4 py-3">Device &amp; Sesi</th>
                 <th className="px-4 py-3 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {list.map((m) => (
-                <tr key={m.id} className="hover:bg-surface-2/40 transition">
-                  <td className="px-4 py-3 font-medium text-text">{m.displayName}</td>
-                  <td className="px-4 py-3 font-mono text-muted">{m.email}</td>
-                  <td className="px-4 py-3">
-                    <span className={m.role === 'SUPERADMIN' ? 'text-accent font-bold' : 'text-muted'}>{m.role}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Select
-                      value={m.status}
-                      disabled={setStatus.isPending || m.role === 'SUPERADMIN'}
-                      onChange={(e) => setStatus.mutate({ id: m.id, status: e.target.value })}
-                      className="h-7 text-[11px] w-32"
-                    >
-                      <option value="ACTIVE">ACTIVE</option>
-                      <option value="SUSPENDED">SUSPENDED</option>
-                      <option value="DISABLED">DISABLED</option>
-                    </Select>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Button size="sm" variant="outline" onClick={() => setSelectedMemberId(m.id)}>
-                      Detail & Lisensi
-                    </Button>
-                  </td>
-                </tr>
-              ))}
+              {list.map((m) => {
+                const days = memberDaysLeft(m.licenseValidUntil);
+                return (
+                  <tr key={m.id} className="hover:bg-surface-2/40 transition">
+                    <td className="px-4 py-3 font-medium text-text">{m.displayName}</td>
+                    <td className="px-4 py-3 font-mono text-muted">{m.email}</td>
+                    <td className="px-4 py-3">
+                      <span className={m.role === 'SUPERADMIN' ? 'text-accent font-bold' : 'text-muted'}>{m.role}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Select
+                        value={m.status}
+                        disabled={setStatus.isPending || m.role === 'SUPERADMIN'}
+                        onChange={(e) => setStatus.mutate({ id: m.id, status: e.target.value })}
+                        className="h-7 text-[11px] w-28"
+                      >
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="SUSPENDED">SUSPENDED</option>
+                        <option value="DISABLED">DISABLED</option>
+                      </Select>
+                    </td>
+                    <td className="px-4 py-3">
+                      {days === null ? (
+                        <Pill ok={null}>Kosong</Pill>
+                      ) : days <= 0 ? (
+                        <Pill ok={false}>EXPIRED</Pill>
+                      ) : (
+                        <div className="space-y-0.5">
+                          <Pill ok={days > 14 ? true : null}>{days}h tersisa</Pill>
+                          <p className="text-[10px] font-mono text-muted">
+                            s/d {new Date(m.licenseValidUntil!).toLocaleDateString('id-ID')}
+                          </p>
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 font-mono text-muted">
+                      {m.activeDevicesCount ?? 0}/{m.licenseMaxDevices ?? '-'} dev · {m.activeSessionsCount ?? 0} sesi
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <Button size="sm" variant="outline" onClick={() => setSelectedMemberId(m.id)}>
+                        Detail &amp; Akses
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })}
               {list.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-muted">Tidak ada member yang sesuai.</td>
+                  <td colSpan={7} className="px-4 py-8 text-center text-muted">Tidak ada member yang sesuai.</td>
                 </tr>
               )}
             </tbody>
@@ -198,29 +438,124 @@ export function AdminMembersView() {
         </div>
       </Card>
 
+      {/* Register New Member Modal */}
+      <Modal open={showRegister} onClose={() => setShowRegister(false)} title="Registrasi Member Baru">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            registerMember.mutate();
+          }}
+          className="space-y-3 text-xs"
+        >
+          <Input required placeholder="Nama Tampilan" value={regName} onChange={(e) => setRegName(e.target.value)} className="h-9 text-xs" />
+          <Input required type="email" placeholder="Email Member" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} className="h-9 text-xs" />
+          <Input placeholder="Password (kosongkan untuk auto-generate aman)" value={regPassword} onChange={(e) => setRegPassword(e.target.value)} className="h-9 text-xs font-mono" />
+          <div className="grid grid-cols-3 gap-2">
+            <label className="grid gap-1 text-muted">
+              Role
+              <Select value={regRole} onChange={(e) => setRegRole(e.target.value as 'MEMBER' | 'SUPERADMIN')} className="h-9 text-xs">
+                <option value="MEMBER">MEMBER</option>
+                <option value="SUPERADMIN">SUPERADMIN</option>
+              </Select>
+            </label>
+            <label className="grid gap-1 text-muted">
+              Lisensi (Hari)
+              <Input type="number" min={0} max={3650} value={regDays} onChange={(e) => setRegDays(Number(e.target.value))} className="h-9 text-xs" />
+            </label>
+            <label className="grid gap-1 text-muted">
+              Maks Device
+              <Input type="number" min={1} max={50} value={regMaxDev} onChange={(e) => setRegMaxDev(Number(e.target.value))} className="h-9 text-xs" />
+            </label>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" size="sm" variant="ghost" onClick={() => setShowRegister(false)}>Batal</Button>
+            <Button type="submit" size="sm" disabled={!regName.trim() || !regEmail.trim() || registerMember.isPending}>
+              {registerMember.isPending ? 'Mendaftarkan…' : 'Daftarkan Member'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Member Detail, Edit Profile, Reset Password, Quick Extend & Sessions Modal */}
       <Modal open={!!selectedMemberId} onClose={() => setSelectedMemberId(null)} title={detailQ.data?.user?.displayName ?? 'Detail Member'}>
         {detailQ.isLoading ? (
           <p className="text-xs text-muted py-4">Memuat detail member…</p>
         ) : detailQ.data ? (
-          <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1 text-xs">
-            <div className="rounded-xl border border-line bg-surface-2/40 p-3 space-y-1">
-              <p className="font-semibold text-text">{detailQ.data.user?.email}</p>
-              <p className="text-muted">Status: {detailQ.data.user?.status} · Role: {detailQ.data.user?.role}</p>
+          <div className="space-y-4 max-h-[72vh] overflow-y-auto pr-1 text-xs">
+            {/* Edit Profile & Role */}
+            <div className="rounded-xl border border-line bg-surface-2/40 p-3.5 space-y-2.5">
+              <p className="font-semibold text-text">Edit Profil &amp; Role</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Nama" className="h-8 text-xs" />
+                <Input value={editEmail} onChange={(e) => setEditEmail(e.target.value)} placeholder="Email" className="h-8 text-xs font-mono" />
+                <Select value={editRole} onChange={(e) => setEditRole(e.target.value)} className="h-8 text-xs">
+                  <option value="MEMBER">MEMBER</option>
+                  <option value="SUPERADMIN">SUPERADMIN</option>
+                </Select>
+                <Select value={editStatus} onChange={(e) => setEditStatus(e.target.value)} className="h-8 text-xs">
+                  <option value="ACTIVE">ACTIVE</option>
+                  <option value="SUSPENDED">SUSPENDED</option>
+                  <option value="DISABLED">DISABLED</option>
+                </Select>
+              </div>
+              <div className="flex flex-wrap justify-between gap-2 pt-1">
+                <Button size="sm" variant="danger" disabled={revokeAllSessions.isPending} onClick={() => revokeAllSessions.mutate(selectedMemberId!)}>
+                  Paksa Logout Semua Sesi
+                </Button>
+                <Button size="sm" disabled={editMember.isPending} onClick={() => editMember.mutate(selectedMemberId!)}>
+                  {editMember.isPending ? 'Menyimpan…' : 'Simpan Profil'}
+                </Button>
+              </div>
             </div>
 
-            {/* Grant License */}
+            {/* Reset Password */}
+            <div className="rounded-xl border border-line bg-surface-2/40 p-3.5 space-y-2">
+              <p className="font-semibold text-text">Reset Password Member</p>
+              <p className="text-[11px] text-muted">
+                Password disimpan dalam bentuk hash satu arah (Argon2id) sehingga tidak dapat dilihat ulang. Gunakan form ini untuk membuat password baru.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Input
+                  placeholder="Password baru (kosongkan = generate acak)"
+                  value={resetPwInput}
+                  onChange={(e) => setResetPwInput(e.target.value)}
+                  className="flex-1 h-8 text-xs font-mono"
+                />
+                <Button size="sm" variant="outline" disabled={resetPassword.isPending} onClick={() => resetPassword.mutate(selectedMemberId!)}>
+                  {resetPassword.isPending ? 'Mereset…' : resetPwInput.trim() ? 'Set Password' : 'Generate Acak'}
+                </Button>
+              </div>
+              <label className="flex items-center gap-2 text-[11px] text-muted cursor-pointer">
+                <input type="checkbox" checked={resetRevokeAll} onChange={(e) => setResetRevokeAll(e.target.checked)} />
+                Akhiri semua sesi login aktif setelah reset password
+              </label>
+            </div>
+
+            {/* Quick Extend License */}
             <div className="space-y-2 border-t border-line pt-3">
-              <p className="font-semibold text-text">Berikan Lisensi Baru</p>
-              <div className="flex flex-wrap items-center gap-2">
+              <p className="font-semibold text-text">Perpanjang / Berikan Lisensi (Quick Extend)</p>
+              <div className="flex flex-wrap gap-1.5">
+                {[30, 90, 365].map((d) => (
+                  <Button
+                    key={d}
+                    size="sm"
+                    variant="outline"
+                    disabled={grantLic.isPending}
+                    onClick={() => grantLic.mutate({ userId: selectedMemberId!, days: d, maxDevices: grantDevices })}
+                  >
+                    +{d} Hari
+                  </Button>
+                ))}
+              </div>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
                 <Input type="number" min={1} max={3650} value={grantDays} onChange={(e) => setGrantDays(Number(e.target.value))} className="w-24 h-8 text-xs" title="Durasi (hari)" />
                 <span className="text-muted">hari</span>
                 <Input type="number" min={1} max={50} value={grantDevices} onChange={(e) => setGrantDevices(Number(e.target.value))} className="w-20 h-8 text-xs" title="Maks Device" />
                 <span className="text-muted">device</span>
-                <Button size="sm" disabled={grantLic.isPending} onClick={() => grantLic.mutate(selectedMemberId!)}>
+                <Button size="sm" disabled={grantLic.isPending} onClick={() => grantLic.mutate({ userId: selectedMemberId!, days: grantDays, maxDevices: grantDevices })}>
                   + Grant Lisensi
                 </Button>
               </div>
-              {grantLic.isError && <p className="text-bad">{errMsg(grantLic.error)}</p>}
             </div>
 
             {/* Licenses */}
@@ -230,7 +565,9 @@ export function AdminMembersView() {
                 <div key={l.id} className="flex items-center justify-between rounded-lg border border-line p-2">
                   <div>
                     <Pill ok={l.status === 'ACTIVE'}>{l.status}</Pill>
-                    <span className="ml-2 font-mono text-muted">Maks {l.maxDevices} dev</span>
+                    <span className="ml-2 font-mono text-muted">
+                      Maks {l.maxDevices} dev {l.validUntil ? `· s/d ${new Date(l.validUntil).toLocaleDateString('id-ID')}` : ''}
+                    </span>
                   </div>
                   {l.status === 'ACTIVE' && (
                     <Button size="sm" variant="danger" onClick={() => revokeLic.mutate(l.id)}>Revoke</Button>
@@ -1567,7 +1904,7 @@ export function AdminQuotasView() {
 /** 11. Rilis Desktop (Upload .dmg/.exe, Dynamic version from app:info, Toggle Active, Download Links) */
 export function AdminReleasesView({ info }: { info?: Info }) {
   const qc = useQueryClient();
-  const curVer = info?.version ?? '1.0.13';
+  const curVer = info?.version ?? '1.0.14';
 
   const [platform, setPlatform] = useState<'darwin' | 'win32'>('darwin');
   const [arch, setArch] = useState<'arm64' | 'x64' | 'universal'>('arm64');

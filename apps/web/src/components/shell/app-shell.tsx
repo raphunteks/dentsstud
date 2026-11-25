@@ -104,6 +104,7 @@ const ROUTE_ICONS: Record<string, typeof IconHome> = {
   '/admin/support': IconSupport,
   '/admin/analytics': IconAnalytics,
   '/admin/system': IconSystem,
+  '/admin/office': IconUsers,
 };
 
 function ThemeIcon({ dark }: { dark: boolean }) {

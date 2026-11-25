@@ -491,8 +491,11 @@ export class AiConnectionsService {
 
     await this.event(c.id, r.ok ? 'connection.test.ok' : 'connection.test.failed', { latencyMs: Date.now() - started, model });
     if (!r.ok) {
-      const status: AiConnectionStatus = r.status === 401 || r.status === 403 ? 'INVALID' : 'UNAVAILABLE';
-      await this.db.update(aiConnections).set({ status, lastError: r.error, lastCheckedAt: new Date() }).where(eq(aiConnections.id, c.id));
+      if (r.status === 401 || r.status === 403) {
+        await this.db.update(aiConnections).set({ status: 'INVALID', lastError: r.error, lastCheckedAt: new Date() }).where(eq(aiConnections.id, c.id));
+      } else if (c.status !== 'CONNECTED') {
+        await this.db.update(aiConnections).set({ status: 'UNAVAILABLE', lastError: r.error, lastCheckedAt: new Date() }).where(eq(aiConnections.id, c.id));
+      }
       throw Errors.unavailable('AI_TEST_FAILED', r.error);
     }
     return { model: r.model ?? model, answer: r.text, latencyMs: Date.now() - started, usage: r.usage };

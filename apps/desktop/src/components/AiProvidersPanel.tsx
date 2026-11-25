@@ -197,6 +197,20 @@ export function AiProvidersPanel() {
     onError: (e) => setFeedback({ ok: false, text: `Gagal memperbarui koneksi: ${errMsg(e)}` }),
   });
 
+  const checkMut = useMutation({
+    mutationFn: (id: string) =>
+      mutate<{ connection?: AiConnection; ok?: boolean; models?: string[] }>('POST', `/ai/connections/${id}/check`, {}),
+    onSuccess: (res) => {
+      invalidateAll();
+      const count = res?.connection?.capabilities?.models?.length ?? res?.models?.length;
+      setFeedback({
+        ok: true,
+        text: count ? `Model berhasil disegarkan (${count} model tersedia) & status CONNECTED.` : 'Status koneksi & daftar model berhasil disegarkan.',
+      });
+    },
+    onError: (e) => setFeedback({ ok: false, text: `Gagal menyegarkan model: ${errMsg(e)}` }),
+  });
+
   const testMut = useMutation({
     mutationFn: (id: string) =>
       mutate<{ ok: boolean; answer?: string; error?: string; latencyMs?: number }>('POST', `/ai/connections/${id}/test`, {}),
@@ -416,6 +430,15 @@ export function AiProvidersPanel() {
                     <Button
                       size="sm"
                       variant="outline"
+                      disabled={checkMut.isPending}
+                      onClick={() => checkMut.mutate(c.id)}
+                    >
+                      <Icon name="bolt" className="w-3 h-3 mr-1 inline" />
+                      {checkMut.isPending ? 'Menyegarkan…' : 'Segarkan Model'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
                       disabled={testMut.isPending}
                       onClick={() => testMut.mutate(c.id)}
                     >
@@ -437,7 +460,7 @@ export function AiProvidersPanel() {
 
                 {models.length > 0 && (
                   <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-line/60">
-                    <span className="text-xs text-muted">Model Default:</span>
+                    <span className="text-xs text-muted">Model Default ({models.length} model):</span>
                     <Select
                       value={c.capabilities?.defaultModel ?? models[0]}
                       onChange={(e) => patchMut.mutate({ id: c.id, body: { defaultModel: e.target.value } })}

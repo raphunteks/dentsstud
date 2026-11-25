@@ -83,7 +83,7 @@ export class MultiProviderAdapter {
     opts: { baseUrl?: string; isOAuth?: boolean; signal?: AbortSignal } = {},
   ): Promise<ProbeResult> {
     const token = credential.trim().replace(/^Bearer\s+/i, '');
-    const signal = opts.signal ?? AbortSignal.timeout(15_000);
+    const signal = opts.signal ?? AbortSignal.timeout(provider === 'custom_gateway' ? 25_000 : 15_000);
 
     try {
       if (provider === 'gemini') {
@@ -117,7 +117,15 @@ export class MultiProviderAdapter {
       }
       if (!res.ok) return { status: 'UNAVAILABLE', error: `${provider} merespons ${res.status}`, httpStatus: res.status };
       const body = (await res.json().catch(() => ({}))) as { data?: { id: string }[] };
-      const models = (body.data ?? []).map((m) => m.id).filter(Boolean).slice(0, 60);
+      const seen = new Set<string>();
+      const models: string[] = [];
+      for (const m of body.data ?? []) {
+        if (m?.id && !seen.has(m.id)) {
+          seen.add(m.id);
+          models.push(m.id);
+          if (models.length >= 500) break;
+        }
+      }
       return { status: 'CONNECTED', models: models.length ? models : (DEFAULT_PROVIDER_MODELS[provider] ?? DEFAULT_PROVIDER_MODELS.custom_gateway!) };
     } catch (e) {
       return { status: 'UNAVAILABLE', error: redact(`Tidak dapat menghubungi ${provider}: ${(e as Error).message}`) };

@@ -43,11 +43,19 @@ export default function MemberDetail() {
     cloudRenderMinutesPerMonth: 120,
     validUntil: '',
   });
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editRole, setEditRole] = useState<'MEMBER' | 'SUPERADMIN'>('MEMBER');
+  const [newPw, setNewPw] = useState('');
+  const [tempPw, setTempPw] = useState<string | null>(null);
   const prefilled = useRef(false);
 
   useEffect(() => {
     if (!d.data || prefilled.current) return;
     prefilled.current = true;
+    setEditName(d.data.user.displayName);
+    setEditEmail(d.data.user.email);
+    setEditRole((d.data.user.role === 'SUPERADMIN' ? 'SUPERADMIN' : 'MEMBER'));
     const lic = d.data.license.license;
     const ent = lic?.entitlements ?? d.data.license.entitlements;
     if (lic || ent) {
@@ -61,6 +69,33 @@ export default function MemberDetail() {
       });
     }
   }, [d.data]);
+
+  const updateProfile = useMutation({
+    mutationFn: () => api(`/admin/members/${id}`, { method: 'PATCH', json: { displayName: editName.trim(), email: editEmail.trim(), role: editRole } }),
+    onSuccess: () => (toast.success('Profil & role diperbarui'), refresh()),
+    onError: onErr,
+  });
+  const resetPassword = useMutation({
+    mutationFn: () => api<{ ok: boolean; temporaryPassword: string }>(`/admin/members/${id}/reset-password`, { method: 'POST', json: { newPassword: newPw.trim() || undefined, revokeSessions: true } }),
+    onSuccess: (r) => {
+      setTempPw(r.temporaryPassword);
+      setNewPw('');
+      toast.success('Password direset & semua sesi dicabut');
+      refresh();
+    },
+    onError: onErr,
+  });
+  const revokeAllSess = useMutation({
+    mutationFn: () => api<{ ok: boolean; revokedCount: number }>(`/admin/members/${id}/revoke-all-sessions`, { method: 'POST' }),
+    onSuccess: (r) => (toast.success(`${r.revokedCount} sesi aktif dicabut`), refresh()),
+    onError: onErr,
+  });
+  const quickExtend = (days: number) => {
+    const baseMs = grant.validUntil && new Date(grant.validUntil).getTime() > Date.now() ? new Date(grant.validUntil).getTime() : Date.now();
+    const nextDate = new Date(baseMs + days * 86_400_000).toISOString().slice(0, 10);
+    setGrant((g) => ({ ...g, validUntil: nextDate }));
+    toast.success(`Masa berlaku diset ke ${nextDate} — klik simpan lisensi untuk menerapkan`);
+  };
 
   const status = useMutation({
     mutationFn: (s: 'ACTIVE' | 'SUSPENDED' | 'DISABLED') => api(`/admin/members/${id}/status`, { method: 'PATCH', json: { status: s } }),
@@ -136,13 +171,18 @@ export default function MemberDetail() {
       <div className="grid gap-3 lg:grid-cols-2">
         <Card className="p-5">
           <h2 className="font-display text-lg font-medium">Lisensi</h2>
-          <div className="mt-3 flex items-center justify-between">
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
             <Status value={license.status} label={license.status === 'NONE' ? 'Belum ada' : undefined} />
-            {license.license && license.status === 'ACTIVE' && (
-              <Button variant="danger" loading={revoke.isPending} onClick={() => confirm('Cabut lisensi? Semua perangkat dilepas.') && revoke.mutate(license.license!.id)}>
-                Cabut lisensi
-              </Button>
-            )}
+            <div className="flex flex-wrap gap-1.5">
+              <Button type="button" variant="ghost" className="h-8 px-2 text-xs" onClick={() => quickExtend(30)}>+30h</Button>
+              <Button type="button" variant="ghost" className="h-8 px-2 text-xs" onClick={() => quickExtend(90)}>+90h</Button>
+              <Button type="button" variant="ghost" className="h-8 px-2 text-xs" onClick={() => quickExtend(365)}>+365h</Button>
+              {license.license && license.status === 'ACTIVE' && (
+                <Button variant="danger" className="h-8 px-2.5 text-xs" loading={revoke.isPending} onClick={() => confirm('Cabut lisensi? Semua perangkat dilepas.') && revoke.mutate(license.license!.id)}>
+                  Cabut lisensi
+                </Button>
+              )}
+            </div>
           </div>
           <form
             className="mt-5 grid grid-cols-2 gap-3"
@@ -196,7 +236,14 @@ export default function MemberDetail() {
               </li>
             ))}
           </ul>
-          <h2 className="mt-6 font-display text-lg font-medium">Sesi aktif</h2>
+          <div className="mt-6 flex items-center justify-between gap-2">
+            <h2 className="font-display text-lg font-medium">Sesi aktif</h2>
+            {d.data.sessions.length > 0 && (
+              <Button variant="danger" className="h-8 px-2.5 text-xs" loading={revokeAllSess.isPending} onClick={() => confirm('Paksa logout semua sesi member ini?') && revokeAllSess.mutate()}>
+                Paksa Logout Semua
+              </Button>
+            )}
+          </div>
           <ul className="mt-3 grid gap-2 text-sm">
             {d.data.sessions.length === 0 && <li className="text-muted">Tidak ada sesi aktif.</li>}
             {d.data.sessions.map((x) => (
@@ -210,6 +257,60 @@ export default function MemberDetail() {
               </li>
             ))}
           </ul>
+        </Card>
+      </div>
+
+      <div className="mt-3 grid gap-3 lg:grid-cols-2">
+        <Card className="p-5">
+          <h2 className="font-display text-lg font-medium">Edit Profil &amp; Role</h2>
+          <form
+            className="mt-3 grid gap-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              updateProfile.mutate();
+            }}
+          >
+            <Field id="ep-name" label="Nama tampilan"><Input id="ep-name" value={editName} onChange={(e) => setEditName(e.target.value)} /></Field>
+            <Field id="ep-email" label="Email"><Input id="ep-email" type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} /></Field>
+            <Field id="ep-role" label="Role">
+              <select id="ep-role" value={editRole} onChange={(e) => setEditRole(e.target.value as 'MEMBER' | 'SUPERADMIN')} className="h-11 rounded-[10px] border border-line bg-surface px-3 text-sm">
+                <option value="MEMBER">MEMBER</option>
+                <option value="SUPERADMIN">SUPERADMIN</option>
+              </select>
+            </Field>
+            <Button type="submit" loading={updateProfile.isPending}>Simpan Profil &amp; Role</Button>
+          </form>
+        </Card>
+
+        <Card className="p-5">
+          <h2 className="font-display text-lg font-medium">Reset Password Member</h2>
+          <p className="mt-1 text-xs text-muted">Password disimpan sebagai hash satu arah Argon2id (tidak dapat dibaca ulang). Buat password baru atau kosongkan untuk auto-generate:</p>
+          <form
+            className="mt-3 grid gap-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (confirm('Reset password member ini dan cabut semua sesinya?')) resetPassword.mutate();
+            }}
+          >
+            <Field id="rp-pw" label="Password baru (kosongkan = acak)"><Input id="rp-pw" value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="Otomatis dibuatkan jika kosong" /></Field>
+            <Button type="submit" variant="ghost" loading={resetPassword.isPending}>Reset Password &amp; Logout Sesi</Button>
+          </form>
+          {tempPw && (
+            <div className="mt-3 flex items-center justify-between gap-2 rounded-xl border border-ok/40 bg-ok/10 px-3 py-2 text-xs">
+              <span className="font-mono">Password baru: <strong>{tempPw}</strong></span>
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-7 px-2 text-xs"
+                onClick={() => {
+                  navigator.clipboard.writeText(tempPw);
+                  toast.success('Password disalin');
+                }}
+              >
+                Salin
+              </Button>
+            </div>
+          )}
         </Card>
       </div>
 

@@ -68,6 +68,24 @@ const OAuthClientsPatchInput = z.object({
   gemini: OAuthClientEntry.optional(),
   openai: OAuthClientEntry.optional(),
 });
+const MemberCreateInput = z.object({
+  displayName: z.string().trim().min(2).max(120),
+  email: z.string().trim().toLowerCase().max(254).pipe(z.email()),
+  password: z.string().min(8).max(128).optional().or(z.literal('')),
+  role: z.enum(['MEMBER', 'SUPERADMIN']).default('MEMBER'),
+  grantLicenseDays: z.coerce.number().int().min(0).max(3650).optional(),
+  maxDevices: z.coerce.number().int().min(1).max(20).optional(),
+});
+const MemberPatchInput = z.object({
+  displayName: z.string().trim().min(2).max(120).optional(),
+  email: z.string().trim().toLowerCase().max(254).pipe(z.email()).optional(),
+  role: z.enum(['MEMBER', 'SUPERADMIN']).optional(),
+  status: z.enum(['ACTIVE', 'SUSPENDED', 'DISABLED']).optional(),
+});
+const MemberResetPasswordInput = z.object({
+  newPassword: z.string().min(8).max(128).optional().or(z.literal('')),
+  revokeSessions: z.boolean().optional(),
+});
 
 @ApiTags('admin')
 @Roles('SUPERADMIN')
@@ -93,15 +111,45 @@ export class AdminController {
     return this.admin.members(q);
   }
 
+  @Post('members')
+  @ApiZodBody(MemberCreateInput)
+  createMember(@CurrentUser() me: SessionUser, @ZBody(MemberCreateInput) body: z.infer<typeof MemberCreateInput>, @Req() req: AuthedRequest) {
+    return this.admin.createMember(me.id, body, req.ip);
+  }
+
   @Get('members/:id')
   member(@Param('id', ParseUUIDPipe) id: string) {
     return this.admin.member(id);
+  }
+
+  @Patch('members/:id')
+  @ApiZodBody(MemberPatchInput)
+  updateMember(@CurrentUser() me: SessionUser, @Param('id', ParseUUIDPipe) id: string, @ZBody(MemberPatchInput) body: z.infer<typeof MemberPatchInput>, @Req() req: AuthedRequest) {
+    return this.admin.updateMember(me.id, id, body, req.ip);
   }
 
   @Patch('members/:id/status')
   @ApiZodBody(MemberStatusInput)
   status(@CurrentUser() me: SessionUser, @Param('id', ParseUUIDPipe) id: string, @ZBody(MemberStatusInput) body: z.infer<typeof MemberStatusInput>, @Req() req: AuthedRequest) {
     return this.admin.setStatus(me.id, id, body.status, body.reason, req.ip);
+  }
+
+  @HttpCode(200)
+  @Post('members/:id/reset-password')
+  @ApiZodBody(MemberResetPasswordInput)
+  resetPassword(@CurrentUser() me: SessionUser, @Param('id', ParseUUIDPipe) id: string, @ZBody(MemberResetPasswordInput) body: z.infer<typeof MemberResetPasswordInput>, @Req() req: AuthedRequest) {
+    return this.admin.resetMemberPassword(me.id, id, body, req.ip);
+  }
+
+  @HttpCode(200)
+  @Post('members/:id/revoke-all-sessions')
+  revokeAllSessions(@CurrentUser() me: SessionUser, @Param('id', ParseUUIDPipe) id: string, @Req() req: AuthedRequest) {
+    return this.admin.revokeAllSessions(me.id, id, req.ip);
+  }
+
+  @Get('office/presence')
+  officePresence() {
+    return this.admin.officePresence();
   }
 
   @Delete('sessions/:id')
