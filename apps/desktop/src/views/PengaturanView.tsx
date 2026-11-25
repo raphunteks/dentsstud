@@ -23,7 +23,7 @@ const DEFAULT_MODELS = [
 
 export function PengaturanView({ user, dash, offline, info, updateState }: PengaturanViewProps) {
   const qc = useQueryClient();
-  const [activeTab, setActiveTab] = useState<'license' | 'claude' | 'brand' | 'production' | 'voice-accounts' | 'profile'>('license');
+  const [activeTab, setActiveTab] = useState<'license' | 'claude' | 'brand' | 'production' | 'voice-accounts' | 'updates' | 'profile'>('license');
   const [apiKey, setApiKey] = useState('');
   const [keyError, setKeyError] = useState<string | null>(null);
   const [manualCode, setManualCode] = useState('');
@@ -115,6 +115,30 @@ export function PengaturanView({ user, dash, offline, info, updateState }: Penga
     queryFn: () =>
       get<{ provider: string; status: string; credentialHint?: string | null; config?: { baseUrl?: string }; lastError?: string | null }[]>('/settings/voice-accounts').catch(() => []),
     enabled: activeTab === 'voice-accounts',
+  });
+
+  type LatestRelease = {
+    version: string;
+    platform: string;
+    arch: string;
+    filename: string;
+    sizeBytes?: number;
+    releaseNotes?: string;
+    publishedAt?: string;
+    downloadUrl?: string;
+  };
+
+  const latestReleasesQ = useQuery({
+    queryKey: ['desktop-latest-releases'],
+    queryFn: async () => {
+      const [arm64, x64, win] = await Promise.all([
+        get<LatestRelease>('/releases/latest?platform=darwin&arch=arm64').catch(() => null),
+        get<LatestRelease>('/releases/latest?platform=darwin&arch=x64').catch(() => null),
+        get<LatestRelease>('/releases/latest?platform=win32&arch=x64').catch(() => null),
+      ]);
+      return { arm64, x64, win };
+    },
+    enabled: activeTab === 'updates',
   });
 
   const revokeDevice = useMutation({
@@ -298,6 +322,7 @@ export function PengaturanView({ user, dash, offline, info, updateState }: Penga
           { id: 'brand', label: 'Brand & Watermark' },
           { id: 'production', label: 'Jadwal Otomatis' },
           { id: 'voice-accounts', label: 'Akun Suara TTS' },
+          { id: 'updates', label: 'Update & Rilis' },
           { id: 'profile', label: 'Profil & Keamanan' },
         ].map((t) => (
           <button
@@ -377,7 +402,7 @@ export function PengaturanView({ user, dash, offline, info, updateState }: Penga
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="font-display text-base font-semibold text-text">Pembaruan Aplikasi Desktop</h2>
-                <p className="text-xs text-muted">Versi terpasang: v{info?.version ?? '1.0.12'} ({info?.platform}/{info?.arch})</p>
+                <p className="text-xs text-muted">Versi terpasang: v{info?.version ?? '1.0.13'} ({info?.platform}/{info?.arch})</p>
               </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => void invoke('update:check')}>
@@ -612,6 +637,120 @@ export function PengaturanView({ user, dash, offline, info, updateState }: Penga
           {saveVoiceAcct.isError && <p className="text-xs text-bad">{errMsg(saveVoiceAcct.error)}</p>}
         </div>
       )}
+
+      {activeTab === 'updates' && (() => {
+        const curVersion = info?.version ?? '1.0.13';
+        const plat = info?.platform === 'win32' ? 'win32' : 'darwin';
+        const archKey = info?.arch === 'x64' ? 'x64' : 'arm64';
+        const myLatest =
+          plat === 'win32'
+            ? latestReleasesQ.data?.win
+            : archKey === 'x64'
+              ? latestReleasesQ.data?.x64
+              : latestReleasesQ.data?.arm64;
+        const primaryRelease = myLatest ?? latestReleasesQ.data?.arm64 ?? latestReleasesQ.data?.win ?? latestReleasesQ.data?.x64;
+        const isUpToDate = primaryRelease ? primaryRelease.version === curVersion : true;
+        const downloads = [
+          { key: 'arm64', label: 'macOS Apple Silicon (M1/M2/M3/M4)', rel: latestReleasesQ.data?.arm64 },
+          { key: 'x64', label: 'macOS Intel (x64)', rel: latestReleasesQ.data?.x64 },
+          { key: 'win', label: 'Windows 10/11 (x64)', rel: latestReleasesQ.data?.win },
+        ];
+
+        return (
+          <div className="space-y-4 max-w-2xl">
+            <Card className="p-6 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="font-display text-base font-semibold text-text">Update & Rilis Desktop</h2>
+                  <p className="text-xs text-muted mt-0.5">Periksa pembaruan otomatis atau unduh installer terbaru DENTSWEB STUDIO.</p>
+                </div>
+                <Pill ok={isUpToDate}>{isUpToDate ? 'Versi Terbaru' : `Tersedia v${primaryRelease?.version}`}</Pill>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div className="rounded-xl border border-line bg-surface-2/40 p-3.5">
+                  <p className="text-[11px] font-mono uppercase text-muted">Versi Terpasang</p>
+                  <p className="mt-1 font-display text-lg font-semibold text-text">v{curVersion}</p>
+                  <p className="text-[11px] font-mono text-muted">{info?.platform ?? 'darwin'} / {info?.arch ?? 'arm64'}</p>
+                </div>
+                <div className="rounded-xl border border-line bg-surface-2/40 p-3.5">
+                  <p className="text-[11px] font-mono uppercase text-muted">Versi Terbaru Server</p>
+                  <p className="mt-1 font-display text-lg font-semibold text-accent">
+                    {latestReleasesQ.isLoading ? 'Memeriksa…' : primaryRelease ? `v${primaryRelease.version}` : `v${curVersion}`}
+                  </p>
+                  <p className="text-[11px] font-mono text-muted">
+                    {primaryRelease?.publishedAt ? new Date(primaryRelease.publishedAt).toLocaleDateString('id-ID') : 'Channel stable'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <Button size="sm" variant="primary" onClick={() => { void invoke('update:check'); void latestReleasesQ.refetch(); }}>
+                  <Icon name="download" className="w-3.5 h-3.5 mr-1.5 inline" />
+                  Cek Pembaruan Sekarang
+                </Button>
+                {(updateState?.state === 'available' || updateState?.state === 'ready') && (
+                  <Button size="sm" variant="outline" onClick={() => void invoke('update:apply')}>
+                    Pasang & Muat Ulang
+                  </Button>
+                )}
+              </div>
+
+              {updateState && updateState.state !== 'idle' && (
+                <p className="text-xs font-mono text-muted">
+                  Status updater:{' '}
+                  {updateState.state === 'checking'
+                    ? 'Memeriksa pembaruan di server…'
+                    : updateState.state === 'none'
+                      ? 'Aplikasi sudah pada versi terbaru.'
+                      : updateState.state === 'available'
+                        ? `Pembaruan v${updateState.version} tersedia.`
+                        : updateState.state === 'downloading'
+                          ? `Mengunduh pembaruan (${updateState.percent}%)…`
+                          : updateState.state === 'ready'
+                            ? `v${updateState.version} siap dipasang — klik Pasang & Muat Ulang.`
+                            : updateState.state === 'error'
+                              ? `Error: ${updateState.message}`
+                              : ''}
+                </p>
+              )}
+            </Card>
+
+            {primaryRelease?.releaseNotes && (
+              <Card className="p-6 space-y-2">
+                <h3 className="font-display text-sm font-semibold text-text">Catatan Rilis (v{primaryRelease.version})</h3>
+                <p className="text-xs text-muted whitespace-pre-wrap leading-relaxed">{primaryRelease.releaseNotes}</p>
+              </Card>
+            )}
+
+            <Card className="p-6 space-y-3">
+              <h3 className="font-display text-sm font-semibold text-text">Unduh Installer Manual</h3>
+              <p className="text-xs text-muted">Pilih installer sesuai sistem operasi jika ingin memasang ulang secara manual.</p>
+              <div className="space-y-2">
+                {downloads.map((d) => (
+                  <div key={d.key} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line bg-surface-2/40 px-4 py-3">
+                    <div>
+                      <p className="text-xs font-semibold text-text">{d.label}</p>
+                      <p className="text-[11px] font-mono text-muted">
+                        {d.rel ? `v${d.rel.version} · ${d.rel.filename}` : 'Memuat rilis…'}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={!d.rel?.downloadUrl}
+                      onClick={() => d.rel?.downloadUrl && void invoke('shell:open-external', { url: toMediaUrl(d.rel.downloadUrl) })}
+                    >
+                      <Icon name="download" className="w-3.5 h-3.5 mr-1.5 inline" />
+                      Unduh
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        );
+      })()}
 
       {activeTab === 'profile' && (
         <div className="space-y-4 max-w-2xl">

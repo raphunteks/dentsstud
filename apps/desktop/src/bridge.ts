@@ -32,6 +32,16 @@ export const pickAndUploadMedia = (kind: 'audio' | 'video' | 'image') =>
   invoke<{ canceled: true } | { canceled: false; id: string; filename: string; mimeType: string; sizeBytes: number; url: string }>('media:pick-upload', { kind });
 export const uploadSkillZip = (filename: string, base64: string) =>
   invoke<{ imported: unknown[]; count: number }>('admin:upload-skill-zip', { filename, base64 });
+export const pickInstaller = () =>
+  invoke<{ canceled: true } | { canceled: false; filePath: string; filename: string; sizeBytes: number }>('admin:pick-installer');
+export const uploadRelease = (payload: {
+  filePath: string;
+  platform: 'darwin' | 'win32';
+  arch: 'arm64' | 'x64' | 'universal';
+  channel: 'stable' | 'beta';
+  version: string;
+  releaseNotes?: string;
+}) => invoke<Record<string, unknown>>('admin:upload-release', payload);
 
 export const DEFAULT_MEDIA_BASE = 'https://motion.dentsweb.my.id';
 let currentMediaBase = DEFAULT_MEDIA_BASE;

@@ -5,7 +5,7 @@ import { cancelLocal, findChrome, renderLocal } from '../local-render/render.js'
 import { importFolder } from '../local-import/scan.js';
 import { cacheProject, localOp, localProjects, syncAll } from '../local-storage/projects.js';
 import { arch, hostname, platform } from 'node:os';
-import { readFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { basename } from 'node:path';
 import { CHANNELS, type Channel } from './channels.js';
 import { ApiFailure, publicRequest, request, requestForm } from './api-client.js';
@@ -136,6 +136,34 @@ export function registerIpc() {
     form.append('file', new Blob([buf], { type: 'application/zip' }), i.filename);
     return requestForm<{ imported: unknown[]; count: number }>('/admin/skills/upload-zip', form);
   });
+
+  handle('admin:pick-installer', async () => {
+    const r = await dialog.showOpenDialog({
+      title: 'Pilih File Installer Desktop (.dmg / .exe)',
+      properties: ['openFile'],
+      filters: [{ name: 'Installer Desktop', extensions: ['dmg', 'exe', 'zip'] }],
+    });
+    if (r.canceled || !r.filePaths[0]) return { canceled: true };
+    const filePath = r.filePaths[0];
+    const info = await stat(filePath);
+    return { canceled: false, filePath, filename: basename(filePath), sizeBytes: info.size };
+  });
+
+  handle(
+    'admin:upload-release',
+    async (i: { filePath: string; platform: 'darwin' | 'win32'; arch: 'arm64' | 'x64' | 'universal'; channel: 'stable' | 'beta'; version: string; releaseNotes?: string }) => {
+      const buf = await readFile(i.filePath);
+      const filename = basename(i.filePath);
+      const form = new FormData();
+      form.append('file', new Blob([buf]), filename);
+      form.append('platform', i.platform);
+      form.append('arch', i.arch);
+      form.append('channel', i.channel);
+      form.append('version', i.version);
+      if (i.releaseNotes) form.append('releaseNotes', i.releaseNotes);
+      return requestForm<Record<string, unknown>>('/admin/releases', form);
+    },
+  );
 
   handle('license:activate', async () => {
     const { installationId } = loadConfig();

@@ -403,7 +403,7 @@ function StudioShell({
               </div>
             )}
 
-            <span className="num font-mono text-[11px]">v{info?.version ?? '1.0.12'}</span>
+            <span className="num font-mono text-[11px]">v{info?.version ?? '1.0.13'}</span>
           </div>
         </header>
 

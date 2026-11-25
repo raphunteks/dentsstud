@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api, fmtBytes, fmtDate } from '@/lib/api';
 import { Button, Card, ErrorNote, PageHead, Skeleton, Status } from '@/components/ui';
 
-const VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? '1.0.12';
+const VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? '1.0.13';
 
 interface ReleaseInfo {
   id: string;
@@ -115,6 +115,20 @@ export default function AboutPage() {
             </div>
           )}
         </section>
+
+        {(() => {
+          const withNotes = TARGETS.map((t) => releases.data?.[t.key]).find((r) => r?.releaseNotes?.trim());
+          if (!withNotes) return null;
+          return (
+            <Card className="p-5">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="font-display text-base font-medium">Catatan Rilis Terbaru (v{withNotes.version})</h2>
+                {withNotes.publishedAt && <span className="font-mono text-xs text-muted">{fmtDate(withNotes.publishedAt)}</span>}
+              </div>
+              <p className="mt-2 whitespace-pre-wrap text-sm text-muted leading-relaxed">{withNotes.releaseNotes}</p>
+            </Card>
+          );
+        })()}
       </div>
     </>
   );

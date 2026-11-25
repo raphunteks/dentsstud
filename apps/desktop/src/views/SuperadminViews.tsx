@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { get, invoke, mutate, toMediaUrl, uploadSkillZip } from '../bridge';
+import { get, invoke, mutate, pickInstaller, toMediaUrl, uploadRelease, uploadSkillZip } from '../bridge';
 import { Button, Card, Pill, Input, Select, Modal, Textarea, errMsg } from '../components/UI';
 import { Icon } from '../components/Icons';
 import { AiProvidersPanel } from '../components/AiProvidersPanel';
@@ -1564,9 +1564,19 @@ export function AdminQuotasView() {
   );
 }
 
-/** 11. Rilis Desktop (Dynamic version from app:info, Toggle Active, Download Links) */
+/** 11. Rilis Desktop (Upload .dmg/.exe, Dynamic version from app:info, Toggle Active, Download Links) */
 export function AdminReleasesView({ info }: { info?: Info }) {
   const qc = useQueryClient();
+  const curVer = info?.version ?? '1.0.13';
+
+  const [platform, setPlatform] = useState<'darwin' | 'win32'>('darwin');
+  const [arch, setArch] = useState<'arm64' | 'x64' | 'universal'>('arm64');
+  const [channel, setChannel] = useState<'stable' | 'beta'>('stable');
+  const [version, setVersion] = useState(curVer);
+  const [releaseNotes, setReleaseNotes] = useState('');
+  const [pickedFile, setPickedFile] = useState<{ filePath: string; filename: string; sizeBytes: number } | null>(null);
+  const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
+
   const releasesQ = useQuery({
     queryKey: ['admin-releases'],
     queryFn: () => get<unknown>('/admin/releases').then((r) => toArr(r)).catch(() => []),
@@ -1577,8 +1587,51 @@ export function AdminReleasesView({ info }: { info?: Info }) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-releases'] }),
   });
 
+  const uploadMut = useMutation({
+    mutationFn: () => {
+      if (!pickedFile) throw new Error('Pilih file installer (.dmg / .exe) terlebih dahulu.');
+      return uploadRelease({
+        filePath: pickedFile.filePath,
+        platform,
+        arch,
+        channel,
+        version: version.trim(),
+        releaseNotes: releaseNotes.trim() || undefined,
+      });
+    },
+    onSuccess: () => {
+      setPickedFile(null);
+      setReleaseNotes('');
+      qc.invalidateQueries({ queryKey: ['admin-releases'] });
+      setFeedback({ ok: true, text: `Rilis v${version.trim()} (${platform}/${arch}) berhasil diunggah & dipublikasikan.` });
+    },
+    onError: (e) => setFeedback({ ok: false, text: `Gagal mengunggah rilis: ${errMsg(e)}` }),
+  });
+
+  async function handlePickInstaller() {
+    try {
+      const res = await pickInstaller();
+      if (!res.canceled) {
+        setPickedFile({ filePath: res.filePath, filename: res.filename, sizeBytes: res.sizeBytes });
+        if (res.filename.endsWith('.exe')) {
+          setPlatform('win32');
+          setArch('x64');
+        } else if (res.filename.includes('arm64')) {
+          setPlatform('darwin');
+          setArch('arm64');
+        } else if (res.filename.includes('x64')) {
+          setPlatform('darwin');
+          setArch('x64');
+        }
+        const m = res.filename.match(/(\d+\.\d+\.\d+)/);
+        if (m?.[1]) setVersion(m[1]);
+      }
+    } catch (e) {
+      setFeedback({ ok: false, text: `Gagal memilih file: ${errMsg(e)}` });
+    }
+  }
+
   const list = releasesQ.data ?? [];
-  const curVer = info?.version ?? '1.0.12';
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
@@ -1586,9 +1639,92 @@ export function AdminReleasesView({ info }: { info?: Info }) {
         <p className="text-xs uppercase tracking-widest text-accent font-mono font-bold">11 · SUPERADMIN</p>
         <h1 className="font-display text-2xl font-medium tracking-tight text-text mt-0.5">Rilis Desktop</h1>
         <p className="mt-1 text-sm text-muted">
-          Versi aplikasi desktop ini: <strong className="font-mono text-text">v{curVer}</strong> ({info?.platform}/{info?.arch}).
+          Versi aplikasi desktop ini: <strong className="font-mono text-text">v{curVer}</strong> ({info?.platform}/{info?.arch}). Unggah installer `.dmg`/`.exe` baru atau kelola rilis aktif.
         </p>
       </div>
+
+      {feedback && (
+        <div
+          className={`rounded-xl border px-4 py-2.5 text-xs flex items-center justify-between gap-3 ${
+            feedback.ok ? 'border-accent/40 bg-accent/10 text-text' : 'border-bad/40 bg-bad/10 text-bad'
+          }`}
+        >
+          <span>{feedback.text}</span>
+          <button onClick={() => setFeedback(null)} className="text-muted hover:text-text cursor-pointer">Tutup</button>
+        </div>
+      )}
+
+      {/* Unggah Rilis Baru (.dmg / .exe) */}
+      <Card className="p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <Icon name="upload" className="w-4 h-4 text-accent" />
+          <h2 className="font-display text-sm font-semibold text-text">Unggah Rilis Baru (.dmg / .exe)</h2>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <label className="grid gap-1 text-xs text-muted">
+            Platform
+            <Select value={platform} onChange={(e) => setPlatform(e.target.value as 'darwin' | 'win32')} className="h-9 text-xs">
+              <option value="darwin">macOS (darwin)</option>
+              <option value="win32">Windows (win32)</option>
+            </Select>
+          </label>
+          <label className="grid gap-1 text-xs text-muted">
+            Arch
+            <Select value={arch} onChange={(e) => setArch(e.target.value as 'arm64' | 'x64' | 'universal')} className="h-9 text-xs">
+              <option value="arm64">Apple Silicon (arm64)</option>
+              <option value="x64">Intel / Windows (x64)</option>
+              <option value="universal">Universal</option>
+            </Select>
+          </label>
+          <label className="grid gap-1 text-xs text-muted">
+            Channel
+            <Select value={channel} onChange={(e) => setChannel(e.target.value as 'stable' | 'beta')} className="h-9 text-xs">
+              <option value="stable">stable</option>
+              <option value="beta">beta</option>
+            </Select>
+          </label>
+          <label className="grid gap-1 text-xs text-muted">
+            Versi
+            <Input value={version} onChange={(e) => setVersion(e.target.value)} placeholder="1.0.13" className="h-9 text-xs font-mono" />
+          </label>
+        </div>
+
+        <label className="grid gap-1 text-xs text-muted">
+          Catatan Rilis
+          <Textarea
+            rows={3}
+            value={releaseNotes}
+            onChange={(e) => setReleaseNotes(e.target.value)}
+            placeholder="Ringkasan pembaruan versi ini (changelog)..."
+            className="text-xs"
+          />
+        </label>
+
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+          <div className="flex flex-wrap items-center gap-3">
+            <Button size="sm" variant="outline" onClick={() => void handlePickInstaller()}>
+              <Icon name="package" className="w-3.5 h-3.5 mr-1.5 inline" />
+              Pilih File Installer (.dmg / .exe)
+            </Button>
+            {pickedFile ? (
+              <span className="text-xs font-mono text-text">
+                {pickedFile.filename} ({formatBytes(pickedFile.sizeBytes)})
+              </span>
+            ) : (
+              <span className="text-xs text-muted">Belum ada file dipilih (stream langsung dari disk)</span>
+            )}
+          </div>
+          <Button
+            size="sm"
+            disabled={!pickedFile || !version.trim() || uploadMut.isPending}
+            onClick={() => uploadMut.mutate()}
+          >
+            <Icon name="upload" className="w-3.5 h-3.5 mr-1.5 inline" />
+            {uploadMut.isPending ? 'Mengunggah Rilis…' : 'Publikasikan Rilis'}
+          </Button>
+        </div>
+      </Card>
 
       <Card className="p-0 overflow-hidden">
         <div className="overflow-x-auto">
@@ -1614,7 +1750,8 @@ export function AdminReleasesView({ info }: { info?: Info }) {
                   <td className="px-4 py-3 text-right space-x-2">
                     {r.downloadUrl && (
                       <Button size="sm" variant="ghost" onClick={() => void invoke('shell:open-external', { url: toMediaUrl(r.downloadUrl) })}>
-                        ⬇ Unduh
+                        <Icon name="download" className="w-3.5 h-3.5 mr-1 inline" />
+                        Unduh
                       </Button>
                     )}
                     <Button size="sm" variant="outline" disabled={toggleActive.isPending} onClick={() => toggleActive.mutate({ id: r.id, isActive: !r.isActive })}>
