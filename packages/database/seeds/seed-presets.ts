@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'node:url';
 import crypto from 'node:crypto';
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { createDatabase, styleCategories, users, visualPresets, visualPresetVersions } from '../src/index.js';
 
 dotenv.config();
@@ -16,8 +16,8 @@ export const PRESETS_DATA = [
     music: 'ceria',
     voice: 'honeypie',
     palette: { background: '#0F1B33', accent: '#FFC93C', ink: '#FFF8EC', secondary: '#FF5C7A', highlight: '#4FC3F7' },
-    typography: { display: 'Baloo 2', body: 'Nunito', displayWeight: 700 },
-    motion: { intensity: 0.9, transition: 'zoom', spring: 'overshoot' },
+    typography: { display: 'Baloo 2', body: 'Nunito', displayWeight: 700, fontFiles: [] as string[] },
+    motion: { easing: 'spring' as const, intensity: 0.9, transition: 'zoom' as const, spring: 'overshoot' },
     sfx: ['pop', 'boing', 'ding', 'whoosh'],
   },
   {
@@ -28,8 +28,8 @@ export const PRESETS_DATA = [
     music: 'tech',
     voice: 'Sikedewi',
     palette: { background: '#0B1E2D', accent: '#5CE1E6', ink: '#E8F1F2', secondary: '#123047', highlight: '#FFD166' },
-    typography: { display: 'Space Grotesk', body: 'Caveat', displayWeight: 600 },
-    motion: { intensity: 0.7, transition: 'fade', drawPath: true },
+    typography: { display: 'Space Grotesk', body: 'Caveat', displayWeight: 600, fontFiles: [] as string[] },
+    motion: { easing: 'easeOut' as const, intensity: 0.7, transition: 'fade' as const, drawPath: true },
     sfx: ['click', 'ding', 'swoosh'],
   },
   {
@@ -40,8 +40,8 @@ export const PRESETS_DATA = [
     music: 'angkasa',
     voice: 'Bram',
     palette: { background: '#08080A', accent: '#E0A96D', ink: '#ECECEE', secondary: '#1A1A24', highlight: '#7395AE' },
-    typography: { display: 'Playfair Display', body: 'Inter', displayWeight: 600 },
-    motion: { intensity: 0.6, transition: 'fade', parallax: true, vignette: 0.3, grain: 0.05 },
+    typography: { display: 'Playfair Display', body: 'Inter', displayWeight: 600, fontFiles: [] as string[] },
+    motion: { easing: 'easeInOut' as const, intensity: 0.6, transition: 'fade' as const, parallax: true, vignette: 0.3, grain: 0.05 },
     sfx: ['riser', 'impact', 'whoosh'],
   },
   {
@@ -52,8 +52,8 @@ export const PRESETS_DATA = [
     music: 'ceria',
     voice: 'honeypie',
     palette: { background: '#F2E8DC', accent: '#E76F51', ink: '#264653', secondary: '#2A9D8F', highlight: '#E9C46A' },
-    typography: { display: 'Baloo 2', body: 'Nunito', displayWeight: 800 },
-    motion: { intensity: 0.8, fpsLimit: 12, boilingEffect: true },
+    typography: { display: 'Baloo 2', body: 'Nunito', displayWeight: 800, fontFiles: [] as string[] },
+    motion: { easing: 'spring' as const, intensity: 0.8, transition: 'cut' as const, fpsLimit: 12, boilingEffect: true },
     sfx: ['boing', 'pop', 'tap'],
   },
   {
@@ -64,8 +64,8 @@ export const PRESETS_DATA = [
     music: 'synthwave',
     voice: 'Putra',
     palette: { background: '#14002B', accent: '#FF006E', ink: '#FFFFFF', secondary: '#3C096C', highlight: '#FB5607' },
-    typography: { display: 'Space Grotesk', body: 'Chivo Mono', displayWeight: 700 },
-    motion: { intensity: 1.0, transition: 'zoom', gridFloor: true, glow: true },
+    typography: { display: 'Space Grotesk', body: 'Chivo Mono', displayWeight: 700, fontFiles: [] as string[] },
+    motion: { easing: 'easeOut' as const, intensity: 1.0, transition: 'zoom' as const, gridFloor: true, glow: true },
     sfx: ['swoosh', 'glitch', 'impact'],
   },
   {
@@ -76,8 +76,8 @@ export const PRESETS_DATA = [
     music: 'piano',
     voice: 'Maya',
     palette: { background: '#FBF7EF', accent: '#7FB7D9', ink: '#333333', secondary: '#F2A7A0', highlight: '#F6D27A' },
-    typography: { display: 'Caveat', body: 'Playfair Display', displayWeight: 500 },
-    motion: { intensity: 0.5, transition: 'fade', watercolorBloom: true },
+    typography: { display: 'Caveat', body: 'Playfair Display', displayWeight: 500, fontFiles: [] as string[] },
+    motion: { easing: 'easeInOut' as const, intensity: 0.5, transition: 'fade' as const, watercolorBloom: true },
     sfx: ['swoosh', 'ding'],
   },
   {
@@ -88,8 +88,8 @@ export const PRESETS_DATA = [
     music: 'synthwave',
     voice: 'Pratama',
     palette: { background: '#1A1C2C', accent: '#FFCD75', ink: '#FFFFFF', secondary: '#5D275D', highlight: '#38B764' },
-    typography: { display: 'Space Grotesk', body: 'Chivo Mono', displayWeight: 700 },
-    motion: { intensity: 0.8, pixelSnap: 8, fpsLimit: 12 },
+    typography: { display: 'Space Grotesk', body: 'Chivo Mono', displayWeight: 700, fontFiles: [] as string[] },
+    motion: { easing: 'linear' as const, intensity: 0.8, transition: 'cut' as const, pixelSnap: 8, fpsLimit: 12 },
     sfx: ['click', 'pop', 'ding', 'coin'],
   },
   {
@@ -100,8 +100,8 @@ export const PRESETS_DATA = [
     music: 'funk',
     voice: 'Putra',
     palette: { background: '#FFFFFF', accent: '#FFD23F', ink: '#111111', secondary: '#EE4266', highlight: '#3BCEAC' },
-    typography: { display: 'Anton', body: 'Nunito', displayWeight: 700 },
-    motion: { intensity: 0.9, transition: 'slide', comicPanels: true },
+    typography: { display: 'Anton', body: 'Nunito', displayWeight: 700, fontFiles: [] as string[] },
+    motion: { easing: 'spring' as const, intensity: 0.9, transition: 'slide' as const, comicPanels: true },
     sfx: ['impact', 'boing', 'pop'],
   },
   {
@@ -112,8 +112,8 @@ export const PRESETS_DATA = [
     music: 'lofi',
     voice: 'Sikedewi',
     palette: { background: '#FFFFFF', accent: '#FF5A36', ink: '#1A1A1A', secondary: '#E5E5E5', highlight: '#0070F3' },
-    typography: { display: 'Caveat', body: 'Inter', displayWeight: 600 },
-    motion: { intensity: 0.8, transition: 'cut', stickmanPoses: true },
+    typography: { display: 'Caveat', body: 'Inter', displayWeight: 600, fontFiles: [] as string[] },
+    motion: { easing: 'easeOut' as const, intensity: 0.8, transition: 'cut' as const, stickmanPoses: true },
     sfx: ['pop', 'boing', 'step'],
   },
   {
@@ -124,11 +124,43 @@ export const PRESETS_DATA = [
     music: 'angkasa',
     voice: 'Putra',
     palette: { background: '#1E3A5F', accent: '#F4A259', ink: '#F1F5F2', secondary: '#3D7EA6', highlight: '#8FC1A9' },
-    typography: { display: 'Space Grotesk', body: 'Inter', displayWeight: 600 },
-    motion: { intensity: 0.6, transition: 'zoom', lowpolyRotate: true },
+    typography: { display: 'Space Grotesk', body: 'Inter', displayWeight: 600, fontFiles: [] as string[] },
+    motion: { easing: 'easeInOut' as const, intensity: 0.6, transition: 'zoom' as const, lowpolyRotate: true },
     sfx: ['whoosh', 'ambient', 'wind'],
   },
 ];
+
+export function buildPresetVersionPayload(item: (typeof PRESETS_DATA)[number]) {
+  const recipe = {
+    palette: item.palette,
+    typography: item.typography,
+    motion: item.motion,
+    layout: { safeArea: 0.08, titleScale: 1.0, textAlign: 'center' as const },
+    textures: [] as Array<{ path: string; blend: 'normal' | 'multiply' | 'screen' | 'overlay'; opacity: number }>,
+    sfx: item.sfx,
+  };
+
+  const recipeSha = crypto.createHash('sha256').update(JSON.stringify(recipe)).digest('hex');
+
+  const manifest = {
+    schemaVersion: 1 as const,
+    kind: 'preset' as const,
+    slug: item.slug,
+    name: item.name,
+    category: item.categorySlug,
+    description: item.description,
+    compatibility: { formats: ['9:16', '16:9', '1:1'] as const },
+    rights: { license: 'DENTSWEB-INTERNAL', nonCommercialOnly: true },
+    recipe: 'recipe.json',
+    files: [{ path: 'recipe.json', sha256: recipeSha, role: 'recipe' as const }],
+    recommendedMusic: item.music,
+    recommendedVoice: item.voice,
+    tags: [item.categorySlug, 'reels', 'tiktok', 'remotion', 'one-line-motion'],
+  };
+
+  const checksum = crypto.createHash('sha256').update(JSON.stringify({ manifest, recipe })).digest('hex');
+  return { manifest, recipe, checksum };
+}
 
 export async function seedPresets(db = createDatabase(undefined, 1)) {
   const [superadmin] = await db
@@ -152,27 +184,7 @@ export async function seedPresets(db = createDatabase(undefined, 1)) {
       continue;
     }
 
-    const manifest = {
-      slug: item.slug,
-      name: item.name,
-      aspectRatios: ['9:16'],
-      recommendedMusic: item.music,
-      recommendedVoice: item.voice,
-      tags: [item.categorySlug, 'reels', 'tiktok', 'remotion', 'one-line-motion'],
-    };
-
-    const recipe = {
-      palette: item.palette,
-      typography: item.typography,
-      motion: item.motion,
-      sfx: item.sfx,
-      layout: { safeArea: 0.08, titleScale: 1.0, textAlign: 'center' },
-    };
-
-    const checksum = crypto
-      .createHash('sha256')
-      .update(JSON.stringify({ manifest, recipe }))
-      .digest('hex');
+    const { manifest, recipe, checksum } = buildPresetVersionPayload(item);
 
     const [preset] = await db
       .insert(visualPresets)

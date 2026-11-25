@@ -83,7 +83,8 @@ export class RenderController {
   @Post(':id/local/progress')
   @ApiZodBody(ProgressInput)
   async localProgress(@CurrentUser() me: SessionUser, @Param('id', ParseUUIDPipe) id: string, @ZBody(ProgressInput) b: { progress: number }) {
-    await this.svc.own(me.id, id);
+    const j = await this.svc.own(me.id, id);
+    if (j.mode !== 'LOCAL') throw Errors.invalid('RENDER_MODE', 'Job ini bukan render lokal');
     return this.svc.progress(id, b.progress);
   }
 
@@ -91,7 +92,8 @@ export class RenderController {
   @Post(':id/local/output')
   @UseInterceptors(upload())
   async localOutput(@CurrentUser() me: SessionUser, @Param('id', ParseUUIDPipe) id: string, @UploadedFile() f: Express.Multer.File) {
-    await this.svc.own(me.id, id);
+    const j = await this.svc.own(me.id, id);
+    if (j.mode !== 'LOCAL') throw Errors.invalid('RENDER_MODE', 'Job ini bukan render lokal');
     return this.svc.complete(id, f.path, fmtOf(f));
   }
 
@@ -99,7 +101,8 @@ export class RenderController {
   @Post(':id/local/fail')
   @ApiZodBody(FailInput)
   async localFail(@CurrentUser() me: SessionUser, @Param('id', ParseUUIDPipe) id: string, @ZBody(FailInput) b: { error: string }) {
-    await this.svc.own(me.id, id);
+    const j = await this.svc.own(me.id, id);
+    if (j.mode !== 'LOCAL') throw Errors.invalid('RENDER_MODE', 'Job ini bukan render lokal');
     return this.svc.fail(id, b.error);
   }
 }
@@ -111,7 +114,10 @@ export class WorkerGuard implements CanActivate {
   canActivate(ctx: ExecutionContext) {
     const got = ctx.switchToHttp().getRequest<Request>().headers['x-worker-token'];
     const want = this.env.WORKER_TOKEN;
-    if (!want || typeof got !== 'string' || got.length !== want.length || !timingSafeEqual(Buffer.from(got), Buffer.from(want))) throw Errors.unauthorized('Token worker tidak valid');
+    if (!want || typeof got !== 'string') throw Errors.unauthorized('Token worker tidak valid');
+    const gb = Buffer.from(got);
+    const wb = Buffer.from(want);
+    if (gb.length !== wb.length || !timingSafeEqual(gb, wb)) throw Errors.unauthorized('Token worker tidak valid');
     return true;
   }
 }

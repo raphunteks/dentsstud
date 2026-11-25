@@ -79,12 +79,53 @@ export const MemberStatusInput = z.object({
   reason: z.string().max(500).optional(),
 });
 
+export const AI_PROVIDERS = ['anthropic', 'gemini', 'openai', 'openrouter', 'custom_gateway'] as const;
+export type AiProviderCode = (typeof AI_PROVIDERS)[number];
+
+const aiConnMeta = {
+  label: z.string().trim().max(80).optional(),
+  priority: z.number().int().min(1).max(99).optional(),
+};
+
 export const AiConnectionStartInput = z.discriminatedUnion('method', [
-  z.object({ provider: z.literal('anthropic'), method: z.literal('API_KEY'), apiKey: z.string().min(20).max(400) }),
-  z.object({ provider: z.string().min(2).max(60), method: z.literal('OAUTH_PKCE'), redirectUri: z.url().optional() }),
-  z.object({ provider: z.literal('anthropic'), method: z.literal('CLAUDE_CODE_LOCAL'), version: z.string().min(1).max(80), authenticated: z.boolean() }),
+  z.object({
+    provider: z.enum(AI_PROVIDERS).default('anthropic'),
+    method: z.literal('API_KEY'),
+    apiKey: z.string().min(8).max(500),
+    baseUrl: z.url().optional(),
+    ...aiConnMeta,
+  }),
+  z.object({
+    provider: z.enum(AI_PROVIDERS).default('custom_gateway'),
+    method: z.literal('GATEWAY_KEY'),
+    apiKey: z.string().min(4).max(500),
+    baseUrl: z.url(),
+    ...aiConnMeta,
+  }),
+  z.object({
+    provider: z.string().min(2).max(60).default('anthropic'),
+    method: z.literal('OAUTH_PKCE'),
+    redirectUri: z.url().optional(),
+    ...aiConnMeta,
+  }),
+  z.object({
+    provider: z.literal('anthropic').default('anthropic'),
+    method: z.literal('CLAUDE_CODE_LOCAL'),
+    version: z.string().min(1).max(80),
+    authenticated: z.boolean(),
+    ...aiConnMeta,
+  }),
 ]);
 export type AiConnectionStartInput = z.infer<typeof AiConnectionStartInput>;
+
+export const AiConnectionPatchInput = z.object({
+  priority: z.number().int().min(1).max(99).optional(),
+  active: z.boolean().optional(),
+  label: z.string().trim().max(80).optional(),
+  defaultModel: z.string().min(2).max(160).optional(),
+  resetCooldown: z.boolean().optional(),
+});
+export type AiConnectionPatchInput = z.infer<typeof AiConnectionPatchInput>;
 
 export const AiTestInput = z.object({ prompt: z.string().min(1).max(2000).default('Jawab singkat: apa ibu kota Indonesia?') });
 

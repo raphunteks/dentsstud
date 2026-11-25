@@ -22,7 +22,14 @@ if [ "${STORAGE_DRIVER:-local}" = "local" ]; then
     echo "Storage → $ST_FILE ($(du -h "$ST_FILE" | cut -f1))"
   fi
 fi
-( cd "$OUT" && sha256sum dentweb-*-"$TS".* > "dentweb-$TS.sha256" )
+sha256_gen() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$@"
+  else
+    shasum -a 256 "$@"
+  fi
+}
+( cd "$OUT" && sha256_gen dentweb-*-"$TS".* > "dentweb-$TS.sha256" )
 echo "Checksum → $OUT/dentweb-$TS.sha256"
 # Retention: keep the newest ${BACKUP_KEEP:-14} sets.
 ls -1t "$OUT"/dentweb-*.sha256 2>/dev/null | tail -n +"$(( ${BACKUP_KEEP:-14} + 1 ))" | while read -r f; do

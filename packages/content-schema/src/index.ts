@@ -33,7 +33,15 @@ export type FileEntry = z.infer<typeof FileEntry>;
 
 /** Declarative visual recipe: palette, type, motion and layer templates. */
 export const PresetRecipe = z.object({
-  palette: z.object({ background: color, surface: color.optional(), ink: color, accent: color, muted: color.optional() }),
+  palette: z.object({
+    background: color,
+    surface: color.optional(),
+    ink: color,
+    accent: color,
+    muted: color.optional(),
+    secondary: color.optional(),
+    highlight: color.optional(),
+  }),
   typography: z.object({
     display: z.string().min(1).max(120),
     body: z.string().min(1).max(120),
@@ -71,6 +79,7 @@ export type PresetManifest = z.infer<typeof PresetManifest>;
 export const HookRecipe = z.object({
   durationSec: z.number().min(0.5).max(8),
   style: z.enum(['bongkar', 'bold', 'glass', 'neon', 'komik', 'custom']).default('custom'),
+  badgeText: z.string().max(80).optional(),
   text: z.object({ maxWords: z.number().int().min(1).max(20).default(8), case: z.enum(['as-is', 'upper', 'title']).default('as-is') }),
   animation: z.object({ in: z.enum(['pop', 'slide', 'type', 'mask', 'scale']).default('pop'), emphasis: z.enum(['none', 'shake', 'pulse', 'underline']).default('none') }),
   palette: z.object({ ink: color, accent: color, background: color.optional() }).optional(),

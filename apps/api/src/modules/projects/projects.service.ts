@@ -95,9 +95,12 @@ export class ProjectsService {
    * the latest revision when they still apply; otherwise a conflict copy is made — local work is never lost.
    */
   async applyOps(userId: string, id: string, i: { operationId: string; baseRevision: number; ops: Operation[] }) {
-    const [dup] = await this.db.select().from(projectOperations).where(eq(projectOperations.operationId, i.operationId));
-    if (dup) return { revision: Number(dup.resultRevision), duplicate: true };
     const cur = await this.document(userId, id);
+    const [dup] = await this.db
+      .select()
+      .from(projectOperations)
+      .where(and(eq(projectOperations.projectId, id), eq(projectOperations.operationId, i.operationId)));
+    if (dup) return { revision: Number(dup.resultRevision), duplicate: true };
     try {
       let doc = cur.document;
       for (const op of i.ops) doc = applyOperation(doc, op);

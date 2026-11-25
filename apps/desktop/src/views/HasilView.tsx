@@ -1,21 +1,22 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
-import { get, invoke, mutate, toMediaUrl } from '../bridge';
-import { Button, Card, Input, Textarea, Pill } from '../components/UI';
-import type { NavTab, ResultDetail, ResultItem } from '../types';
+import { get, invoke, mutate, pickAndUploadMedia, toMediaUrl } from '../bridge';
+import { Button, Card, Input, Modal, Pill, Select, Textarea, errMsg } from '../components/UI';
+import { Icon } from '../components/Icons';
+import type { HookItem, NavTab, ResultDetail, ResultItem, StylePreset, VoiceItem } from '../types';
 
 interface HasilViewProps {
   onNavigate: (tab: NavTab) => void;
+  initialSubTab?: 'READY' | 'UPLOADED' | 'FAILED' | 'ALL' | 'TRASH';
 }
 
 function fmtBytes(bytes: number) {
   if (!bytes || bytes === 0) return '0 B';
   const k = 1024;
-  const dm = 1;
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 }
 
 function fmtDate(iso: string) {
@@ -32,15 +33,16 @@ function fmtDate(iso: string) {
   }
 }
 
-/**
- * Detailed view of a single video production result matching the Web results view (Gambar 4).
- */
 function HasilDetailView({
   id,
   onBack,
+  onSelectId,
+  onNavigate,
 }: {
   id: string;
   onBack: () => void;
+  onSelectId: (nextId: string) => void;
+  onNavigate: (tab: NavTab) => void;
 }) {
   const qc = useQueryClient();
   const [caption, setCaption] = useState('');
@@ -48,10 +50,39 @@ function HasilDetailView({
   const [comment, setComment] = useState('');
   const [title, setTitle] = useState('');
   const [copiedLabel, setCopiedLabel] = useState<string | null>(null);
+  const [revoiceOpen, setRevoiceOpen] = useState(false);
+  const [rerenderOpen, setRerenderOpen] = useState(false);
+
+  // Revoice state
+  const [rvMode, setRvMode] = useState<'TTS' | 'NONE' | 'UPLOAD'>('TTS');
+  const [rvVoiceId, setRvVoiceId] = useState('');
+  const [rvUploadAsset, setRvUploadAsset] = useState<{ id: string; filename: string } | null>(null);
+
+  // Rerender state
+  const [rrFormat, setRrFormat] = useState<'9:16' | '16:9' | '1:1'>('9:16');
+  const [rrPresetId, setRrPresetId] = useState('');
+  const [rrHookMode, setRrHookMode] = useState<'AUTO' | 'PRESET' | 'NONE'>('AUTO');
+  const [rrHookId, setRrHookId] = useState('');
 
   const q = useQuery({
     queryKey: ['result-detail', id],
     queryFn: () => get<ResultDetail>(`/results/${id}`),
+  });
+
+  const voicesQ = useQuery({
+    queryKey: ['voices-all'],
+    queryFn: () => get<VoiceItem[]>('/voices').catch(() => []),
+    enabled: revoiceOpen,
+  });
+  const presetsQ = useQuery({
+    queryKey: ['presets-all'],
+    queryFn: () => get<{ items: StylePreset[] }>('/styles/presets?limit=100').catch(() => ({ items: [] })),
+    enabled: rerenderOpen,
+  });
+  const hooksQ = useQuery({
+    queryKey: ['hooks-all'],
+    queryFn: () => get<HookItem[]>('/hooks').catch(() => []),
+    enabled: rerenderOpen,
   });
 
   useEffect(() => {
@@ -71,6 +102,7 @@ function HasilDetailView({
   const inval = () => {
     qc.invalidateQueries({ queryKey: ['result-detail', id] });
     qc.invalidateQueries({ queryKey: ['results'] });
+    qc.invalidateQueries({ queryKey: ['dash'] });
   };
 
   const saveSocial = useMutation({
@@ -91,8 +123,7 @@ function HasilDetailView({
   });
 
   const patchResult = useMutation({
-    mutationFn: (body: { title?: string; status?: string }) =>
-      mutate('PATCH', `/results/${id}`, body),
+    mutationFn: (body: { title?: string; status?: string }) => mutate('PATCH', `/results/${id}`, body),
     onSuccess: () => {
       inval();
       setCopiedLabel('saved-title');
@@ -105,6 +136,36 @@ function HasilDetailView({
     onSuccess: () => {
       inval();
       onBack();
+    },
+  });
+
+  const revoiceMut = useMutation({
+    mutationFn: () =>
+      mutate('POST', `/results/${id}/revoice`, {
+        voice: {
+          mode: rvMode,
+          voiceId: rvMode === 'TTS' ? rvVoiceId || null : null,
+          uploadAssetId: rvMode === 'UPLOAD' ? rvUploadAsset?.id || null : null,
+        },
+      }),
+    onSuccess: () => {
+      setRevoiceOpen(false);
+      qc.invalidateQueries({ queryKey: ['runs'] });
+      onNavigate('progress');
+    },
+  });
+
+  const rerenderMut = useMutation({
+    mutationFn: () =>
+      mutate('POST', `/results/${id}/rerender`, {
+        format: rrFormat,
+        presetId: rrPresetId || null,
+        hook: { mode: rrHookMode, hookId: rrHookMode === 'PRESET' ? rrHookId || null : null },
+      }),
+    onSuccess: () => {
+      setRerenderOpen(false);
+      qc.invalidateQueries({ queryKey: ['runs'] });
+      onNavigate('progress');
     },
   });
 
@@ -144,10 +205,9 @@ function HasilDetailView({
   const allText = `${caption}\n\n${tags}`;
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
-      {/* Top Header Bar matching Gambar 4 */}
+    <div className="w-full overflow-x-hidden space-y-6 animate-in fade-in duration-200">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
-        <div>
+        <div className="min-w-0 flex-1">
           <button
             type="button"
             onClick={onBack}
@@ -155,45 +215,56 @@ function HasilDetailView({
           >
             ← HASIL
           </button>
-          <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-text">
+          <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-text break-words">
             {d.title}
           </h1>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <Button variant="outline" size="sm" onClick={() => setRevoiceOpen(true)}>
+            <Icon name="mic" className="w-3.5 h-3.5" /> Ganti Suara
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setRerenderOpen(true)}>
+            <Icon name="film" className="w-3.5 h-3.5" /> Render Ulang
+          </Button>
           {d.videoUrl && (
             <Button
               size="md"
               className="bg-accent text-accent-contrast font-semibold shadow-xs"
               onClick={() => downloadFile(d.videoUrl)}
             >
-              ⬇ Unduh MP4 · {fmtBytes(d.file?.sizeBytes ?? 0)}
+              <Icon name="download" className="w-4 h-4" /> Unduh MP4 · {fmtBytes(d.file?.sizeBytes ?? 0)}
             </Button>
           )}
           {d.coverUrl && (
-            <Button
-              variant="outline"
-              size="md"
-              onClick={() => downloadFile(d.coverUrl!)}
-            >
+            <Button variant="outline" size="md" onClick={() => downloadFile(d.coverUrl!)}>
               Unduh Cover
             </Button>
           )}
         </div>
       </div>
 
-      {/* Main 2-Column Content: Left = Video & Actions; Right = Social & Fact Check */}
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,440px)_1fr] items-start">
-        {/* Left Column: Video Player & Metadata Card */}
-        <div className="space-y-4">
-          <Card className="overflow-hidden p-0 border border-line bg-black shadow-md rounded-2xl">
-            <video
-              src={toMediaUrl(d.videoUrl)}
-              poster={toMediaUrl(d.coverUrl) || undefined}
-              controls
-              playsInline
-              className="max-h-[68vh] w-full bg-black object-contain aspect-[9/16]"
-            />
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(280px,360px)_minmax(0,1fr)] gap-6 items-start w-full">
+        {/* Left Column */}
+        <div className="min-w-0 w-full space-y-4">
+          <Card className="min-w-0 w-full overflow-hidden p-0 border border-line bg-black shadow-md rounded-2xl">
+            {d.videoUrl ? (
+              <div className="relative w-full min-h-[320px] aspect-[9/16] max-h-[540px] mx-auto bg-black flex items-center justify-center">
+                <video
+                  key={d.videoUrl}
+                  src={toMediaUrl(d.videoUrl)}
+                  poster={d.coverUrl ? toMediaUrl(d.coverUrl) : undefined}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="w-full h-full max-h-[540px] rounded-xl bg-black object-contain"
+                />
+              </div>
+            ) : (
+              <div className="min-h-[320px] grid place-items-center text-xs text-muted p-6">
+                Video belum tersedia.
+              </div>
+            )}
           </Card>
 
           <Card className="p-5 space-y-4">
@@ -224,7 +295,7 @@ function HasilDetailView({
                 <Button
                   variant="ghost"
                   size="sm"
-                  disabled={title === d.title || !title.trim()}
+                  disabled={title === d.title || !title.trim() || patchResult.isPending}
                   onClick={() => patchResult.mutate({ title })}
                 >
                   {copiedLabel === 'saved-title' ? '✓ Tersimpan' : 'Simpan'}
@@ -232,12 +303,15 @@ function HasilDetailView({
               </div>
             </div>
 
+            {patchResult.isError && <p className="text-xs text-bad">{errMsg(patchResult.error)}</p>}
+
             <div className="flex flex-wrap gap-2 pt-2 border-t border-line">
               {d.status === 'READY' ? (
                 <Button
                   variant="outline"
                   size="sm"
                   className="text-xs flex-1"
+                  disabled={patchResult.isPending}
                   onClick={() => patchResult.mutate({ status: 'UPLOADED' })}
                 >
                   ✓ Tandai sudah diunggah
@@ -247,6 +321,7 @@ function HasilDetailView({
                   variant="ghost"
                   size="sm"
                   className="text-xs flex-1"
+                  disabled={patchResult.isPending}
                   onClick={() => patchResult.mutate({ status: 'READY' })}
                 >
                   ↺ Kembalikan ke siap upload
@@ -256,6 +331,7 @@ function HasilDetailView({
                 variant="danger"
                 size="sm"
                 className="text-xs"
+                disabled={trashResult.isPending}
                 onClick={() => {
                   if (confirm('Yakin ingin memindahkan video ini ke sampah?')) {
                     trashResult.mutate();
@@ -266,102 +342,83 @@ function HasilDetailView({
               </Button>
             </div>
           </Card>
+
+          {/* Riwayat Revisi */}
+          {d.revisions && d.revisions.length > 0 && (
+            <Card className="p-5 space-y-3">
+              <h3 className="font-display text-sm font-semibold text-text">Riwayat Revisi ({d.revisions.length})</h3>
+              <div className="space-y-1.5">
+                {d.revisions.map((rev) => (
+                  <button
+                    key={rev.id}
+                    type="button"
+                    onClick={() => onSelectId(rev.id)}
+                    className={clsx(
+                      'flex w-full items-center justify-between rounded-lg border px-3 py-2 text-xs transition cursor-pointer',
+                      rev.id === d.id
+                        ? 'border-accent bg-accent/10 font-semibold text-text'
+                        : 'border-line bg-surface-2/40 text-muted hover:text-text'
+                    )}
+                  >
+                    <span className="font-mono">Revisi #{rev.revision}</span>
+                    <span className="text-[11px]">{fmtDate(rev.createdAt)}</span>
+                  </button>
+                ))}
+              </div>
+            </Card>
+          )}
         </div>
 
-        {/* Right Column: Social Media Package & Fact Check (Matching Gambar 4) */}
-        <div className="space-y-4">
-          <Card className="p-5 space-y-4 shadow-xs">
+        {/* Right Column */}
+        <div className="min-w-0 w-full space-y-4">
+          <Card className="min-w-0 w-full p-5 space-y-4 shadow-xs">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-3">
-              <div>
-                <h2 className="font-display text-base font-semibold text-text">
-                  Paket sosial media
-                </h2>
+              <div className="min-w-0">
+                <h2 className="font-display text-base font-semibold text-text">Paket sosial media</h2>
                 <p className="text-xs text-muted">Siap langsung disalin dan ditempel ke TikTok/Reels/Shorts.</p>
               </div>
               <Button
                 variant="outline"
                 size="sm"
-                className="text-xs font-medium cursor-pointer"
+                className="text-xs font-medium shrink-0"
                 onClick={() => copyText(allText, 'all')}
               >
-                {copiedLabel === 'all' ? '✓ Caption + Hashtag Disalin!' : '📋 Salin caption + hashtag'}
+                <Icon name="copy" className="w-3.5 h-3.5" />{' '}
+                {copiedLabel === 'all' ? 'Caption + Hashtag Disalin!' : 'Salin caption + hashtag'}
               </Button>
             </div>
 
-            {/* Caption Area */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label htmlFor="caption-input" className="text-xs font-semibold text-text">
-                  Caption
-                </label>
-                <button
-                  type="button"
-                  onClick={() => copyText(caption, 'caption')}
-                  className="text-[11px] text-accent hover:underline cursor-pointer"
-                >
+                <label htmlFor="caption-input" className="text-xs font-semibold text-text">Caption</label>
+                <button type="button" onClick={() => copyText(caption, 'caption')} className="text-[11px] text-accent hover:underline cursor-pointer">
                   {copiedLabel === 'caption' ? '✓ Disalin' : 'Salin teks'}
                 </button>
               </div>
-              <Textarea
-                id="caption-input"
-                rows={7}
-                maxLength={2200}
-                value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                className="text-xs font-sans leading-relaxed"
-              />
-              <p className="text-right font-mono text-[11px] text-muted">
-                {caption.length}/2200 karakter
-              </p>
+              <Textarea id="caption-input" rows={6} maxLength={2200} value={caption} onChange={(e) => setCaption(e.target.value)} className="text-xs font-sans leading-relaxed" />
+              <p className="text-right font-mono text-[11px] text-muted">{caption.length}/2200 karakter</p>
             </div>
 
-            {/* Hashtag Area */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label htmlFor="tags-input" className="text-xs font-semibold text-text">
-                  Hashtag
-                </label>
-                <button
-                  type="button"
-                  onClick={() => copyText(tags, 'tags')}
-                  className="text-[11px] text-accent hover:underline cursor-pointer"
-                >
+                <label htmlFor="tags-input" className="text-xs font-semibold text-text">Hashtag</label>
+                <button type="button" onClick={() => copyText(tags, 'tags')} className="text-[11px] text-accent hover:underline cursor-pointer">
                   {copiedLabel === 'tags' ? '✓ Disalin' : 'Salin tags'}
                 </button>
               </div>
-              <Input
-                id="tags-input"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                className="text-xs font-mono"
-              />
+              <Input id="tags-input" value={tags} onChange={(e) => setTags(e.target.value)} className="text-xs font-mono" />
             </div>
 
-            {/* Komentar Pertama */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label htmlFor="comment-input" className="text-xs font-semibold text-text">
-                  Komentar pertama (Referensi & Sumber)
-                </label>
-                <button
-                  type="button"
-                  onClick={() => copyText(comment, 'comment')}
-                  className="text-[11px] text-accent hover:underline cursor-pointer"
-                >
+                <label htmlFor="comment-input" className="text-xs font-semibold text-text">Komentar pertama (Referensi & Sumber)</label>
+                <button type="button" onClick={() => copyText(comment, 'comment')} className="text-[11px] text-accent hover:underline cursor-pointer">
                   {copiedLabel === 'comment' ? '✓ Disalin' : 'Salin komentar'}
                 </button>
               </div>
-              <Textarea
-                id="comment-input"
-                rows={4}
-                maxLength={500}
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                className="text-xs leading-relaxed"
-              />
+              <Textarea id="comment-input" rows={3} maxLength={500} value={comment} onChange={(e) => setComment(e.target.value)} className="text-xs leading-relaxed" />
             </div>
 
-            {/* Teks Cover */}
             {d.social?.coverText && (
               <div className="rounded-xl border border-line bg-surface-2/60 p-3 text-xs">
                 <span className="text-muted">Teks cover: </span>
@@ -369,22 +426,15 @@ function HasilDetailView({
               </div>
             )}
 
-            {/* Save Button */}
             <div className="pt-2 flex items-center justify-between">
-              <Button
-                size="md"
-                className="bg-accent text-accent-contrast font-medium"
-                onClick={() => saveSocial.mutate()}
-              >
+              <Button size="md" disabled={saveSocial.isPending} onClick={() => saveSocial.mutate()}>
                 {copiedLabel === 'saved-social' ? '✓ Paket Sosial Tersimpan!' : 'Simpan Perubahan Sosial'}
               </Button>
-              {saveSocial.isPending && (
-                <span className="text-xs text-muted animate-pulse">Menyimpan…</span>
-              )}
+              {saveSocial.isError && <span className="text-xs text-bad">{errMsg(saveSocial.error)}</span>}
             </div>
           </Card>
 
-          {/* Sumber & Cek Fakta Card */}
+          {/* Sumber & Cek Fakta */}
           {d.factCheck && (
             <Card className="p-5 space-y-3">
               <div className="flex items-center justify-between">
@@ -394,35 +444,64 @@ function HasilDetailView({
                 </span>
               </div>
               <p className="text-xs text-muted leading-relaxed">
-                {d.factCheck.verdict.verified} klaim klinis terverifikasi ·{' '}
-                {d.factCheck.verdict.unverified} belum diverifikasi ·{' '}
-                {d.factCheck.verdict.contradicted} bertentangan.
+                {d.factCheck.verdict.verified} terverifikasi · {d.factCheck.verdict.unverified} belum diverifikasi · {d.factCheck.verdict.contradicted} bertentangan.
               </p>
-              <div className="space-y-2 pt-1 max-h-48 overflow-y-auto pr-1">
-                {d.factCheck.claims.slice(0, 5).map((c, i) => (
-                  <div key={i} className="text-xs rounded-lg border border-line/60 bg-surface-2/40 p-2.5 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-emerald-600 dark:text-emerald-400 text-[11px]">
-                        ✓ Klaim #{i + 1}
-                      </span>
-                      <span className="text-[10px] text-muted">{c.status}</span>
+              <div className="space-y-2 pt-1 max-h-56 overflow-y-auto pr-1">
+                {d.factCheck.claims.map((c, i) => {
+                  const st = (c.status || '').toUpperCase();
+                  const isVerified = st === 'VERIFIED';
+                  const isContra = st === 'CONTRADICTED';
+                  return (
+                    <div key={i} className="text-xs rounded-lg border border-line/60 bg-surface-2/40 p-2.5 space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span
+                          className={clsx(
+                            'font-semibold text-[11px]',
+                            isVerified ? 'text-emerald-600 dark:text-emerald-400' : isContra ? 'text-bad' : 'text-amber-500'
+                          )}
+                        >
+                          {isVerified ? '✓' : isContra ? '✕' : '!'} Klaim #{i + 1}
+                        </span>
+                        <Pill ok={isVerified ? true : isContra ? false : null}>{st || 'UNVERIFIED'}</Pill>
+                      </div>
+                      <p className="text-text">{c.claim}</p>
+                      {c.note && <p className="text-[11px] text-muted italic">{c.note}</p>}
                     </div>
-                    <p className="text-text">{c.claim}</p>
-                    {c.note && <p className="text-[11px] text-muted italic">{c.note}</p>}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </Card>
           )}
 
-          {/* Quality Control (QC) Card */}
+          {/* Daftar Sumber Referensi */}
+          {d.sources && d.sources.length > 0 && (
+            <Card className="p-5 space-y-2.5">
+              <h3 className="font-display text-sm font-semibold text-text">Referensi Riset ({d.sources.length})</h3>
+              <ul className="space-y-1.5 text-xs">
+                {d.sources.map((s) => (
+                  <li key={s.id} className="flex items-center justify-between gap-2 rounded-lg border border-line/50 bg-surface-2/30 px-3 py-2">
+                    <span className="truncate text-text">{s.title || s.url}</span>
+                    {s.url && (
+                      <button
+                        type="button"
+                        onClick={() => void invoke('shell:open-external', { url: s.url }).catch(() => undefined)}
+                        className="shrink-0 text-[11px] text-accent hover:underline cursor-pointer"
+                      >
+                        Buka ↗
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
+
+          {/* Quality Control (QC) */}
           {d.qc && (
             <Card className="p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="font-display text-sm font-semibold text-text">Pemeriksaan Kualitas (QC)</h3>
-                <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-                  {d.qc.passed ? 'Lulus Semua Uji' : 'Perlu Perhatian'}
-                </span>
+                <Pill ok={d.qc.passed}>{d.qc.passed ? 'Lulus Semua Uji' : 'Perlu Perhatian'}</Pill>
               </div>
               <p className="text-xs text-muted">
                 {d.qc.checks.filter((c) => c.passed).length} dari {d.qc.checks.length} uji lolos standar penyiaran.
@@ -431,15 +510,135 @@ function HasilDetailView({
           )}
         </div>
       </div>
+
+      {/* Modal Ganti Suara (Revoice) */}
+      <Modal open={revoiceOpen} onClose={() => setRevoiceOpen(false)} title="Ganti Suara Narator (Revoice)">
+        <div className="space-y-4">
+          <p className="text-xs text-muted">
+            Buat revisi baru dari video ini dengan karakter suara atau rekaman audio berbeda tanpa mengulang riset & naskah.
+          </p>
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-text">Mode Suara</label>
+            <Select value={rvMode} onChange={(e) => setRvMode(e.target.value as typeof rvMode)}>
+              <option value="TTS">Suara AI (TTS)</option>
+              <option value="UPLOAD">Unggah Rekaman Sendiri</option>
+              <option value="NONE">Tanpa Narasi (Hening)</option>
+            </Select>
+          </div>
+
+          {rvMode === 'TTS' && (
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-text">Pilih Karakter Suara</label>
+              <Select value={rvVoiceId} onChange={(e) => setRvVoiceId(e.target.value)}>
+                <option value="">-- Pilih Suara --</option>
+                {(voicesQ.data ?? []).map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.name} ({v.provider} · {v.language})
+                  </option>
+                ))}
+              </Select>
+            </div>
+          )}
+
+          {rvMode === 'UPLOAD' && (
+            <div className="space-y-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  try {
+                    const up = await pickAndUploadMedia('audio');
+                    if (!up.canceled) setRvUploadAsset({ id: up.id, filename: up.filename });
+                  } catch (e) {
+                    alert(errMsg(e));
+                  }
+                }}
+              >
+                <Icon name="upload" className="w-3.5 h-3.5" /> Pilih File Audio (.mp3 / .wav)
+              </Button>
+              {rvUploadAsset && <p className="text-xs text-ok">✓ Terunggah: {rvUploadAsset.filename}</p>}
+            </div>
+          )}
+
+          {revoiceMut.isError && <p className="text-xs text-bad">{errMsg(revoiceMut.error)}</p>}
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="ghost" size="sm" onClick={() => setRevoiceOpen(false)}>Batal</Button>
+            <Button
+              size="sm"
+              disabled={revoiceMut.isPending || (rvMode === 'TTS' && !rvVoiceId) || (rvMode === 'UPLOAD' && !rvUploadAsset)}
+              onClick={() => revoiceMut.mutate()}
+            >
+              {revoiceMut.isPending ? 'Memproses…' : 'Mulai Revoice'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Modal Render Ulang (Rerender) */}
+      <Modal open={rerenderOpen} onClose={() => setRerenderOpen(false)} title="Render Ulang Video (Rerender)">
+        <div className="space-y-4">
+          <p className="text-xs text-muted">
+            Render revisi baru dengan format rasio, gaya visual, atau hook pembuka berbeda.
+          </p>
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-text">Format Rasio</label>
+            <Select value={rrFormat} onChange={(e) => setRrFormat(e.target.value as typeof rrFormat)}>
+              <option value="9:16">9:16 Reels / TikTok / Shorts</option>
+              <option value="16:9">16:9 YouTube Horizontal</option>
+              <option value="1:1">1:1 Square Feed</option>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-text">Gaya Visual (Opsional)</label>
+            <Select value={rrPresetId} onChange={(e) => setRrPresetId(e.target.value)}>
+              <option value="">Pertahankan gaya saat ini</option>
+              {(presetsQ.data?.items ?? []).map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-text">Hook Pembuka</label>
+            <Select value={rrHookMode} onChange={(e) => setRrHookMode(e.target.value as typeof rrHookMode)}>
+              <option value="AUTO">Otomatis AI</option>
+              <option value="PRESET">Pilih Preset Hook</option>
+              <option value="NONE">Tanpa Hook</option>
+            </Select>
+            {rrHookMode === 'PRESET' && (
+              <Select value={rrHookId} onChange={(e) => setRrHookId(e.target.value)} className="mt-2">
+                <option value="">-- Pilih Hook --</option>
+                {(hooksQ.data ?? []).map((h) => (
+                  <option key={h.id} value={h.id}>{h.name}</option>
+                ))}
+              </Select>
+            )}
+          </div>
+
+          {rerenderMut.isError && <p className="text-xs text-bad">{errMsg(rerenderMut.error)}</p>}
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="ghost" size="sm" onClick={() => setRerenderOpen(false)}>Batal</Button>
+            <Button size="sm" disabled={rerenderMut.isPending} onClick={() => rerenderMut.mutate()}>
+              {rerenderMut.isPending ? 'Memproses…' : 'Mulai Render Ulang'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
 
-export function HasilView({ onNavigate }: HasilViewProps) {
+export function HasilView({ onNavigate, initialSubTab = 'ALL' }: HasilViewProps) {
   const qc = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [activeSubTab, setActiveSubTab] = useState<'READY' | 'UPLOADED' | 'FAILED' | 'ALL' | 'TRASH'>('ALL');
+  const [activeSubTab, setActiveSubTab] = useState<'READY' | 'UPLOADED' | 'FAILED' | 'ALL' | 'TRASH'>(initialSubTab);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [actionErr, setActionErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    setActiveSubTab(initialSubTab);
+  }, [initialSubTab]);
 
   const results = useQuery({
     queryKey: ['results', activeSubTab],
@@ -447,8 +646,34 @@ export function HasilView({ onNavigate }: HasilViewProps) {
   });
 
   const markUploaded = useMutation({
-    mutationFn: (id: string) => mutate('POST', `/results/${id}/mark-uploaded`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['results'] }),
+    mutationFn: (id: string) => mutate('PATCH', `/results/${id}`, { status: 'UPLOADED' }),
+    onSuccess: () => {
+      setActionErr(null);
+      qc.invalidateQueries({ queryKey: ['results'] });
+      qc.invalidateQueries({ queryKey: ['dash'] });
+    },
+    onError: (e) => setActionErr(errMsg(e)),
+  });
+
+  const retryRun = useMutation({
+    mutationFn: (runId: string) => mutate('POST', `/production/runs/${runId}/retry`),
+    onSuccess: () => {
+      setActionErr(null);
+      qc.invalidateQueries({ queryKey: ['results'] });
+      qc.invalidateQueries({ queryKey: ['runs'] });
+      onNavigate('progress');
+    },
+    onError: (e) => setActionErr(errMsg(e)),
+  });
+
+  const restoreResult = useMutation({
+    mutationFn: (id: string) => mutate('POST', `/results/${id}/restore`),
+    onSuccess: () => {
+      setActionErr(null);
+      qc.invalidateQueries({ queryKey: ['results'] });
+      qc.invalidateQueries({ queryKey: ['dash'] });
+    },
+    onError: (e) => setActionErr(errMsg(e)),
   });
 
   const copyCaption = (id: string, text: string) => {
@@ -465,43 +690,40 @@ export function HasilView({ onNavigate }: HasilViewProps) {
     { id: 'TRASH', label: 'Sampah' },
   ];
 
-  // If a video is selected, show the detailed result view matching web Gambar 4
   if (selectedId) {
-    return <HasilDetailView id={selectedId} onBack={() => setSelectedId(null)} />;
+    return (
+      <HasilDetailView
+        id={selectedId}
+        onBack={() => setSelectedId(null)}
+        onSelectId={(next) => setSelectedId(next)}
+        onNavigate={onNavigate}
+      />
+    );
   }
 
-  // Real items fetched from backend API (PostgreSQL/Upstash)
   const displayItems = results.data ?? [];
-
-  const filteredItems = displayItems.filter((it) => {
-    if (activeSubTab === 'ALL') return true;
-    if (activeSubTab === 'READY') return it.status === 'READY';
-    if (activeSubTab === 'UPLOADED') return it.status === 'UPLOADED';
-    if (activeSubTab === 'FAILED') return it.status === 'FAILED';
-    if (activeSubTab === 'TRASH') return it.deletedAt !== null;
-    return true;
-  });
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
-      {/* Header */}
       <div className="border-b border-line pb-4">
         <p className="text-xs uppercase tracking-widest text-muted font-mono">PERPUSTAKAAN</p>
         <h1 className="font-display text-2xl font-medium tracking-tight text-text mt-0.5">
           Hasil Produksi Video
         </h1>
         <p className="mt-1 text-sm text-muted">
-          Klik video untuk memutar, menyalin caption media sosial, atau menandai video sudah diunggah.
+          Klik video untuk memutar, menyalin caption media sosial, revoice, rerender, atau menandai sudah diunggah.
         </p>
       </div>
 
-      {/* Sub Tabs Pill Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="inline-flex rounded-full border border-line bg-surface p-1 shadow-xs">
           {SUB_TABS.map((t) => (
             <button
               key={t.id}
-              onClick={() => setActiveSubTab(t.id as typeof activeSubTab)}
+              onClick={() => {
+                setActionErr(null);
+                setActiveSubTab(t.id as typeof activeSubTab);
+              }}
               className={clsx(
                 'rounded-full px-4 py-1.5 text-xs font-medium transition cursor-pointer',
                 activeSubTab === t.id
@@ -519,6 +741,12 @@ export function HasilView({ onNavigate }: HasilViewProps) {
         </Button>
       </div>
 
+      {actionErr && (
+        <div role="alert" className="rounded-xl border border-bad/40 bg-bad/10 px-4 py-2.5 text-xs text-bad">
+          {actionErr}
+        </div>
+      )}
+
       {results.isLoading && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
@@ -527,14 +755,14 @@ export function HasilView({ onNavigate }: HasilViewProps) {
         </div>
       )}
 
-      {!results.isLoading && filteredItems.length === 0 && (
+      {!results.isLoading && displayItems.length === 0 && (
         <Card className="p-12 text-center space-y-3">
           <p className="font-display text-base font-medium text-text">
             {activeSubTab === 'TRASH'
               ? 'Sampah kosong'
               : activeSubTab === 'FAILED'
-              ? 'Tidak ada produksi gagal'
-              : 'Belum ada video di sini'}
+                ? 'Tidak ada produksi gagal'
+                : 'Belum ada video di sini'}
           </p>
           <p className="text-xs text-muted max-w-sm mx-auto">
             {activeSubTab === 'READY'
@@ -551,111 +779,168 @@ export function HasilView({ onNavigate }: HasilViewProps) {
         </Card>
       )}
 
-      {/* 9:16 Video Card Grid: Clickable cards to open detail view (Gambar 4) */}
-      {!results.isLoading && filteredItems.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredItems.map((item) => (
-            <Card
-              key={item.id}
-              onClick={() => setSelectedId(item.id)}
-              className="group relative flex flex-col overflow-hidden p-0 hover:border-accent hover:shadow-md transition-all duration-200 cursor-pointer shadow-xs"
-            >
-              {/* 9:16 Thumbnail Container with Hover Play Overlay */}
-              <div className="relative aspect-[9/16] w-full bg-gradient-to-br from-neutral-800 to-neutral-900 overflow-hidden">
-                {item.coverUrl ? (
-                  <img
-                    src={toMediaUrl(item.coverUrl)}
-                    alt={item.title}
-                    className="size-full object-cover group-hover:scale-102 transition duration-300"
-                  />
-                ) : (
-                  <div className="flex size-full flex-col justify-between p-4 text-white">
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={clsx(
-                          'rounded-full px-2.5 py-0.5 text-[10px] font-semibold',
-                          item.status === 'UPLOADED'
-                            ? 'bg-emerald-500/80 text-white'
-                            : item.status === 'READY'
-                            ? 'bg-blue-500/80 text-white'
-                            : 'bg-red-500/80 text-white'
-                        )}
-                      >
-                        • {item.status === 'UPLOADED' ? 'Diunggah' : item.status === 'READY' ? 'Siap upload' : 'Gagal'}
-                      </span>
-                      <span className="text-xs opacity-75 font-mono">9:16</span>
-                    </div>
-
-                    <div className="space-y-2">
-                      <span className="inline-block rounded bg-amber-500/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black">
-                        KITA BONGKAR
-                      </span>
-                      <h4 className="font-display text-sm font-bold leading-tight line-clamp-3">
-                        {item.title}
-                      </h4>
-                    </div>
-
-                    <div className="text-[10px] opacity-75 font-mono">
-                      {new Date(item.createdAt).toLocaleDateString('id-ID', {
-                        weekday: 'short',
-                        day: 'numeric',
-                        month: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </div>
+      {/* FAILED Run Cards */}
+      {!results.isLoading && displayItems.length > 0 && activeSubTab === 'FAILED' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {displayItems.map((item) => {
+            const errText =
+              typeof item.error === 'string'
+                ? item.error
+                : item.error?.message || item.captionPreview || 'Produksi gagal diproses.';
+            const stage = typeof item.error === 'object' && item.error?.stage ? item.error.stage : item.currentStage;
+            return (
+              <Card key={item.id} className="p-5 space-y-3 border-bad/30">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <Pill ok={false}>GAGAL {stage ? `· ${stage}` : ''}</Pill>
+                    <h3 className="font-display text-sm font-semibold text-text mt-2 line-clamp-2">
+                      {item.title || 'Produksi Video'}
+                    </h3>
                   </div>
-                )}
-
-                {/* Subtle Hover Play Button Overlay */}
-                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                  <div className="size-12 rounded-full bg-accent/90 text-accent-contrast flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                    <span className="text-xl pl-0.5">▶</span>
-                  </div>
+                  <span className="text-[11px] font-mono text-muted shrink-0">{fmtDate(item.createdAt)}</span>
                 </div>
-              </div>
-
-              {/* Video Meta & Actions */}
-              <div className="p-4 space-y-3 flex-1 flex flex-col justify-between bg-surface">
-                <div>
-                  <p className="text-xs font-semibold text-text line-clamp-2 group-hover:text-accent transition-colors">
-                    {item.title}
-                  </p>
-                  <p className="text-[11px] text-muted line-clamp-2 mt-1">
-                    {item.captionPreview}
-                  </p>
-                </div>
-
-                <div className="space-y-1.5 pt-2 border-t border-line">
+                <p className="rounded-lg bg-bad/5 border border-bad/20 p-3 text-xs text-bad leading-relaxed">
+                  {errText}
+                </p>
+                <div className="flex justify-end gap-2 pt-1">
                   <Button
-                    variant="ghost"
                     size="sm"
-                    className="w-full text-xs"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      copyCaption(item.id, item.captionPreview);
-                    }}
+                    disabled={retryRun.isPending}
+                    onClick={() => retryRun.mutate(item.id)}
                   >
-                    {copiedId === item.id ? '✓ Caption Tersalin!' : '📋 Salin Caption'}
+                    ↻ Coba Lagi (Retry)
                   </Button>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      )}
 
-                  {item.status === 'READY' && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full text-xs"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        markUploaded.mutate(item.id);
-                      }}
-                    >
-                      ✓ Tandai Diunggah
-                    </Button>
+      {/* Standard Result Cards (READY / UPLOADED / ALL / TRASH) */}
+      {!results.isLoading && displayItems.length > 0 && activeSubTab !== 'FAILED' && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+          {displayItems.map((item) => {
+            const isFailedRun = item.kind === 'run';
+            return (
+              <Card
+                key={item.id}
+                onClick={() => {
+                  if (!isFailedRun) setSelectedId(item.id);
+                }}
+                className={clsx(
+                  'group relative flex flex-col overflow-hidden p-0 transition-all duration-200 shadow-xs',
+                  !isFailedRun && 'hover:border-accent hover:shadow-md cursor-pointer'
+                )}
+              >
+                <div className="relative aspect-[9/16] w-full bg-gradient-to-br from-neutral-800 to-neutral-900 overflow-hidden">
+                  {item.coverUrl ? (
+                    <img
+                      src={toMediaUrl(item.coverUrl)}
+                      alt={item.title}
+                      className="size-full object-cover group-hover:scale-102 transition duration-300"
+                    />
+                  ) : (
+                    <div className="flex size-full flex-col justify-between p-4 text-white">
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={clsx(
+                            'rounded-full px-2.5 py-0.5 text-[10px] font-semibold',
+                            item.status === 'UPLOADED'
+                              ? 'bg-emerald-500/80 text-white'
+                              : item.status === 'READY'
+                                ? 'bg-blue-500/80 text-white'
+                                : 'bg-red-500/80 text-white'
+                          )}
+                        >
+                          • {item.status === 'UPLOADED' ? 'Diunggah' : item.status === 'READY' ? 'Siap upload' : item.status}
+                        </span>
+                        <span className="text-xs opacity-75 font-mono">9:16</span>
+                      </div>
+                      <h4 className="font-display text-sm font-bold leading-tight line-clamp-3">{item.title}</h4>
+                      <div className="text-[10px] opacity-75 font-mono">{fmtDate(item.createdAt)}</div>
+                    </div>
+                  )}
+
+                  {!isFailedRun && (
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                      <div className="size-12 rounded-full bg-accent/90 text-accent-contrast flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                        <span className="text-xl pl-0.5">▶</span>
+                      </div>
+                    </div>
                   )}
                 </div>
-              </div>
-            </Card>
-          ))}
+
+                <div className="p-4 space-y-3 flex-1 flex flex-col justify-between bg-surface">
+                  <div>
+                    <p className="text-xs font-semibold text-text line-clamp-2 group-hover:text-accent transition-colors">
+                      {item.title}
+                    </p>
+                    <p className="text-[11px] text-muted line-clamp-2 mt-1">{item.captionPreview}</p>
+                  </div>
+
+                  <div className="space-y-1.5 pt-2 border-t border-line">
+                    {activeSubTab === 'TRASH' || item.deletedAt ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-xs"
+                        disabled={restoreResult.isPending}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          restoreResult.mutate(item.id);
+                        }}
+                      >
+                        ↺ Pulihkan
+                      </Button>
+                    ) : isFailedRun ? (
+                      <Button
+                        size="sm"
+                        className="w-full text-xs"
+                        disabled={retryRun.isPending}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          retryRun.mutate(item.id);
+                        }}
+                      >
+                        ↻ Coba Lagi
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full text-xs"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            copyCaption(item.id, item.captionPreview ?? '');
+                          }}
+                        >
+                          <Icon name="copy" className="w-3.5 h-3.5" />{' '}
+                          {copiedId === item.id ? 'Caption Tersalin!' : 'Salin Caption'}
+                        </Button>
+
+                        {item.status === 'READY' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full text-xs"
+                            disabled={markUploaded.isPending}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markUploaded.mutate(item.id);
+                            }}
+                          >
+                            ✓ Tandai Diunggah
+                          </Button>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

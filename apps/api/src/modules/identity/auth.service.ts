@@ -1,19 +1,19 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull, sql } from 'drizzle-orm';
 import { hash, verify } from '@node-rs/argon2';
 import { createHmac, randomUUID } from 'node:crypto';
-import { type Database, authIdentities, otpChallenges, users } from '@dentweb/database';
+import { type Database, authIdentities, otpChallenges, sessions, users } from '@dentweb/database';
 import type { LoginInput, RegisterInput, SessionUser, Role, UserStatus } from '@dentweb/shared-types';
 import { DB, ENV } from '../../infra/tokens.js';
 import type { Env } from '../../config/env.js';
 import { AuditService, MailService } from '../../infra/infra.module.js';
 import { SettingsService } from '../../infra/settings.service.js';
 import { Errors } from '../../infra/errors.js';
-import { otpCode } from '../../infra/crypto.js';
+import { otpCode, safeEqualHex } from '../../infra/crypto.js';
 import { SessionService, type IssuedSession } from './session.service.js';
 
 const ARGON = { memoryCost: 19456, timeCost: 2, parallelism: 1, outputLen: 32 } as const;
-type Purpose = 'LOGIN' | 'VERIFY_EMAIL';
+type Purpose = 'LOGIN' | 'VERIFY_EMAIL' | 'RESET_PASSWORD';
 
 export interface ClientMeta {
   ip?: string;
@@ -65,10 +65,11 @@ export class AuthService {
   }
 
   private async sendOtp(user: { email: string; displayName: string }, code: string, purpose: Purpose, ttl: number) {
-    const what = purpose === 'LOGIN' ? 'masuk ke' : 'memverifikasi email Anda di';
+    const what = purpose === 'LOGIN' ? 'masuk ke' : purpose === 'RESET_PASSWORD' ? 'mereset password akun Anda di' : 'memverifikasi email Anda di';
+    const label = purpose === 'LOGIN' ? 'masuk' : purpose === 'RESET_PASSWORD' ? 'reset password' : 'verifikasi';
     await this.mail.send({
       to: user.email,
-      subject: `Kode ${purpose === 'LOGIN' ? 'masuk' : 'verifikasi'} DENTSWEB STUDIO: ${code}`,
+      subject: `Kode ${label} DENTSWEB STUDIO: ${code}`,
       text: `Halo ${user.displayName},\n\nKode untuk ${what} DENTSWEB STUDIO: ${code}\nKode berlaku ${Math.round(ttl / 60)} menit dan hanya dapat dipakai sekali.\n\nJika Anda tidak meminta kode ini, abaikan email ini dan segera ganti password Anda.`,
       html: `<div style="font-family:system-ui,sans-serif;max-width:480px"><p>Halo ${escapeHtml(user.displayName)},</p><p>Kode untuk ${what} <b>DENTSWEB STUDIO</b>:</p><p style="font-size:32px;letter-spacing:8px;font-weight:700;font-family:ui-monospace,monospace">${code}</p><p>Berlaku ${Math.round(ttl / 60)} menit, sekali pakai.</p><p style="color:#666">Jika Anda tidak meminta kode ini, abaikan email ini.</p></div>`,
     });
@@ -130,7 +131,7 @@ export class AuthService {
     const code = otpCode();
     await this.db
       .update(otpChallenges)
-      .set({ codeHash: this.codeDigest(c.c.id, code), sendCount: c.c.sendCount + 1, lastSentAt: new Date(), attempts: 0 })
+      .set({ codeHash: this.codeDigest(c.c.id, code), sendCount: sql`${otpChallenges.sendCount} + 1`, lastSentAt: new Date() })
       .where(eq(otpChallenges.id, c.c.id));
     const ttl = Math.max(0, Math.round((c.c.expiresAt.getTime() - Date.now()) / 1000));
     await this.sendOtp(c.u, code, c.c.purpose as Purpose, ttl);
@@ -140,10 +141,10 @@ export class AuthService {
   async verifyOtp(challengeId: string, code: string, meta: ClientMeta): Promise<{ user: SessionUser; session: IssuedSession }> {
     const maxAttempts = await this.settings.num('auth.otp.maxAttempts');
     const [c] = await this.db.select().from(otpChallenges).where(eq(otpChallenges.id, challengeId));
-    if (!c || c.consumedAt || c.expiresAt < new Date()) throw Errors.invalid('OTP_INVALID', 'Kode salah atau kedaluwarsa');
+    if (!c || c.consumedAt || c.expiresAt < new Date() || c.purpose === 'RESET_PASSWORD') throw Errors.invalid('OTP_INVALID', 'Kode salah atau kedaluwarsa');
     if (c.attempts >= maxAttempts) throw Errors.tooMany('Terlalu banyak percobaan. Silakan masuk ulang.');
-    if (c.codeHash !== this.codeDigest(c.id, code)) {
-      await this.db.update(otpChallenges).set({ attempts: c.attempts + 1 }).where(eq(otpChallenges.id, c.id));
+    if (!safeEqualHex(c.codeHash, this.codeDigest(c.id, code))) {
+      await this.db.update(otpChallenges).set({ attempts: sql`${otpChallenges.attempts} + 1` }).where(eq(otpChallenges.id, c.id));
       throw Errors.invalid('OTP_INVALID', 'Kode salah atau kedaluwarsa', { attemptsLeft: Math.max(0, maxAttempts - c.attempts - 1) });
     }
     const consumed = await this.db
@@ -167,6 +168,57 @@ export class AuthService {
       user: { id: u!.id, email: u!.email, displayName: u!.displayName, role: u!.role as Role, status: u!.status as UserStatus },
       session,
     };
+  }
+
+  async forgotPassword(email: string, meta: ClientMeta) {
+    const [u] = await this.db.select().from(users).where(and(eq(users.email, email.toLowerCase()), isNull(users.deletedAt)));
+    if (!u || u.status === 'SUSPENDED' || u.status === 'DISABLED') {
+      // Avoid account enumeration
+      return { challengeId: randomUUID(), expiresInSeconds: await this.settings.num('auth.otp.ttlSeconds') };
+    }
+    await this.audit.log({ actorId: u.id, action: 'auth.password.forgot', targetType: 'user', targetId: u.id, ip: meta.ip });
+    return this.createChallenge(u, 'RESET_PASSWORD', meta.ip);
+  }
+
+  async resetPassword(challengeId: string, code: string, newPassword: string, meta: ClientMeta) {
+    const maxAttempts = await this.settings.num('auth.otp.maxAttempts');
+    const [c] = await this.db.select().from(otpChallenges).where(eq(otpChallenges.id, challengeId));
+    if (!c || c.consumedAt || c.expiresAt < new Date() || c.purpose !== 'RESET_PASSWORD') {
+      throw Errors.invalid('OTP_INVALID', 'Kode reset salah atau kedaluwarsa');
+    }
+    if (c.attempts >= maxAttempts) throw Errors.tooMany('Terlalu banyak percobaan. Silakan minta kode baru.');
+    if (!safeEqualHex(c.codeHash, this.codeDigest(c.id, code))) {
+      await this.db.update(otpChallenges).set({ attempts: sql`${otpChallenges.attempts} + 1` }).where(eq(otpChallenges.id, c.id));
+      throw Errors.invalid('OTP_INVALID', 'Kode reset salah atau kedaluwarsa', { attemptsLeft: Math.max(0, maxAttempts - c.attempts - 1) });
+    }
+    const consumed = await this.db
+      .update(otpChallenges)
+      .set({ consumedAt: new Date() })
+      .where(and(eq(otpChallenges.id, c.id), isNull(otpChallenges.consumedAt)))
+      .returning({ id: otpChallenges.id });
+    if (consumed.length === 0) throw Errors.invalid('OTP_INVALID', 'Kode sudah digunakan');
+
+    const newHash = await this.hashPassword(newPassword);
+    await this.db.transaction(async (tx) => {
+      await tx.update(authIdentities).set({ secretHash: newHash }).where(and(eq(authIdentities.userId, c.userId), eq(authIdentities.provider, 'password')));
+      await tx.update(sessions).set({ revokedAt: new Date() }).where(and(eq(sessions.userId, c.userId), isNull(sessions.revokedAt)));
+    });
+    await this.audit.log({ actorId: c.userId, action: 'auth.password.reset', targetType: 'user', targetId: c.userId, ip: meta.ip });
+    return { ok: true };
+  }
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string, meta: ClientMeta) {
+    const [ident] = await this.db
+      .select()
+      .from(authIdentities)
+      .where(and(eq(authIdentities.userId, userId), eq(authIdentities.provider, 'password')));
+    if (!ident?.secretHash) throw Errors.invalid('INVALID_CREDENTIALS', 'Password saat ini tidak ditemukan');
+    const ok = await verify(ident.secretHash, currentPassword);
+    if (!ok) throw Errors.invalid('INVALID_CREDENTIALS', 'Password saat ini salah');
+    const newHash = await this.hashPassword(newPassword);
+    await this.db.update(authIdentities).set({ secretHash: newHash }).where(eq(authIdentities.id, ident.id));
+    await this.audit.log({ actorId: userId, action: 'auth.password.change', targetType: 'user', targetId: userId, ip: meta.ip });
+    return { ok: true };
   }
 }
 

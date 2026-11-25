@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 import { Button, Card, Empty, ErrorNote, PageHead, Skeleton } from '@/components/ui';
 import { Progress, Table } from '@/components/ui/extra';
 
-interface Row { id: string; email: string; displayName: string; entitlements: { maxWorkers: number; maxVideosPerDay: number; cloudRender: boolean }; usedToday: number; active: number }
+interface Row { id: string; userId?: string; email: string; displayName: string; entitlements: { maxWorkers: number; maxVideosPerDay: number; cloudRender: boolean }; usedToday: number; active: number }
 
 export default function AdminQuotas() {
   const q = useQuery({ queryKey: ['admin-quotas'], queryFn: () => api<Row[]>('/admin/production/quotas'), refetchInterval: 15_000 });
@@ -28,7 +28,13 @@ export default function AdminQuotas() {
         <Table head={['Member', 'Video hari ini', 'Produksi aktif', 'Worker maks', 'Render cloud']} minWidth={760}>
           {q.data.map((r) => (
             <tr key={r.id}>
-              <td><span className="font-medium">{r.displayName}</span><br /><span className="text-xs text-muted">{r.email}</span></td>
+              <td>
+                <Link href={`/admin/members/${r.userId ?? r.id}`} className="font-medium hover:underline">
+                  {r.displayName}
+                </Link>
+                <br />
+                <span className="text-xs text-muted">{r.email}</span>
+              </td>
               <td className="w-56"><Progress value={(r.usedToday / Math.max(1, r.entitlements.maxVideosPerDay)) * 100} label={`Kuota ${r.email}`} /><span className="num font-mono text-xs text-muted">{r.usedToday} / {r.entitlements.maxVideosPerDay}</span></td>
               <td className="num font-mono">{r.active}</td>
               <td className="num font-mono">{r.entitlements.maxWorkers}</td>

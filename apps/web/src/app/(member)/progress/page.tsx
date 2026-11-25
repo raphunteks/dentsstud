@@ -22,7 +22,7 @@ const STAGES = [
   ['QC', 'Quality control'],
   ['SOCIAL', 'Paket sosial'],
 ] as const;
-const ACTIVE = ['QUEUED', 'RUNNING', 'CANCELLING'];
+const ACTIVE = ['QUEUED', 'RUNNING', 'CANCELLING', 'PAUSED'];
 const AGENT: Record<string, string> = { research: 'Riset', scriptwriter: 'Penulis naskah', fact_checker: 'Pemeriksa fakta', motion_director: 'Motion director', qc: 'QC', social_media: 'Sosial media' };
 
 function RunPanel({ id }: { id: string }) {

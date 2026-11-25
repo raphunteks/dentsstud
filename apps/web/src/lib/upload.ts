@@ -12,7 +12,14 @@ export function uploadFiles(url: string, files: { file: File; path: string }[], 
     xhr.withCredentials = true;
     xhr.upload.onprogress = (e) => e.lengthComputable && onProgress?.(e.loaded / e.total);
     xhr.onload = () => {
-      const body = xhr.responseText ? JSON.parse(xhr.responseText) : null;
+      let body: { error?: { code?: string; message?: string } } | null = null;
+      if (xhr.responseText) {
+        try {
+          body = JSON.parse(xhr.responseText) as { error?: { code?: string; message?: string } };
+        } catch {
+          body = null;
+        }
+      }
       if (xhr.status >= 200 && xhr.status < 300) resolve(body);
       else reject(new ApiError(xhr.status, body?.error?.code ?? 'ERROR', body?.error?.message ?? `Upload gagal (${xhr.status})`));
     };

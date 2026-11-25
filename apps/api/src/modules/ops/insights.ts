@@ -61,13 +61,28 @@ export class AnalyticsService {
       select count(*)::int as total, count(*) filter (where status = 'UPLOADED')::int as uploaded, count(*) filter (where revision > 1)::int as revisions
       from video_results where created_at >= ${since} and deleted_at is null`)).rows;
     const [{ n: narrations }] = (await this.db.select({ n: count() }).from(mediaAssets).where(and(gte(mediaAssets.createdAt, since), sql`${mediaAssets.metadata}->>'kind' = 'narration'`))) as [{ n: number }];
+    const errRows = await this.db.select({ status: errorReports.status, n: count() }).from(errorReports).groupBy(errorReports.status);
+    const errBy = Object.fromEntries(errRows.map((r) => [r.status, r.n])) as Record<string, number>;
+    const errorCounts = {
+      open: errBy.OPEN ?? 0,
+      resolved: errBy.RESOLVED ?? 0,
+      ignored: errBy.IGNORED ?? 0,
+      total: (errBy.OPEN ?? 0) + (errBy.RESOLVED ?? 0) + (errBy.IGNORED ?? 0),
+    };
     const d = daily.rows;
+    const runsTotal = d.reduce((a, r) => a + r.total, 0);
     const completed = d.reduce((a, r) => a + r.completed, 0);
     const failed = d.reduce((a, r) => a + r.failed, 0);
+    const successRate = completed + failed ? Math.round((completed / (completed + failed)) * 1000) / 10 : null;
     return {
       days,
       daily: d,
-      totals: { runs: d.reduce((a, r) => a + r.total, 0), completed, failed, successRate: completed + failed ? Math.round((completed / (completed + failed)) * 1000) / 10 : null },
+      runsTotal,
+      runsCompleted: completed,
+      runsFailed: failed,
+      successRate,
+      totals: { runs: runsTotal, completed, failed, successRate },
+      errorCounts,
       stages: stages.rows,
       render: render.rows,
       topErrors: topErrors.rows,
@@ -162,6 +177,23 @@ export class AdminInsightsController {
       .orderBy(desc(errorReports.lastSeenAt))
       .limit(200)
       .then((rows) => rows.map((r) => ({ ...r.e, userEmail: r.email })));
+  }
+
+  @HttpCode(200)
+  @Post('errors/resolve-all')
+  async resolveAll(@CurrentUser() me: SessionUser) {
+    const updated = await this.db
+      .update(errorReports)
+      .set({ status: 'RESOLVED' })
+      .where(eq(errorReports.status, 'OPEN'))
+      .returning({ id: errorReports.id });
+    await this.audit.log({
+      actorId: me.id,
+      action: 'error_report.resolve_all',
+      targetType: 'error_report',
+      metadata: { resolvedCount: updated.length },
+    });
+    return { ok: true, resolvedCount: updated.length };
   }
 
   @Patch('errors/:id')

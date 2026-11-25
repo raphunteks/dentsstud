@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none">
+  <defs>
+    <linearGradient id="dw-main" x1="180" y1="120" x2="880" y2="860" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#D92BFF"/>
+      <stop offset="28%" stop-color="#5B4BFF"/>
+      <stop offset="56%" stop-color="#00C2FF"/>
+      <stop offset="80%" stop-color="#4F46FF"/>
+      <stop offset="100%" stop-color="#C026FF"/>
+    </linearGradient>
+    <linearGradient id="dw-stem" x1="190" y1="880" x2="660" y2="390" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1EA7FF"/>
+      <stop offset="32%" stop-color="#7B3BFF"/>
+      <stop offset="62%" stop-color="#B829FF"/>
+      <stop offset="100%" stop-color="#1E88FF"/>
+    </linearGradient>
+    <linearGradient id="dw-navy" x1="200" y1="300" x2="440" y2="710" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1C1B54"/>
+      <stop offset="55%" stop-color="#10183B"/>
+      <stop offset="100%" stop-color="#0B1028"/>
+    </linearGradient>
+    <linearGradient id="dw-tooth-shade" x1="240" y1="540" x2="355" y2="755" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E6EEFA"/>
+    </linearGradient>
+  </defs>
+  <rect x="32" y="32" width="960" height="960" rx="220" fill="#10131F"/>
+  <g transform="translate(88 88) scale(0.828)">
+    <path d="M193 304 H340 C414 304 454 352 454 424 C454 484 420 526 384 556 C362 576 352 608 344 654 C336 694 326 720 310 732 L262 670 L193 380 Z" fill="url(#dw-navy)"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M193 120 H548 C744 120 886 274 886 484 C886 644 806 762 688 814 C676 854 640 888 594 888 C538 888 494 844 494 788 C494 732 538 688 594 688 C616 688 636 695 653 707 C736 664 794 584 794 484 C794 328 692 208 548 208 H278 V318 H193 V120 Z M594 742 C568 742 548 762 548 788 C548 814 568 834 594 834 C620 834 640 814 640 788 C640 762 620 742 594 742 Z" fill="url(#dw-main)"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M193 668 C222 684 252 720 278 754 V796 H414 L622 588 V474 C584 466 556 432 556 392 C556 346 594 308 640 308 C686 308 724 346 724 392 C724 432 696 466 658 474 V604 L468 794 C466 828 478 858 500 878 H193 V668 Z M640 348 C616 348 596 368 596 392 C596 416 616 436 640 436 C664 436 684 416 684 392 C684 368 664 348 640 348 Z" fill="url(#dw-stem)"/>
+    <path d="M193 372 C236 344 278 330 318 332 C376 335 410 378 410 436 C410 484 382 516 352 546 C334 564 330 598 332 642 C334 698 320 754 294 756 C272 758 256 734 238 708 C224 688 208 674 193 668 Z" fill="#FFFFFF"/>
+    <path d="M342 556 C322 582 316 636 296 682 C282 714 264 726 246 720 C260 742 276 757 294 756 C320 754 334 698 332 642 C330 604 334 574 342 556 Z" fill="url(#dw-tooth-shade)"/>
+  </g>
+</svg>

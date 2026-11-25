@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { mkdir, rename, rm, stat, copyFile } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, resolve, sep } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import type { Readable } from 'node:stream';
 import { GetObjectCommand, PutObjectCommand, DeleteObjectCommand, S3Client, HeadObjectCommand } from '@aws-sdk/client-s3';
@@ -41,14 +41,16 @@ export class StorageService {
 
   /** Absolute path for a scratch area (staging, render temp). Always under STORAGE_DIR. */
   scratch(...parts: string[]) {
-    const p = resolve(this.root, '_scratch', ...parts);
-    if (!p.startsWith(resolve(this.root, '_scratch'))) throw new Error('Path di luar scratch');
+    const base = resolve(this.root, '_scratch');
+    const p = resolve(base, ...parts);
+    if (p !== base && !p.startsWith(base + sep)) throw new Error('Path di luar scratch');
     return p;
   }
 
   private localPath(key: string) {
-    const p = resolve(this.root, 'objects', key);
-    if (!p.startsWith(resolve(this.root, 'objects') + '/')) throw new Error('Key tidak valid');
+    const base = resolve(this.root, 'objects');
+    const p = resolve(base, key);
+    if (!p.startsWith(base + sep)) throw new Error('Key tidak valid');
     return p;
   }
 

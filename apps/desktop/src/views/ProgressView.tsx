@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { get, mutate } from '../bridge';
 import { Button, Card, Pill, errMsg } from '../components/UI';
+import { Icon } from '../components/Icons';
 import type { NavTab, RunItem, EventItem } from '../types';
 
 interface ProgressViewProps {
@@ -293,7 +294,7 @@ export function ProgressView({ onNavigate }: ProgressViewProps) {
 
       {runs.data && runs.data.length === 0 && (
         <Card className="p-12 text-center space-y-3">
-          <span className="text-4xl">⚡</span>
+          <Icon name="bolt" className="w-8 h-8 mx-auto text-muted opacity-70" />
           <h3 className="font-display text-lg font-medium text-text">
             Belum ada antrean produksi berjalan
           </h3>
@@ -336,10 +337,11 @@ export function ProgressView({ onNavigate }: ProgressViewProps) {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {r.status === 'RUNNING' && (
+                  {(r.status === 'RUNNING' || r.status === 'QUEUED') && (
                     <Button
                       variant="ghost"
                       size="sm"
+                      disabled={cancelRun.isPending}
                       onClick={() => cancelRun.mutate(r.id)}
                     >
                       Hentikan

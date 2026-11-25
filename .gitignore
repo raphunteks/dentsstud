@@ -19,3 +19,4 @@ packages/remotion-compositions/bundle
 shots
 *.tsbuildinfo
 backups
+.temp-walking-presets/

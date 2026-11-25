@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api, fmtDate } from '@/lib/api';
@@ -20,9 +21,16 @@ const TABS: { value: Tab; label: string }[] = [
   { value: 'TRASH', label: 'Sampah' },
 ];
 
-export default function ResultsPage() {
+const VALID_TABS: Tab[] = ['READY', 'UPLOADED', 'FAILED', 'ALL', 'TRASH'];
+
+function ResultsInner() {
   const qc = useQueryClient();
-  const [tab, setTab] = useState<Tab>('READY');
+  const sp = useSearchParams();
+  const qTab = sp.get('tab')?.toUpperCase() as Tab | undefined;
+  const [tab, setTab] = useState<Tab>(qTab && VALID_TABS.includes(qTab) ? qTab : 'READY');
+  useEffect(() => {
+    if (qTab && VALID_TABS.includes(qTab)) setTab(qTab);
+  }, [qTab]);
   const q = useQuery({ queryKey: ['results', tab], queryFn: () => api<Item[]>(`/results?tab=${tab}`) });
   const act = useMutation({
     mutationFn: ({ path, method }: { path: string; method: 'POST' | 'DELETE' }) => api(path, { method }),
@@ -86,5 +94,13 @@ export default function ResultsPage() {
         )}
       </div>
     </>
+  );
+}
+
+export default function ResultsPage() {
+  return (
+    <Suspense fallback={<Skeleton className="h-96 rounded-card" />}>
+      <ResultsInner />
+    </Suspense>
   );
 }

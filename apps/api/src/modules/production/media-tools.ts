@@ -20,6 +20,20 @@ export async function extractFrame(video: string, out: string, atSec: number) {
   return out;
 }
 
+/** Extracts a video frame and optionally overlays coverText with ffmpeg drawtext (gracefully falls back to plain frame). */
+export async function renderCover(video: string, out: string, atSec: number, coverText?: string | null) {
+  const text = (coverText ?? '').trim().slice(0, 80);
+  if (!text) return extractFrame(video, out, atSec);
+  const safe = text.replace(/\\/g, '\\\\').replace(/:/g, '\\:').replace(/'/g, "\\'");
+  const vf = `drawbox=x=0:y=ih*0.72:w=iw:h=ih*0.28:color=black@0.58:t=fill,drawtext=text='${safe}':fontcolor=white:fontsize=max(32\\,iw/18):x=(w-text_w)/2:y=ih*0.82-text_h/2:shadowcolor=black@0.8:shadowx=2:shadowy=2`;
+  try {
+    await run('ffmpeg', ['-v', 'error', '-y', '-ss', String(Math.max(0, atSec)), '-i', video, '-frames:v', '1', '-vf', vf, out], { timeout: 60_000 });
+    return out;
+  } catch {
+    return extractFrame(video, out, atSec);
+  }
+}
+
 /** Duration of a WAV from its header, else ffprobe, else an estimate from words (~2.6 words/s). */
 export async function audioDuration(file: string, buf: Buffer | null, text: string) {
   if (buf && buf.subarray(0, 4).toString('ascii') === 'RIFF') {

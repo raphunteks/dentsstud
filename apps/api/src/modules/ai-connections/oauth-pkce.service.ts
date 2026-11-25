@@ -6,6 +6,7 @@ import { type Database, oauthTransactions } from '@dentweb/database';
 import { DB, ENV } from '../../infra/tokens.js';
 import type { Env } from '../../config/env.js';
 import { Cipher, redact, sha256 } from '../../infra/crypto.js';
+import { SettingsService } from '../../infra/settings.service.js';
 import { Errors } from '../../infra/errors.js';
 
 /**
@@ -43,6 +44,7 @@ export class OAuthPkceService {
     @Inject(DB) private readonly db: Database,
     @Inject(ENV) private readonly env: Env,
     private readonly cipher: Cipher,
+    private readonly settings?: SettingsService,
   ) {
     const defaultClaude: OAuthProviderConfig = {
       code: 'anthropic',
@@ -65,6 +67,17 @@ export class OAuthPkceService {
     const map = new Map<string, OAuthProviderConfig>();
     map.set('anthropic', defaultClaude);
     map.set('claude', { ...defaultClaude, code: 'claude' });
+    if (process.env.GOOGLE_OAUTH_CLIENT_ID) {
+      map.set('gemini', {
+        code: 'gemini',
+        clientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET || undefined,
+        authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+        tokenUrl: 'https://oauth2.googleapis.com/token',
+        scopes: ['https://www.googleapis.com/auth/generative-language.retriever', 'openid', 'email'],
+        redirectUri: `${(env.WEB_ORIGIN || 'http://localhost:3000').replace(/\/+$/, '')}/callback`,
+      });
+    }
     for (const p of list) {
       map.set(p.code, p);
     }
@@ -75,12 +88,62 @@ export class OAuthPkceService {
     return this.providers.has(provider);
   }
 
+  async resolveConfig(provider: string): Promise<OAuthProviderConfig | null> {
+    const staticCfg = this.providers.get(provider);
+    if (staticCfg) return staticCfg;
+    if (!this.settings) return null;
+
+    type OAuthClientMap = Record<string, { clientId?: string; clientSecretEnc?: string; redirectUri?: string }>;
+    const stored = await this.settings
+      .raw<OAuthClientMap>('ai.oauth_clients', {})
+      .catch((): OAuthClientMap => ({}));
+    const entry = stored?.[provider] ?? (provider === 'gemini' ? stored?.google : undefined);
+    if (!entry?.clientId?.trim()) return null;
+
+    let clientSecret: string | undefined;
+    if (entry.clientSecretEnc) {
+      try {
+        clientSecret = this.cipher.decrypt(entry.clientSecretEnc, `oauth-client:${provider}`);
+      } catch {
+        clientSecret = undefined;
+      }
+    }
+    const defaultRedirect = `${(this.env.WEB_ORIGIN || 'http://localhost:3000').replace(/\/+$/, '')}/callback`;
+    if (provider === 'gemini' || provider === 'google') {
+      return {
+        code: 'gemini',
+        clientId: entry.clientId.trim(),
+        clientSecret,
+        authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+        tokenUrl: 'https://oauth2.googleapis.com/token',
+        scopes: ['https://www.googleapis.com/auth/generative-language.retriever', 'openid', 'email'],
+        redirectUri: entry.redirectUri?.trim() || defaultRedirect,
+      };
+    }
+    if (provider === 'openai') {
+      return {
+        code: 'openai',
+        clientId: entry.clientId.trim(),
+        clientSecret,
+        authorizeUrl: 'https://auth.openai.com/oauth/authorize',
+        tokenUrl: 'https://auth.openai.com/oauth/token',
+        scopes: ['openid', 'profile', 'email', 'offline_access'],
+        redirectUri: entry.redirectUri?.trim() || defaultRedirect,
+      };
+    }
+    return null;
+  }
+
+  async isConfiguredAsync(provider: string): Promise<boolean> {
+    return (await this.resolveConfig(provider)) !== null;
+  }
+
   configuredProviders() {
     return [...this.providers.keys()];
   }
 
   async start(userId: string, provider: string, customRedirectUri?: string) {
-    const cfg = this.providers.get(provider);
+    const cfg = await this.resolveConfig(provider);
     if (!cfg) {
       throw Errors.invalid('OAUTH_UNSUPPORTED', `Provider "${provider}" belum memiliki OAuth client resmi yang terdaftar untuk DENTSWEB.`);
     }
@@ -127,7 +190,7 @@ export class OAuthPkceService {
   }
 
   async refresh(provider: string, refreshToken: string): Promise<OAuthTokenSet> {
-    const cfg = this.providers.get(provider);
+    const cfg = await this.resolveConfig(provider);
     if (!cfg) throw Errors.invalid('OAUTH_UNSUPPORTED', 'Provider tidak lagi dikonfigurasi');
 
     const isAnthropic = provider === 'anthropic' || provider === 'claude';
@@ -224,6 +287,7 @@ export class OAuthPkceService {
           and(
             eq(oauthTransactions.stateDigest, sha256(stateToLookup)),
             eq(oauthTransactions.userId, userId),
+            isNull(oauthTransactions.consumedAt),
             gt(oauthTransactions.expiresAt, new Date()),
           ),
         )
@@ -232,29 +296,13 @@ export class OAuthPkceService {
     }
 
     if (!tx) {
-      // Fallback: jika URL yang ditempel tidak menyertakan state, ambil transaksi aktif terbaru milik user
-      const recent = await this.db
-        .select()
-        .from(oauthTransactions)
-        .where(
-          and(
-            eq(oauthTransactions.userId, userId),
-            gt(oauthTransactions.expiresAt, new Date()),
-          ),
-        )
-        .orderBy(desc(oauthTransactions.createdAt))
-        .limit(1);
-      tx = recent[0];
-    }
-
-    if (!tx) {
       throw Errors.invalid(
         'OAUTH_STATE_INVALID',
-        'Sesi OAuth kedaluwarsa atau tidak ditemukan. Silakan klik tombol "Connect Claude via OAuth" sekali lagi untuk memulai sesi baru.',
+        'Sesi OAuth kedaluwarsa, sudah digunakan, atau parameter state tidak cocok. Silakan klik tombol "Connect Claude via OAuth" sekali lagi untuk memulai sesi baru.',
       );
     }
 
-    const cfg = this.providers.get(tx.provider);
+    const cfg = await this.resolveConfig(tx.provider);
     if (!cfg) throw Errors.invalid('OAUTH_UNSUPPORTED', 'Provider tidak lagi dikonfigurasi');
 
     const verifier = this.cipher.decrypt(tx.codeVerifierEnc, `oauth:${tx.provider}`);

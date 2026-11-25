@@ -7,200 +7,131 @@
     body {
       width: 660px;
       height: 440px;
-      background: #F8F6F1;
+      background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 52%, #EEF2FF 100%);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
       position: relative;
       overflow: hidden;
+    }
+
+    /* Subtle architectural dot grid */
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(91, 75, 255, 0.12) 1px, transparent 1px);
+      background-size: 22px 22px;
+      opacity: 0.65;
+    }
+
+    /* Soft ambient brand glow matching dentsweb-logo.svg gradient */
+    .glow-left {
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      top: -90px;
+      left: -70px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(217, 43, 255, 0.16) 0%, rgba(91, 75, 255, 0.06) 55%, transparent 75%);
+    }
+    .glow-right {
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      bottom: -110px;
+      right: -80px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 194, 255, 0.18) 0%, rgba(91, 75, 255, 0.07) 55%, transparent 75%);
+    }
+
+    /* Top brand bar */
+    .brand-header {
+      position: absolute;
+      top: 26px;
+      left: 0;
+      right: 0;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+    }
+    .brand-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #0F172A;
+    }
+    .brand-sub {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: #64748B;
     }
 
-    /* Soft organic playful aesthetic background elements (like user reference) */
-    .blob {
+    /* Subtle bottom caption */
+    .footer-caption {
       position: absolute;
-      border-radius: 50%;
-      filter: blur(0px);
-      pointer-events: none;
-    }
-    .blob-1 {
-      width: 130px; height: 130px;
-      background: #F3C5E0; /* soft pink */
-      top: 40px; left: -25px;
-      border-radius: 46% 54% 60% 40% / 55% 45% 55% 45%;
-      transform: rotate(-10deg);
-    }
-    .blob-2 {
-      width: 100px; height: 95px;
-      background: #A7EDCE; /* mint */
-      top: 25px; left: 340px;
-      border-radius: 58% 42% 48% 52% / 45% 58% 42% 55%;
-    }
-    .blob-3 {
-      width: 110px; height: 105px;
-      background: #D5C7F7; /* lavender */
-      top: 30px; right: 40px;
-      border-radius: 52% 48% 62% 38% / 50% 55% 45% 50%;
-    }
-    .blob-4 {
-      width: 125px; height: 75px;
-      background: #FCD581; /* warm yellow */
-      bottom: 25px; left: 60px;
-      border-radius: 55% 45% 52% 48% / 48% 54% 46% 52%;
-    }
-    .blob-5 {
-      width: 90px; height: 65px;
-      background: #5EEAD4; /* teal */
-      bottom: 30px; left: 285px;
-      border-radius: 58% 42% 45% 55% / 52% 48% 52% 48%;
-    }
-    .blob-6 {
-      width: 75px; height: 85px;
-      background: #818CF8; /* periwinkle */
-      bottom: 25px; right: 75px;
-      border-radius: 48% 52% 58% 42% / 54% 46% 54% 46%;
-    }
-    .blob-7 {
-      width: 55px; height: 45px;
-      background: #FDBA74; /* peach */
-      top: 45px; left: 120px;
-      border-radius: 55% 45% 50% 50% / 50% 50% 50% 50%;
-    }
-    .blob-8 {
-      width: 45px; height: 40px;
-      background: #93C5FD; /* soft sky */
-      top: 65px; left: 220px;
-      border-radius: 52% 48% 45% 55% / 55% 45% 55% 45%;
-    }
-    .blob-9 {
-      width: 50px; height: 50px;
-      background: #FCA5A5; /* coral */
-      top: 160px; right: -10px;
-      border-radius: 50% 50% 45% 55% / 55% 45% 55% 45%;
-    }
-
-    /* Little cute hand-drawn eyes inside blobs */
-    .eyes {
-      position: absolute;
-      display: flex;
-      gap: 7px;
-    }
-    .eye {
-      width: 10px;
-      height: 12px;
-      background: #1E1B18;
-      border-radius: 50%;
-      transform: rotate(-4deg);
-    }
-    .eye.small {
-      width: 7px;
-      height: 9px;
-    }
-
-    /* Subtle sparkles / marks */
-    .sparkle {
-      position: absolute;
-      font-size: 14px;
-      color: #78716C;
-      font-weight: 300;
-      opacity: 0.6;
-    }
-
-    /* Subtle brand watermark and drag guide */
-    .header-text {
-      position: absolute;
-      top: 14px;
+      bottom: 20px;
       left: 0;
       right: 0;
       text-align: center;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #A8A29E;
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: #64748B;
     }
 
-    /* The aesthetic connecting arrow curve */
-    .arrow-container {
+    /* Full-bleed SVG vector overlay */
+    .vector-layer {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      inset: 0;
+      width: 660px;
+      height: 440px;
       pointer-events: none;
     }
   </style>
 </head>
 <body>
-  <!-- Cute organic blobs like reference -->
-  <div class="blob blob-1">
-    <div class="eyes" style="top: 52px; right: 28px;">
-      <div class="eye"></div>
-      <div class="eye"></div>
-    </div>
-  </div>
-  <div class="blob blob-2">
-    <div class="eyes" style="top: 42px; left: 38px;">
-      <div class="eye"></div>
-      <div class="eye"></div>
-    </div>
-  </div>
-  <div class="blob blob-3">
-    <div class="eyes" style="top: 45px; left: 32px;">
-      <div class="eye"></div>
-      <div class="eye"></div>
-    </div>
-  </div>
-  <div class="blob blob-4">
-    <div class="eyes" style="top: 30px; left: 52px;">
-      <div class="eye"></div>
-      <div class="eye"></div>
-    </div>
-  </div>
-  <div class="blob blob-5">
-    <div class="eyes" style="top: 25px; left: 34px;">
-      <div class="eye small"></div>
-      <div class="eye small"></div>
-    </div>
-  </div>
-  <div class="blob blob-6">
-    <div class="eyes" style="top: 38px; left: 24px;">
-      <div class="eye small"></div>
-      <div class="eye small"></div>
-    </div>
-  </div>
-  <div class="blob blob-7">
-    <div class="eyes" style="top: 18px; left: 18px;">
-      <div class="eye small"></div>
-      <div class="eye small"></div>
-    </div>
-  </div>
-  <div class="blob blob-8">
-    <div class="eyes" style="top: 15px; left: 14px;">
-      <div class="eye small"></div>
-      <div class="eye small"></div>
-    </div>
-  </div>
-  <div class="blob blob-9">
-    <div class="eyes" style="top: 20px; left: 12px;">
-      <div class="eye small"></div>
-      <div class="eye small"></div>
-    </div>
+  <div class="grid-bg"></div>
+  <div class="glow-left"></div>
+  <div class="glow-right"></div>
+
+  <div class="brand-header">
+    <div class="brand-title">DENTSWEB STUDIO</div>
+    <div class="brand-sub">Seret aplikasi ke folder Applications untuk memasang</div>
   </div>
 
-  <div class="header-text">DENTSWEB STUDIO &bull; SERET KE FOLDER APPLICATIONS</div>
-
-  <!-- SVG Curved Arrow between App (x:180, y:220) and Applications (x:480, y:220) -->
-  <svg class="arrow-container" viewBox="0 0 660 440">
+  <!-- Clean circuit accents & gradient arrow between App (180,220) and Applications (480,220) -->
+  <svg class="vector-layer" viewBox="0 0 660 440" fill="none" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <marker id="arrowhead" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-        <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#8B5CF6" />
-      </marker>
+      <linearGradient id="dw-arrow" x1="252" y1="210" x2="408" y2="210" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#D92BFF"/>
+        <stop offset="50%" stop-color="#5B4BFF"/>
+        <stop offset="100%" stop-color="#00C2FF"/>
+      </linearGradient>
+      <linearGradient id="dw-trace" x1="0" y1="0" x2="660" y2="440" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#D92BFF" stop-opacity="0.28"/>
+        <stop offset="50%" stop-color="#5B4BFF" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#00C2FF" stop-opacity="0.28"/>
+      </linearGradient>
     </defs>
-    <!-- Starting dot at (250, 205) -->
-    <circle cx="250" cy="205" r="3.5" fill="#8B5CF6" />
-    <!-- Curved smooth arc leading towards Applications (410, 205) -->
-    <path d="M 250 205 Q 330 160 410 205" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" marker-end="url(#arrowhead)" />
+
+    <!-- Subtle top-left & bottom-right geometric circuit traces -->
+    <path d="M28 72 H88 L112 96" stroke="url(#dw-trace)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="116" cy="100" r="4.5" stroke="#5B4BFF" stroke-opacity="0.35" stroke-width="2"/>
+
+    <path d="M632 368 H568 L544 344" stroke="url(#dw-trace)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="540" cy="340" r="4.5" stroke="#00C2FF" stroke-opacity="0.45" stroke-width="2"/>
+
+    <!-- Subtle circular drop zone guides behind App (180,215) & Applications (480,215) -->
+    <rect x="116" y="146" width="128" height="128" rx="28" fill="#FFFFFF" fill-opacity="0.72" stroke="#E2E8F0" stroke-width="1.25"/>
+    <rect x="416" y="146" width="128" height="128" rx="28" fill="#FFFFFF" fill-opacity="0.72" stroke="#E2E8F0" stroke-width="1.25" stroke-dasharray="5 5"/>
+
+    <!-- Crisp gradient curved drag arrow -->
+    <circle cx="262" cy="210" r="4" fill="#D92BFF"/>
+    <path d="M266 210 C306 184 352 184 394 210" stroke="url(#dw-arrow)" stroke-width="2.75" stroke-linecap="round"/>
+    <path d="M385 201 L397 211 L383 217" stroke="#00C2FF" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
+
+  <div class="footer-caption">Create Motion. Powered by DENTSWEB STUDIO</div>
 </body>
 </html>

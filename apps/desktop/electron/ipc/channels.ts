@@ -10,12 +10,14 @@ export const CHANNELS = {
   'auth:resend': z.object({ challengeId: z.uuid() }),
   'auth:session': z.void(),
   'auth:logout': z.void(),
-  'api:get': z.object({ path: z.string().regex(/^\/[A-Za-z0-9/_\-?=&.%]+$/).max(300) }),
+  'api:get': z.object({ path: z.string().regex(/^\/[A-Za-z0-9/_\-?=&.%]+$/).max(500) }),
   'api:mutate': z.object({
     method: z.enum(['POST', 'PATCH', 'PUT', 'DELETE']),
-    path: z.string().regex(/^\/[A-Za-z0-9/_\-?=&.%]+$/).max(300),
+    path: z.string().regex(/^\/[A-Za-z0-9/_\-?=&.%]+$/).max(500),
     body: z.record(z.string(), z.unknown()).optional(),
   }),
+  'media:pick-upload': z.object({ kind: z.enum(['audio', 'video', 'image']) }),
+  'admin:upload-skill-zip': z.object({ filename: z.string().min(1).max(255), base64: z.string().min(1) }),
   'license:activate': z.void(),
   'license:offline-status': z.void(),
   'claude:detect': z.void(),
@@ -33,7 +35,7 @@ export const CHANNELS = {
   'update:apply': z.void(),
   'update:state': z.void(),
   'telemetry:error': z.object({ message: z.string().min(1).max(2000), stack: z.string().max(8000).optional() }),
-  'shell:open-external': z.object({ url: z.url().refine((u) => u.startsWith('https://'), 'Hanya HTTPS') }),
+  'shell:open-external': z.object({ url: z.url().refine((u) => u.startsWith('https://') || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/|$)/.test(u), 'Hanya HTTPS atau localhost') }),
 } as const;
 
 export type Channel = keyof typeof CHANNELS;

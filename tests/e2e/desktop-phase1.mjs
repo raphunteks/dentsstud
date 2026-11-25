@@ -49,7 +49,7 @@ await win.click('button:has-text("Aktifkan perangkat ini")');
 await win.getByText('Perangkat aktif.').waitFor({ timeout: 15000 });
 assert(true, 'device activated + offline proof stored');
 await win.getByText(/Offline:.*sampai/).waitFor({ timeout: 5000 }).catch(() => {});
-const offline = await win.evaluate(() => window.dentweb.invoke('license:offline-status'));
+const offline = await win.evaluate(() => (window.dentsweb ?? window.dentweb).invoke('license:offline-status'));
 assert(offline.ok && offline.data.valid, 'offline proof verifies with Ed25519 public key');
 await win.getByText(/Tidak ditemukan|Terpasang/).waitFor();
 assert(true, 'Claude Code detection reports real state');

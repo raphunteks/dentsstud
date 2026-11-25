@@ -110,8 +110,12 @@ function PresetPicker() {
   const q = useQuery({ queryKey: ['presets', '', ''], queryFn: () => api<{ items: Preset[] }>('/styles/presets?limit=100') });
   const apply = async (id: string) => {
     if (!id) return s.apply({ op: 'setMeta', patch: { preset: null } });
-    const p = await api<{ id: string; name: string; version: number; recipe: MotionDocument['style'] }>(`/styles/presets/${id}`);
-    s.apply({ op: 'setMeta', patch: { preset: { id: p.id, version: p.version, name: p.name }, style: { ...s.doc!.style, ...p.recipe } } });
+    try {
+      const p = await api<{ id: string; name: string; version: number; recipe: MotionDocument['style'] }>(`/styles/presets/${id}`);
+      s.apply({ op: 'setMeta', patch: { preset: { id: p.id, version: p.version, name: p.name }, style: { ...s.doc!.style, ...p.recipe } } });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Gagal menerapkan preset');
+    }
   };
   return (
     <Select aria-label="Gaya visual" value={s.doc?.preset?.id ?? ''} onChange={(e) => void apply(e.target.value)} className="h-10">
@@ -176,19 +180,39 @@ function AddLayer({ type }: { type: 'text' | 'shape' | 'image' }) {
 function CanvasOverlay({ sceneLocal }: { sceneLocal: number }) {
   const s = useEditor();
   const ref = useRef<HTMLDivElement>(null);
+  const cleanupRef = useRef<(() => void) | null>(null);
+  useEffect(() => () => { cleanupRef.current?.(); }, []);
   const doc = s.doc!;
   const scene = doc.scenes.find((x) => x.id === s.sceneId);
   if (!scene) return null;
   const pad = doc.style.layout.safeArea;
   const onDown = (e: React.PointerEvent, l: Layer) => {
     if (l.locked) return;
+    cleanupRef.current?.();
     s.select(scene.id, l.id);
     const box = ref.current!.getBoundingClientRect();
     const sx = e.clientX, sy = e.clientY, ox = l.x, oy = l.y;
     const inner = { w: box.width * (1 - 2 * pad), h: box.height * (1 - 2 * pad) };
     let lx = ox, ly = oy;
-    const move = (ev: PointerEvent) => { lx = Math.round((ox + (ev.clientX - sx) / inner.w) * 1000) / 1000; ly = Math.round((oy + (ev.clientY - sy) / inner.h) * 1000) / 1000; ref.current!.querySelector<HTMLElement>(`[data-l="${l.id}"]`)!.style.translate = `${(lx - ox) * inner.w}px ${(ly - oy) * inner.h}px`; };
-    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); s.apply({ op: 'updateLayer', sceneId: scene.id, layerId: l.id, patch: { x: lx, y: ly } }); };
+    const getEl = () => ref.current?.querySelector<HTMLElement>(`[data-l="${l.id}"]`) ?? null;
+    const move = (ev: PointerEvent) => {
+      lx = Math.round((ox + (ev.clientX - sx) / inner.w) * 1000) / 1000;
+      ly = Math.round((oy + (ev.clientY - sy) / inner.h) * 1000) / 1000;
+      const el = getEl();
+      if (el) el.style.translate = `${(lx - ox) * inner.w}px ${(ly - oy) * inner.h}px`;
+    };
+    const cleanup = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      const el = getEl();
+      if (el) el.style.translate = '';
+      cleanupRef.current = null;
+    };
+    const up = () => {
+      cleanup();
+      s.apply({ op: 'updateLayer', sceneId: scene.id, layerId: l.id, patch: { x: lx, y: ly } });
+    };
+    cleanupRef.current = cleanup;
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
   };

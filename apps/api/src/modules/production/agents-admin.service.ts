@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, count, desc, eq, gte, inArray, max } from 'drizzle-orm';
+import { and, count, desc, eq, gte, inArray, max, ne } from 'drizzle-orm';
 import { z } from 'zod';
 import { type Database, agentDefinitions, agentPromptVersions, licenses, productionRuns, users, workflowDefinitions, workflowVersions } from '@dentweb/database';
 import { DB } from '../../infra/tokens.js';
@@ -154,7 +154,7 @@ export class AgentsAdminService {
     const used = await this.db
       .select({ userId: productionRuns.userId, n: count() })
       .from(productionRuns)
-      .where(and(eq(productionRuns.kind, 'PRODUCTION'), gte(productionRuns.createdAt, since)))
+      .where(and(eq(productionRuns.kind, 'PRODUCTION'), gte(productionRuns.createdAt, since), ne(productionRuns.status, 'CANCELLED')))
       .groupBy(productionRuns.userId);
     const active = await this.db
       .select({ userId: productionRuns.userId, n: count() })

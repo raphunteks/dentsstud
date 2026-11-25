@@ -73,15 +73,29 @@ export interface HookItem {
 }
 
 export interface ResultItem {
-  kind: 'result';
+  kind?: 'result' | 'run';
   id: string;
   title: string;
   status: string;
-  coverUrl: string | null;
-  captionPreview: string;
+  coverUrl?: string | null;
+  captionPreview?: string;
   createdAt: string;
-  revision: number;
-  deletedAt: string | null;
+  revision?: number;
+  deletedAt?: string | null;
+  error?: { message?: string; stage?: string } | string | null;
+  currentStage?: string | null;
+}
+
+export type UpdateState =
+  | { state: 'idle' | 'checking' | 'none' }
+  | { state: 'available'; version: string; notes: string | null; mode: 'install' | 'download'; downloadUrl?: string }
+  | { state: 'downloading'; percent: number }
+  | { state: 'ready'; version: string }
+  | { state: 'error'; message: string };
+
+export interface CreatePrefill {
+  presetId?: string;
+  voiceId?: string;
 }
 
 export interface ResultDetail {
@@ -137,13 +151,17 @@ export type NavTab =
   | 'render-lokal'
   | 'project-offline'
   | 'import-folder'
+  | 'admin-dashboard'
   | 'admin-members'
   | 'admin-licenses'
+  | 'admin-content'
   | 'admin-voices'
   | 'admin-ai-providers'
   | 'admin-workflows'
   | 'admin-production'
+  | 'admin-results'
   | 'admin-quotas'
   | 'admin-system'
   | 'admin-releases'
-  | 'admin-support';
+  | 'admin-support'
+  | 'admin-analytics';

@@ -32,7 +32,7 @@ export function OtpStep({ challengeId, email, onBack, next }: { challengeId: str
     try {
       const r = await api<{ user: SessionUser }>('/auth/otp/verify', { method: 'POST', json: { challengeId, code: value } });
       qc.setQueryData(['session'], { user: r.user });
-      const target = next && next.startsWith('/') ? next : r.user.role === 'SUPERADMIN' ? '/admin' : '/dashboard';
+      const target = next && next.startsWith('/') && !next.startsWith('//') ? next : r.user.role === 'SUPERADMIN' ? '/admin' : '/dashboard';
       router.replace(target);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Verifikasi gagal');

@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { useDeferredValue, useState } from 'react';
 import { api } from '@/lib/api';
@@ -46,9 +47,15 @@ export default function StylesGallery() {
       </div>
       <Modal open={!!open} onClose={() => setOpen(null)} title={open?.name ?? ''}>
         {open && (
-          <div className="grid gap-3">
+          <div className="grid gap-4">
             <div className="lit aspect-[9/16] max-h-[60vh] overflow-hidden rounded-xl">{open.previewUrl ? <video src={open.previewUrl} autoPlay muted loop playsInline className="size-full object-cover" /> : open.thumbnailUrl && <img src={open.thumbnailUrl} alt={open.name} className="size-full object-cover" />}</div>
             <p className="text-sm text-muted">{open.description || open.category.name}</p>
+            <Link
+              href={`/create-content?preset=${encodeURIComponent(open.id)}`}
+              className="inline-flex h-11 w-full items-center justify-center rounded-[10px] bg-accent px-4 text-sm font-medium text-accent-contrast hover:brightness-110 transition"
+            >
+              Gunakan Gaya Ini →
+            </Link>
           </div>
         )}
       </Modal>

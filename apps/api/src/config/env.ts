@@ -38,7 +38,7 @@ const EnvSchema = z
     S3_FORCE_PATH_STYLE: bool.default(true),
     UPLOAD_MAX_BYTES: z.coerce.number().int().default(524_288_000),
     GEMINI_API_BASE: z.string().url().default('https://generativelanguage.googleapis.com'),
-    GEMINI_TTS_MODEL: z.string().default('gemini-3.8-flash-tts'),
+    GEMINI_TTS_MODEL: z.string().default('gemini-2.5-flash-preview-tts'),
     ELEVENLABS_API_BASE: z.string().url().default('https://api.elevenlabs.io'),
     ELEVENLABS_MODEL: z.string().default('eleven_multilingual_v2'),
     /** Shared secret for render/production workers calling /internal (min 32 chars). */

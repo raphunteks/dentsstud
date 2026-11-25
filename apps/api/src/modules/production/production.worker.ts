@@ -1,9 +1,11 @@
 import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { Worker } from 'bullmq';
 import { eq } from 'drizzle-orm';
-import { type Database, memberProductionSettings, memberTtsAccounts, memberVoicePreferences, notifications, voiceProfiles } from '@dentweb/database';
+import { type Database, memberProductionSettings, memberTtsAccounts, memberVoicePreferences, notifications, ttsProviderConfigs, voiceProfiles } from '@dentweb/database';
 import { DB, ENV } from '../../infra/tokens.js';
 import type { Env } from '../../config/env.js';
+import { SettingsService } from '../../infra/settings.service.js';
+import { NotificationService } from '../../infra/notifications.service.js';
 import { PRODUCTION_QUEUE, QueueService, SCHEDULER_QUEUE, redisConnection } from '../../infra/queues.js';
 import { ProductionEngine } from './engine.js';
 import { ProductionService, type OrderInput } from './production.service.js';
@@ -33,6 +35,8 @@ export class ProductionWorker implements OnModuleInit, OnModuleDestroy {
     private readonly queues: QueueService,
     private readonly engine: ProductionEngine,
     private readonly svc: ProductionService,
+    private readonly settings: SettingsService,
+    private readonly notifications: NotificationService,
   ) {}
 
   async onModuleInit() {
@@ -69,6 +73,7 @@ export class ProductionWorker implements OnModuleInit, OnModuleDestroy {
   /** One scheduler tick: recover stale runs, then create orders for due schedule slots (idempotent per slot). */
   async tick(now: Date) {
     await this.svc.recoverStale();
+    if (!(await this.settings.flag('scheduler', true))) return { created: 0, disabled: true };
     const rows = await this.db.select().from(memberProductionSettings);
     let created = 0;
     for (const s of rows) {
@@ -85,7 +90,7 @@ export class ProductionWorker implements OnModuleInit, OnModuleDestroy {
         const r = await this.svc.createOrder(s.userId, input, `sched-${date}-${time}`, { kind: 'SCHEDULED' });
         if (!r.duplicate) created++;
       } catch (e) {
-        await this.db.insert(notifications).values({ userId: s.userId, type: 'schedule.skipped', payload: { slot: `${date} ${time}`, message: (e as Error).message } });
+        await this.notifications.notify(s.userId, 'schedule.skipped', { slot: `${date} ${time}`, message: (e as Error).message });
       }
     }
     return { created };
@@ -96,8 +101,11 @@ export class ProductionWorker implements OnModuleInit, OnModuleDestroy {
     let voice: OrderInput['voice'] = { mode: 'NONE' };
     if (pref?.voiceId) {
       const [v] = await this.db.select().from(voiceProfiles).where(eq(voiceProfiles.id, pref.voiceId));
-      const acc = v ? (await this.db.select().from(memberTtsAccounts).where(eq(memberTtsAccounts.userId, userId))).some((a) => a.provider === v.provider) : false;
-      if (v?.status === 'PUBLISHED' && acc) voice = { mode: 'TTS', voiceId: v.id, emotion: pref.emotion, speed: Number(pref.speed), pitch: pref.pitch == null ? null : Number(pref.pitch), instructions: pref.instructions };
+      const hasMemberAcc = v ? (await this.db.select().from(memberTtsAccounts).where(eq(memberTtsAccounts.userId, userId))).some((a) => a.provider === v.provider) : false;
+      const isGlobalCadangan = v?.provider === 'cadangan' && !!(await this.db.select({ e: ttsProviderConfigs.isEnabled }).from(ttsProviderConfigs).where(eq(ttsProviderConfigs.provider, 'cadangan')))[0]?.e;
+      if (v?.status === 'PUBLISHED' && (hasMemberAcc || isGlobalCadangan)) {
+        voice = { mode: 'TTS', voiceId: v.id, emotion: pref.emotion, speed: Number(pref.speed), pitch: pref.pitch == null ? null : Number(pref.pitch), instructions: pref.instructions };
+      }
     }
     const all = cfg.topics ?? [];
     const offset = all.length ? Math.floor(Date.now() / 86_400_000) % all.length : 0;

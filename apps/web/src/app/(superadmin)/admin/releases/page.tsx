@@ -15,9 +15,16 @@ function upload(fd: FormData, onProgress: (p: number) => void) {
     xhr.withCredentials = true;
     xhr.upload.onprogress = (e) => e.lengthComputable && onProgress(e.loaded / e.total);
     xhr.onload = () => {
-      const body = xhr.responseText ? JSON.parse(xhr.responseText) : null;
-      if (xhr.status < 300) resolve(body);
-      else reject(new ApiError(xhr.status, body?.error?.code ?? 'ERROR', body?.error?.details?.[0]?.message ?? body?.error?.message ?? 'Upload gagal'));
+      let body: any = null;
+      if (xhr.responseText) {
+        try {
+          body = JSON.parse(xhr.responseText);
+        } catch {
+          body = null;
+        }
+      }
+      if (xhr.status >= 200 && xhr.status < 300) resolve(body);
+      else reject(new ApiError(xhr.status, body?.error?.code ?? 'ERROR', body?.error?.details?.[0]?.message ?? body?.error?.message ?? `Upload gagal (${xhr.status})`));
     };
     xhr.onerror = () => reject(new ApiError(0, 'NETWORK', 'Koneksi terputus saat upload'));
     xhr.send(fd);
@@ -92,7 +99,18 @@ export default function AdminReleases() {
                   <td><span className="block max-w-[220px] truncate text-xs" title={r.filename}>{r.filename}</span><span className="font-mono text-[10px] text-muted" title={r.checksum}>{fmtBytes(r.sizeBytes)} · {r.checksum.slice(0, 12)}…</span></td>
                   <td className="num font-mono">{r.downloads}</td>
                   <td className="text-muted">{fmtDate(r.publishedAt)}</td>
-                  <td className="whitespace-nowrap text-right"><Status value={r.isActive ? 'ACTIVE' : 'DISABLED'} label={r.isActive ? 'Aktif' : 'Ditarik'} /> <Button variant="ghost" className="h-8" onClick={() => toggle.mutate(r)}>{r.isActive ? 'Tarik' : 'Aktifkan'}</Button></td>
+                  <td className="whitespace-nowrap text-right">
+                    <div className="inline-flex items-center gap-1.5">
+                      <Status value={r.isActive ? 'ACTIVE' : 'DISABLED'} label={r.isActive ? 'Aktif' : 'Ditarik'} />
+                      <a
+                        href={r.downloadUrl || `/api/v1/releases/${r.id}/download`}
+                        className="inline-flex h-8 items-center rounded-lg border border-line px-2.5 text-xs hover:bg-surface-2"
+                      >
+                        Unduh
+                      </a>
+                      <Button variant="ghost" className="h-8" onClick={() => toggle.mutate(r)}>{r.isActive ? 'Tarik' : 'Aktifkan'}</Button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </Table>

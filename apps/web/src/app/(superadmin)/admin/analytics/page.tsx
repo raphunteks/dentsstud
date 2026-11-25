@@ -11,6 +11,7 @@ interface A {
   days: number;
   daily: { day: string; completed: number; failed: number; cancelled: number; total: number }[];
   totals: { runs: number; completed: number; failed: number; successRate: number | null };
+  errorCounts?: { open: number; resolved: number; ignored: number; total: number };
   stages: { stage: string; avg_sec: number; runs: number }[];
   render: { mode: string; jobs: number; avg_sec: number | null; failed: number }[];
   topErrors: { message: string; n: number }[];
@@ -30,11 +31,11 @@ function fillDays(days: number, rows: A['daily']) {
   });
 }
 
-function Stat({ label, value, hint }: { label: string; value: string | number; hint?: string }) {
+function Stat({ label, value, hint, valueClassName }: { label: string; value: string | number; hint?: string; valueClassName?: string }) {
   return (
     <Card className="p-5">
       <p className="text-sm text-muted">{label}</p>
-      <p className="num mt-2 text-3xl font-medium">{value}</p>
+      <p className={`num mt-2 text-3xl font-medium ${valueClassName ?? ''}`}>{value}</p>
       {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
     </Card>
   );
@@ -50,11 +51,17 @@ function Overview() {
       <div className="mb-5"><Tabs label="Rentang" value={days} onChange={setDays} items={[{ value: '7', label: '7 hari' }, { value: '30', label: '30 hari' }, { value: '90', label: '90 hari' }]} /></div>
       {!a ? <Skeleton className="h-96 rounded-card" /> : (
         <div className="grid gap-4">
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
             <Stat label="Produksi" value={a.totals.runs} hint={`${a.totals.completed} selesai · ${a.totals.failed} gagal`} />
             <Stat label="Tingkat sukses" value={a.totals.successRate === null ? '—' : `${a.totals.successRate}%`} hint="Selesai ÷ (selesai + gagal)" />
             <Stat label="Member aktif" value={a.members.active} hint={`${a.members.fresh} baru · ${a.members.total} total`} />
             <Stat label="Video dihasilkan" value={a.results.total} hint={`${a.results.uploaded} diunggah · ${a.results.revisions} revisi`} />
+            <Stat
+              label="Total Selesai (Resolved)"
+              value={a.errorCounts?.resolved ?? 0}
+              valueClassName="text-ok"
+              hint={`${a.errorCounts?.open ?? 0} error aktif · ${a.errorCounts?.total ?? 0} total`}
+            />
           </div>
           <Card className="p-5">
             <h2 className="font-display text-base font-medium">Video selesai per hari</h2>
@@ -112,12 +119,28 @@ function Errors() {
   const q = useQuery({ queryKey: ['errors', status], queryFn: () => api<E[]>(`/admin/errors?status=${status}`) });
   const set = useMutation({
     mutationFn: ({ id, s }: { id: string; s: string }) => api(`/admin/errors/${id}`, { method: 'PATCH', json: { status: s } }),
-    onSuccess: () => (qc.invalidateQueries({ queryKey: ['errors'] }), setOpen(null)),
+    onSuccess: () => (qc.invalidateQueries({ queryKey: ['errors'] }), qc.invalidateQueries({ queryKey: ['analytics'] }), setOpen(null)),
+    onError: (e) => toast.error((e as Error).message),
+  });
+  const resolveAll = useMutation({
+    mutationFn: () => api<{ ok: boolean; resolvedCount: number }>('/admin/errors/resolve-all', { method: 'POST' }),
+    onSuccess: (r) => {
+      toast.success(`${r.resolvedCount} laporan error ditandai selesai`);
+      qc.invalidateQueries({ queryKey: ['errors'] });
+      qc.invalidateQueries({ queryKey: ['analytics'] });
+    },
     onError: (e) => toast.error((e as Error).message),
   });
   return (
     <>
-      <div className="mb-5"><Tabs label="Status error" value={status} onChange={setStatus} items={[{ value: 'OPEN', label: 'Terbuka' }, { value: 'RESOLVED', label: 'Selesai' }, { value: 'IGNORED', label: 'Diabaikan' }]} /></div>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <Tabs label="Status error" value={status} onChange={setStatus} items={[{ value: 'OPEN', label: 'Terbuka' }, { value: 'RESOLVED', label: 'Selesai' }, { value: 'IGNORED', label: 'Diabaikan' }]} />
+        {status === 'OPEN' && !!q.data?.length && (
+          <Button variant="ghost" loading={resolveAll.isPending} onClick={() => confirm(`Tandai semua ${q.data?.length ?? 0} error terbuka sebagai Selesai?`) && resolveAll.mutate()}>
+            Tandai Semua Selesai
+          </Button>
+        )}
+      </div>
       {q.isError && <ErrorNote error={q.error} onRetry={() => q.refetch()} />}
       {q.isLoading && <Skeleton className="h-64 rounded-card" />}
       {q.data?.length === 0 && <Empty title="Tidak ada error" body="Error API (5xx), web dan desktop dikelompokkan otomatis di sini." />}

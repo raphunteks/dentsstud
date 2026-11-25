@@ -5,6 +5,7 @@ import { registerIpc } from '../ipc/handlers.js';
 import { checkForUpdates, initUpdater } from '../updater/updater.js';
 import { reportDesktopError } from '../updater/telemetry.js';
 import { APP_ORIGIN, registerSchemePrivileges, serveRenderer } from '../security/protocol.js';
+import { stopNotificationStream } from '../notifications/stream.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 registerSchemePrivileges();
@@ -105,9 +106,7 @@ app.on('open-url', (event, url) => {
     w.show();
     w.focus();
     if (url.includes('oauth-success') || url.includes('callback') || url.includes('code=')) {
-      w.webContents.send('dentweb:event', { channel: 'claude:connected', data: { status: 'CONNECTED', url } });
       w.webContents.send('dentsweb:event', { channel: 'claude:connected', data: { status: 'CONNECTED', url } });
-      w.webContents.send('claude:connected');
     }
   }
 });
@@ -124,11 +123,12 @@ app.on('second-instance', (_event, argv) => {
     w.focus();
     const deepUrl = argv?.find((a) => typeof a === 'string' && (a.startsWith('dentsweb://') || a.startsWith('dentweb://')));
     if (deepUrl && (deepUrl.includes('oauth-success') || deepUrl.includes('callback') || deepUrl.includes('code='))) {
-      w.webContents.send('dentweb:event', { channel: 'claude:connected', data: { status: 'CONNECTED', url: deepUrl } });
       w.webContents.send('dentsweb:event', { channel: 'claude:connected', data: { status: 'CONNECTED', url: deepUrl } });
-      w.webContents.send('claude:connected');
     }
   }
+});
+app.on('before-quit', () => {
+  stopNotificationStream();
 });
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();

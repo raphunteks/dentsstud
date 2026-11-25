@@ -12,6 +12,8 @@ import {
 import { FORMAT_SIZE, MotionDocument, DEFAULT_STYLE, type Format, type Layer } from '@dentweb/motion-schema';
 import { DB } from '../../infra/tokens.js';
 import { StorageService } from '../../infra/storage.js';
+import { SettingsService } from '../../infra/settings.service.js';
+import { NotificationService } from '../../infra/notifications.service.js';
 import { AnthropicAdapter } from '../ai-connections/anthropic.adapter.js';
 import { AiConnectionsService } from '../ai-connections/ai-connections.service.js';
 import { VoicesService } from '../voices/voices.service.js';
@@ -19,7 +21,7 @@ import { MediaService } from '../media/media.service.js';
 import { ProjectsService } from '../projects/projects.service.js';
 import { RenderService } from '../rendering/render.service.js';
 import { CONTRACT, STAGE_WEIGHTS, extractJson, FactOut, ResearchOut, ScriptOut, MotionOut, QcOut, SocialOut } from './agents.js';
-import { audioDuration, extractFrame, ffprobe } from './media-tools.js';
+import { audioDuration, extractFrame, ffprobe, renderCover } from './media-tools.js';
 import type { z } from 'zod';
 
 export interface OrderConfig {
@@ -47,12 +49,14 @@ export class ProductionEngine {
   constructor(
     @Inject(DB) private readonly db: Database,
     private readonly storage: StorageService,
+    private readonly settings: SettingsService,
     private readonly anthropic: AnthropicAdapter,
     private readonly ai: AiConnectionsService,
     private readonly voices: VoicesService,
     private readonly media: MediaService,
     private readonly projects: ProjectsService,
     private readonly render: RenderService,
+    private readonly notifications: NotificationService,
   ) {}
 
   // ------------------------------------------------------------------ helpers
@@ -77,7 +81,16 @@ export class ProductionEngine {
     const [a] = await this.db.select().from(agentDefinitions).where(eq(agentDefinitions.code, code));
     if (!a || !a.isActive) throw new Fatal(`Agent ${code} tidak aktif`);
     const [v] = await this.db.select().from(agentPromptVersions).where(and(eq(agentPromptVersions.agentId, a.id), eq(agentPromptVersions.version, a.currentVersion)));
-    return { def: a, prompt: v?.systemPrompt ?? '' };
+    let prompt = v?.systemPrompt ?? '';
+    if (code === 'motion_director') {
+      const skills = await this.settings.raw<{ id: string; name: string; content: string; active?: boolean }[]>('motion.skills', []);
+      const activeSkills = (Array.isArray(skills) ? skills : []).filter((s) => s && s.active !== false && s.content);
+      if (activeSkills.length) {
+        const block = activeSkills.map((s) => `### SKILL: ${s.name}\n${s.content.slice(0, 4000)}`).join('\n\n');
+        prompt = `${prompt}\n\n## PANDUAN MOTION SKILLS AKTIF:\n${block}`;
+      }
+    }
+    return { def: a, prompt };
   }
 
   /** One agent call with JSON contract validation and corrective retries. Never invents output. */
@@ -91,20 +104,23 @@ export class ProductionEngine {
     const attempts = opts.attempts ?? 3;
     for (let i = 1; i <= attempts; i++) {
       await this.checkCancel(ctx);
-      const r = await this.anthropic.messages(
-        ctx.apiKey,
-        { model: cfg.model ?? ctx.model, system, messages, max_tokens: opts.maxTokens ?? cfg.maxTokens ?? 4096, tools: webSearch ? [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }] : undefined },
-        ctx.signal.signal,
-      );
+      const r = await this.ai.completeWithFallback(ctx.run.userId, {
+        model: cfg.model ?? ctx.model,
+        system,
+        messages,
+        max_tokens: opts.maxTokens ?? cfg.maxTokens ?? 4096,
+        tools: webSearch ? [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }] : undefined,
+        signal: ctx.signal.signal,
+      });
       if (!r.ok) {
         if (webSearch && r.status === 400) {
           webSearch = false;
-          await this.event(ctx.run.id, 'agent.warning', 'Web search tidak tersedia untuk akun Claude ini; riset memakai pengetahuan model dan klaim akan ditandai belum terverifikasi.', {}, code);
+          await this.event(ctx.run.id, 'agent.warning', 'Web search tidak tersedia untuk akun AI ini; riset memakai pengetahuan model dan klaim akan ditandai belum terverifikasi.', {}, code);
           continue;
         }
-        if (r.status === 401 || r.status === 403) throw new Fatal('Koneksi Claude ditolak (API key tidak valid). Periksa Pengaturan → Claude.');
+        if (r.status === 401 || r.status === 403) throw new Fatal('Koneksi AI ditolak (kredensial tidak valid). Periksa Pengaturan → AI Provider.');
         lastErr = r.error;
-        await this.event(ctx.run.id, 'agent.retry', `Percobaan ${i} gagal: ${r.error}`, { status: r.status }, code);
+        await this.event(ctx.run.id, 'agent.retry', `Percobaan ${i} gagal: ${r.error}`, { status: r.status, provider: r.provider }, code);
         await new Promise((res) => setTimeout(res, Math.min(8000, 1000 * 2 ** i)));
         continue;
       }
@@ -178,13 +194,13 @@ export class ProductionEngine {
       }
       await this.db.update(productionRuns).set({ status: 'COMPLETED', progress: 100, completedAt: new Date() }).where(eq(productionRuns.id, runId));
       await this.event(runId, 'run.completed', 'Video siap diunggah.');
-      await this.db.insert(notifications).values({ userId: run.userId, type: 'production.completed', payload: { runId, resultId: (ctx.outputs.SOCIAL as { resultId?: string })?.resultId } });
+      await this.notifications.notify(run.userId, 'production.completed', { runId, topic: run.topic ?? null, resultId: (ctx.outputs.SOCIAL as { resultId?: string })?.resultId });
     } catch (e) {
       const cancelled = e instanceof Cancelled;
       const message = (e as Error).message;
       await this.db.update(productionRuns).set({ status: cancelled ? 'CANCELLED' : 'FAILED', error: cancelled ? null : { stage: (await this.currentStage(runId)) ?? null, message }, completedAt: new Date() }).where(eq(productionRuns.id, runId));
       await this.event(runId, cancelled ? 'run.cancelled' : 'run.failed', cancelled ? 'Produksi dihentikan.' : `Produksi gagal: ${message}`, {});
-      if (!cancelled) await this.db.insert(notifications).values({ userId: run.userId, type: 'production.failed', payload: { runId, message } });
+      if (!cancelled) await this.notifications.notify(run.userId, 'production.failed', { runId, message });
       if (!cancelled) this.log.warn(`run ${runId} failed: ${message}`);
     }
     await this.syncOrderStatus(run.orderId);
@@ -306,14 +322,17 @@ export class ProductionEngine {
     const script = ctx.outputs.SCRIPT as z.infer<typeof ScriptOut>;
     // Style: the published preset's pinned version, else the default style.
     let style = DEFAULT_STYLE;
-    let preset: { id: string; version: number; name: string } | null = null;
+    let preset: { id: string; version: number; name: string; slug: string } | null = null;
     if (cfg.presetId) {
       const [p] = await this.db.select().from(visualPresets).where(and(eq(visualPresets.id, cfg.presetId), eq(visualPresets.status, 'PUBLISHED')));
       if (!p) throw new Fatal('Preset gaya yang dipilih tidak lagi dipublikasikan');
       const [v] = await this.db.select().from(visualPresetVersions).where(and(eq(visualPresetVersions.presetId, p.id), eq(visualPresetVersions.version, p.currentVersion)));
       style = { ...DEFAULT_STYLE, ...(v!.recipe as object), typography: { ...DEFAULT_STYLE.typography, ...((v!.recipe as { typography?: object }).typography ?? {}) } } as typeof style;
-      preset = { id: p.id, version: p.currentVersion, name: p.name };
+      preset = { id: p.id, version: p.currentVersion, name: p.name, slug: p.slug };
     }
+    const brandRow = await this.brand(run.userId);
+    const brandLogoAssetId = (brandRow?.brandSettings as { logoAssetId?: string | null } | undefined)?.logoAssetId ?? undefined;
+    const brandOverlay = brandRow && (brandRow.name || brandLogoAssetId) ? { ...(brandRow.name ? { name: brandRow.name } : {}), ...(brandLogoAssetId ? { logoAssetId: brandLogoAssetId } : {}) } : null;
     const direction = await this.llm(ctx, 'motion_director', MotionOut, [{ type: 'text', text: `Naskah: ${JSON.stringify(script.scenes.map((s) => ({ teks: s.onScreenText, visual: s.visual })))}\nGaya: ${JSON.stringify(style)}\nTentukan layout, kata penekanan, efek dan transisi per scene (jumlah scene sama: ${script.scenes.length}).` }]);
     await this.event(run.id, 'agent.output', 'Arahan motion diterima, menyusun komposisi.', {}, 'motion_director', stageRunId);
 
@@ -382,6 +401,17 @@ export class ProductionEngine {
       } else if (d.layout === 'title-top') {
         L({ type: 'text', role: 'label', text: d.emphasis || script.title, y: 0.12, h: 0.06 } as never);
         L({ type: 'text', role: 'title', text, y: 0.32, h: 0.3 } as never);
+      } else if (d.layout === 'split') {
+        L({ type: 'shape', shape: 'rect', x: 0.5, y: 0.5, w: 0.006, h: 0.45, effect: 'wipe' } as never);
+        L({ type: 'text', role: 'label', text: (d.emphasis || script.title).toUpperCase(), x: 0.26, y: 0.36, w: 0.4, h: 0.1, effect: 'fade' } as never);
+        L({ type: 'text', role: 'title', text, x: 0.74, y: 0.5, w: 0.42, h: 0.4, startFrame: 6 } as never);
+      } else if (d.layout === 'list') {
+        if (d.emphasis) L({ type: 'text', role: 'label', text: d.emphasis.toUpperCase(), y: 0.18, h: 0.06, effect: 'fade' } as never);
+        const items = text.split(/[•;\n]|,\s+(?=[A-Z0-9])/).map((x) => x.trim()).filter(Boolean).slice(0, 4);
+        const list = items.length > 1 ? items : [text];
+        list.forEach((item, idx) => {
+          L({ type: 'text', role: idx === 0 ? 'title' : 'body', text: `${idx + 1}. ${item}`, y: 0.3 + idx * 0.14, h: 0.12, startFrame: idx * 8 } as never);
+        });
       } else {
         if (d.emphasis) L({ type: 'text', role: 'label', text: d.emphasis.toUpperCase(), y: 0.3, h: 0.06, effect: 'fade' } as never);
         L({ type: 'text', role: 'title', text, y: 0.48, h: 0.34 } as never);
@@ -396,7 +426,7 @@ export class ProductionEngine {
       for (const l of scenes[0]!.layers) l.startFrame += hookFrames;
       for (const a of audio) a.startFrame += hookFrames;
     }
-    const doc = MotionDocument.parse({ schemaVersion: 1, title: script.title, format: cfg.format, width, height, fps, preset, hook, style, scenes, audio });
+    const doc = MotionDocument.parse({ schemaVersion: 1, title: script.title, format: cfg.format, width, height, fps, preset, hook, brand: brandOverlay, style, scenes, audio });
     await this.progress(run.id, 'MOTION', 0.45);
 
     const project = await this.projects.create(run.userId, { name: script.title, format: cfg.format, document: doc });
@@ -468,7 +498,7 @@ export class ProductionEngine {
     try {
       await mkdir(dir, { recursive: true });
       const file = await this.storage.download(motion.objectKey, join(dir, 'v.mp4'));
-      const png = await extractFrame(file, join(dir, 'cover.png'), Math.min(motion.expectedSec * 0.3, 3));
+      const png = await renderCover(file, join(dir, 'cover.png'), Math.min(motion.expectedSec * 0.3, 3), r.data.coverText);
       coverId = (await this.media.ingestFile(run.userId, png, `cover-${run.id.slice(0, 8)}.png`, { move: true, metadata: { kind: 'cover', runId: run.id } })).id;
     } catch (e) {
       await this.event(run.id, 'agent.warning', `Cover tidak dapat dibuat otomatis: ${(e as Error).message.slice(0, 200)}`, {}, 'social_media', stageRunId);

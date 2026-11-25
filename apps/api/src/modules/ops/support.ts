@@ -9,6 +9,7 @@ import { ApiZodBody, ZBody, ZQuery } from '../../common/zod.js';
 import { DB } from '../../infra/tokens.js';
 import { Errors } from '../../infra/errors.js';
 import { AuditService, MailService } from '../../infra/infra.module.js';
+import { NotificationService } from '../../infra/notifications.service.js';
 
 const TicketInput = z.object({
   subject: z.string().trim().min(4).max(255),
@@ -35,6 +36,7 @@ export class SupportService {
     @Inject(DB) private readonly db: Database,
     private readonly audit: AuditService,
     private readonly mail: MailService,
+    private readonly notifications: NotificationService,
   ) {}
 
   // ---------------- tickets ----------------
@@ -80,7 +82,7 @@ export class SupportService {
     await this.db.insert(supportTicketMessages).values({ ticketId: id, authorId: author.id, body });
     await this.db.update(supportTickets).set({ status: asAdmin ? 'PENDING' : 'OPEN' }).where(eq(supportTickets.id, id));
     if (asAdmin) {
-      await this.db.insert(notifications).values({ userId: t.userId, type: 'support.reply', payload: { ticketId: id, subject: t.subject } });
+      await this.notifications.notify(t.userId, 'support.reply', { ticketId: id, subject: t.subject }).catch(() => undefined);
       const [u] = await this.db.select({ email: users.email }).from(users).where(eq(users.id, t.userId));
       if (u) await this.mail.send({ to: u.email, subject: `Balasan tiket: ${t.subject}`, text: `Tim DENTSWEB membalas tiket Anda "${t.subject}". Buka Pusat Bantuan di aplikasi untuk membaca dan membalas.` }).catch(() => undefined);
     }

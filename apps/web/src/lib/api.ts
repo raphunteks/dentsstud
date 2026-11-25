@@ -39,7 +39,17 @@ export async function api<T = unknown>(path: string, init: RequestInit & { json?
     if (await refresh()) return api<T>(path, init, false);
   }
   const text = await res.text();
-  const data = text ? (JSON.parse(text) as unknown) : null;
+  let data: unknown = null;
+  if (text) {
+    try {
+      data = JSON.parse(text) as unknown;
+    } catch {
+      if (!res.ok) {
+        throw new ApiError(res.status, 'BAD_RESPONSE', `Server mengembalikan respons tidak valid (${res.status})`);
+      }
+      throw new ApiError(res.status, 'INVALID_JSON', 'Respons server tidak dapat dibaca (bukan JSON)');
+    }
+  }
   if (!res.ok) {
     const e = (data as ApiErrorBody | null)?.error;
     throw new ApiError(res.status, e?.code ?? 'ERROR', e?.message ?? `Permintaan gagal (${res.status})`, e?.details);

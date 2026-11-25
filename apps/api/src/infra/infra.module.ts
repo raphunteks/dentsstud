@@ -8,6 +8,7 @@ import { SettingsService } from './settings.service.js';
 import { StorageService } from './storage.js';
 import { QueueService } from './queues.js';
 import { ErrorReportsService, MetricsRegistry } from './observability.js';
+import { NotificationService } from './notifications.service.js';
 import { DB, ENV, MAIL_TRANSPORT, REDIS } from './tokens.js';
 
 @Injectable()
@@ -101,8 +102,9 @@ class ShutdownHooks implements OnApplicationShutdown {
     QueueService,
     ErrorReportsService,
     MetricsRegistry,
+    NotificationService,
     ShutdownHooks,
   ],
-  exports: [ENV, DB, REDIS, Cipher, MailService, AuditService, SettingsService, StorageService, QueueService, ErrorReportsService, MetricsRegistry],
+  exports: [ENV, DB, REDIS, Cipher, MailService, AuditService, SettingsService, StorageService, QueueService, ErrorReportsService, MetricsRegistry, NotificationService],
 })
 export class InfraModule {}

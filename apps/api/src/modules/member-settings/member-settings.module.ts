@@ -1,8 +1,8 @@
 import { Controller, Get, Inject, Module, Put } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { type Database, memberBrandProfiles, memberProductionSettings } from '@dentweb/database';
+import { type Database, mediaAssets, memberBrandProfiles, memberProductionSettings } from '@dentweb/database';
 import type { SessionUser } from '@dentweb/shared-types';
 import { ApiZodBody, ZBody } from '../../common/zod.js';
 import { CurrentUser } from '../../common/auth-context.js';
@@ -45,6 +45,13 @@ class MemberSettingsController {
   @Put('brand')
   @ApiZodBody(BrandInput)
   async putBrand(@CurrentUser() me: SessionUser, @ZBody(BrandInput) b: z.infer<typeof BrandInput>) {
+    if (b.brandSettings.logoAssetId) {
+      const [logo] = await this.db
+        .select({ id: mediaAssets.id })
+        .from(mediaAssets)
+        .where(and(eq(mediaAssets.id, b.brandSettings.logoAssetId), eq(mediaAssets.ownerId, me.id)));
+      if (!logo) throw Errors.forbidden('Aset logo bukan milik akun Anda');
+    }
     const [cur] = await this.db.select().from(memberBrandProfiles).where(eq(memberBrandProfiles.userId, me.id)).limit(1);
     const values = { ...b, instagramUsername: b.instagramUsername?.replace(/^@/, '') ?? null };
     const [row] = cur

@@ -2,5 +2,5 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
-  "buildCommand": "cd ../.. && pnpm --filter @dentweb/shared-types build && pnpm --filter @dentweb/web build"
+  "buildCommand": "cd ../.. && pnpm --filter @dentweb/shared-types --filter @dentweb/motion-schema --filter @dentweb/content-schema --filter @dentweb/remotion-compositions build && pnpm --filter @dentweb/web build"
 }

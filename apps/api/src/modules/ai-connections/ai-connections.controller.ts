@@ -1,10 +1,13 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Post, Query, Req } from '@nestjs/common';
+import { Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post, Query, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
-import { AiConnectionStartInput, AiTestInput, type SessionUser } from '@dentweb/shared-types';
+import { z } from 'zod';
+import { AiConnectionPatchInput, AiConnectionStartInput, AiTestInput, type SessionUser } from '@dentweb/shared-types';
 import { ApiZodBody, ZBody } from '../../common/zod.js';
 import { CurrentUser, type AuthedRequest } from '../../common/auth-context.js';
 import { AiConnectionsService } from './ai-connections.service.js';
+
+const SetModelInput = z.object({ model: z.string().min(2).max(160).regex(/^[a-z0-9._:/-]+$/i, 'Format nama model tidak valid') });
 
 @ApiTags('ai')
 @Controller('ai')
@@ -61,12 +64,23 @@ export class AiConnectionsController {
 
   @HttpCode(200)
   @Post('connections/:id/model')
+  @ApiZodBody(SetModelInput)
   setModel(
     @CurrentUser() user: SessionUser,
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() body: { model: string },
+    @ZBody(SetModelInput) body: { model: string },
   ) {
     return this.svc.setDefaultModel(user.id, id, body.model);
+  }
+
+  @Patch('connections/:id')
+  @ApiZodBody(AiConnectionPatchInput)
+  patch(
+    @CurrentUser() user: SessionUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @ZBody(AiConnectionPatchInput) body: AiConnectionPatchInput,
+  ) {
+    return this.svc.patchConnection(user.id, id, body);
   }
 
   @Delete('connections/:id')

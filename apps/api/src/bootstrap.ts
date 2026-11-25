@@ -16,7 +16,7 @@ export async function createApp(opts: { logger?: false } = {}): Promise<INestApp
   const app = await NestFactory.create<NestExpressApplication>(AppModule, { logger: opts.logger, bufferLogs: false });
   if (env.TRUST_PROXY) app.set('trust proxy', 1);
   app.disable('x-powered-by');
-  app.use(helmet({ crossOriginResourcePolicy: { policy: 'same-site' } }));
+  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.use(cookieParser());
   const metrics = app.get(MetricsRegistry);
   app.use((req: import('express').Request, res: import('express').Response, next: () => void) => {
@@ -27,7 +27,7 @@ export async function createApp(opts: { logger?: false } = {}): Promise<INestApp
     });
     next();
   });
-  app.useBodyParser('json', { limit: '1mb' });
+  app.useBodyParser('json', { limit: '50mb' });
   const origins = [env.WEB_ORIGIN, ...env.CORS_EXTRA_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean)];
   app.enableCors({ origin: origins, credentials: true, methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'] });
   app.setGlobalPrefix(API_PREFIX);
@@ -38,7 +38,7 @@ export async function createApp(opts: { logger?: false } = {}): Promise<INestApp
 export function buildOpenApi(app: INestApplication) {
   const config = new DocumentBuilder()
     .setTitle('DENTSWEB STUDIO API')
-    .setDescription('API v1 — Create Motion. Powered by AI.')
+    .setDescription('API v1 — Create Motion. Powered by DENTSWEB STUDIO')
     .setVersion('1.0.0')
     .addBearerAuth()
     .addCookieAuth('dw_sid')

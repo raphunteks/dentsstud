@@ -46,10 +46,18 @@ async function run() {
   console.log('✓ API OAuth Start response details:', JSON.stringify(oauthJson));
 
   // 4. Verify Superadmin login & OTP flow
-  console.log('📍 4. Navigating back to http://localhost:3000/login to test Superadmin OTP flow');
+  const email = process.env.E2E_EMAIL ?? 'ksanihtest@gmail.com';
+  const password = process.env.E2E_PASSWORD;
+  if (!password) {
+    console.log('⏭️ Skipping Step 4 (Superadmin login & OTP flow): E2E_PASSWORD is not set in environment.');
+    await browser.close();
+    console.log('🎉 E2E VERIFICATION COMPLETED SUCCESSFULLY (Public & OAuth UI checks passed)!');
+    return;
+  }
+  console.log(`📍 4. Navigating back to http://localhost:3000/login to test Superadmin OTP flow (${email})`);
   await page.goto('http://localhost:3000/login', { waitUntil: 'networkidle' });
-  await page.fill('#email', 'ksanihtest@gmail.com');
-  await page.fill('#password', 'Ksanihbous03_');
+  await page.fill('#email', email);
+  await page.fill('#password', password);
 
   const [response] = await Promise.all([
     page.waitForResponse((res) => res.url().includes('/api/v1/auth/login')),

@@ -5,13 +5,16 @@ import { cancelLocal, findChrome, renderLocal } from '../local-render/render.js'
 import { importFolder } from '../local-import/scan.js';
 import { cacheProject, localOp, localProjects, syncAll } from '../local-storage/projects.js';
 import { arch, hostname, platform } from 'node:os';
+import { readFile } from 'node:fs/promises';
+import { basename } from 'node:path';
 import { CHANNELS, type Channel } from './channels.js';
-import { ApiFailure, publicRequest, request } from './api-client.js';
+import { ApiFailure, publicRequest, request, requestForm } from './api-client.js';
 import { kvDel, kvGet, kvSet, loadConfig, readTokens, saveConfig, secureStorageAvailable, writeTokens, type Tokens } from '../local-storage/store.js';
 import { verifyProof } from '../security/license-proof.js';
 import { askClaudeCode, detectClaudeCode } from '../security/claude-code.js';
 import { APP_ORIGIN } from '../security/protocol.js';
 import { startLocalCallbackListener } from '../security/oauth-listener.js';
+import { startNotificationStream, stopNotificationStream } from '../notifications/stream.js';
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: { status: number; code: string; message: string } };
 
@@ -54,6 +57,7 @@ export function registerIpc() {
   }));
 
   handle('config:set-api-base', async (i: { apiBase: string }) => {
+    stopNotificationStream();
     writeTokens(null);
     return saveConfig({ apiBase: i.apiBase.replace(/\/$/, '') });
   });
@@ -64,14 +68,26 @@ export function registerIpc() {
   handle('auth:verify', async (i: { challengeId: string; code: string }) => {
     const r = await publicRequest<{ user: unknown; session: Tokens }>('POST', '/auth/otp/verify', { ...i, client: 'desktop' });
     writeTokens(r.session);
+    startNotificationStream();
     return { user: r.user, persisted: secureStorageAvailable() };
   });
   handle('auth:session', async () => {
     if (!readTokens()) return null;
     try {
-      return await request('GET', '/auth/session');
+      const sess = await request('GET', '/auth/session');
+      startNotificationStream();
+      if (kvGet('license.proof')) {
+        void request<{ proof: string; expiresAt: string }>('POST', '/licenses/offline-proof')
+          .then(async (p) => {
+            kvSet('license.proof', p.proof);
+            await ensurePublicKey();
+          })
+          .catch(() => undefined);
+      }
+      return sess;
     } catch (e) {
       if (e instanceof ApiFailure && (e.status === 401 || e.status === 403)) {
+        stopNotificationStream();
         writeTokens(null);
         return null;
       }
@@ -79,6 +95,7 @@ export function registerIpc() {
     }
   });
   handle('auth:logout', async () => {
+    stopNotificationStream();
     await request('POST', '/auth/logout').catch(() => undefined);
     writeTokens(null);
     kvDel('license.proof');
@@ -87,8 +104,37 @@ export function registerIpc() {
 
   handle('api:get', (i: { path: string }) => request('GET', i.path));
   handle('api:mutate', (i: { method: string; path: string; body?: Record<string, unknown> }) => {
-    if (i.path.startsWith('/auth/')) throw new ApiFailure(403, 'FORBIDDEN_PATH', 'Gunakan kanal auth khusus');
+    if (i.path === '/auth/password/forgot' || i.path === '/auth/password/reset') {
+      return publicRequest(i.method, i.path, i.body);
+    }
+    if (i.path.startsWith('/auth/') && i.path !== '/auth/password/change') {
+      throw new ApiFailure(403, 'FORBIDDEN_PATH', 'Gunakan kanal auth khusus');
+    }
     return request(i.method, i.path, i.body);
+  });
+  handle('media:pick-upload', async (i: { kind: 'audio' | 'video' | 'image' }) => {
+    const filters =
+      i.kind === 'audio'
+        ? [{ name: 'Audio', extensions: ['mp3', 'wav', 'ogg'] }]
+        : i.kind === 'video'
+          ? [{ name: 'Video', extensions: ['mp4', 'webm'] }]
+          : [{ name: 'Gambar', extensions: ['png', 'jpg', 'jpeg', 'webp'] }];
+    const r = await dialog.showOpenDialog({ title: `Pilih file ${i.kind}`, properties: ['openFile'], filters });
+    if (r.canceled || !r.filePaths[0]) return { canceled: true };
+    const filePath = r.filePaths[0];
+    const buf = await readFile(filePath);
+    const filename = basename(filePath);
+    const form = new FormData();
+    form.append('file', new Blob([buf]), filename);
+    const uploaded = await requestForm<{ id: string; filename: string; mimeType: string; sizeBytes: number; url: string }>('/media', form);
+    return { canceled: false, ...uploaded };
+  });
+
+  handle('admin:upload-skill-zip', async (i: { filename: string; base64: string }) => {
+    const buf = Buffer.from(i.base64, 'base64');
+    const form = new FormData();
+    form.append('file', new Blob([buf], { type: 'application/zip' }), i.filename);
+    return requestForm<{ imported: unknown[]; count: number }>('/admin/skills/upload-zip', form);
   });
 
   handle('license:activate', async () => {
@@ -131,7 +177,7 @@ export function registerIpc() {
     return { ...r, version: det.version };
   });
 
-  const emit = (channel: string, data: unknown) => BrowserWindow.getAllWindows().forEach((w) => w.webContents.send('dentweb:event', { channel, data }));
+  const emit = (channel: string, data: unknown) => BrowserWindow.getAllWindows().forEach((w) => w.webContents.send('dentsweb:event', { channel, data }));
   handle('render:capability', async () => ({ chrome: findChrome() }));
   handle('render:local', (i: { jobId: string }) => renderLocal(i.jobId, (p) => emit('render:progress', { jobId: i.jobId, progress: p })));
   handle('render:cancel', async (i: { jobId: string }) => (cancelLocal(i.jobId), { ok: true }));

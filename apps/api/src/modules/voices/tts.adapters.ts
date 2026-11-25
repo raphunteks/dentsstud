@@ -1,7 +1,54 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { isIP } from 'node:net';
 import { ENV } from '../../infra/tokens.js';
 import type { Env } from '../../config/env.js';
 import { redact } from '../../infra/crypto.js';
+import { Errors } from '../../infra/errors.js';
+
+/** Blocks SSRF to loopback, link-local (cloud metadata 169.254.169.254), and RFC1918 private IPs for member-supplied baseUrls. */
+export function assertSafeMemberBaseUrl(rawUrl: string) {
+  let u: URL;
+  try {
+    u = new URL(rawUrl);
+  } catch {
+    throw Errors.invalid('INVALID_BASE_URL', 'URL engine suara tidak valid');
+  }
+  if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+    throw Errors.invalid('INVALID_BASE_URL', 'URL engine suara harus menggunakan http atau https');
+  }
+  const host = u.hostname.toLowerCase().replace(/^\[|\]$/g, '');
+  if (
+    host === 'localhost' ||
+    host.endsWith('.localhost') ||
+    host.endsWith('.local') ||
+    host === '0.0.0.0' ||
+    host === '::1' ||
+    host === '::' ||
+    host === 'metadata.google.internal'
+  ) {
+    throw Errors.invalid('SSRF_BLOCKED', 'URL engine lokal/internal tidak diizinkan untuk akun member');
+  }
+  const ipVer = isIP(host);
+  if (ipVer === 4) {
+    const parts = host.split('.').map(Number);
+    const [a, b] = parts;
+    if (
+      a === 127 ||
+      a === 10 ||
+      a === 0 ||
+      (a === 169 && b === 254) ||
+      (a === 172 && b! >= 16 && b! <= 31) ||
+      (a === 192 && b === 168) ||
+      (a === 100 && b! >= 64 && b! <= 127)
+    ) {
+      throw Errors.invalid('SSRF_BLOCKED', 'Alamat IP privat/internal tidak diizinkan untuk akun member');
+    }
+  } else if (ipVer === 6) {
+    if (host.startsWith('fc') || host.startsWith('fd') || host.startsWith('fe80') || host.startsWith('::ffff:127.') || host.startsWith('::ffff:169.254.') || host.startsWith('::ffff:10.') || host.startsWith('::ffff:192.168.')) {
+      throw Errors.invalid('SSRF_BLOCKED', 'Alamat IPv6 privat/internal tidak diizinkan untuk akun member');
+    }
+  }
+}
 
 export interface SynthesisRequest {
   text: string;
@@ -50,11 +97,11 @@ export function pcmToWav(pcm: Buffer, sampleRate = 24000, channels = 1) {
 const fail = (status: number, msg: string): SynthResult => ({ ok: false, status: status === 401 || status === 403 ? 'INVALID' : 'UNAVAILABLE', error: redact(msg) });
 const net = (e: unknown): SynthResult => ({ ok: false, status: 'UNAVAILABLE', error: redact(`Provider tidak dapat dihubungi: ${(e as Error).message}`) });
 
-/** Gemini API TTS (generateContent with AUDIO modality). Style/emotion via speech metadata. */
+/** Gemini API TTS (generateContent with AUDIO modality). Style/emotion via prompt prefix. */
 @Injectable()
 export class GeminiTts implements TtsAdapter {
   readonly provider = 'gemini' as const;
-  readonly capabilities = { emotion: true, speed: true, pitch: false, instructions: true };
+  readonly capabilities = { emotion: true, speed: true, pitch: true, instructions: true };
   constructor(@Inject(ENV) private readonly env: Env) {}
 
   async probe(c: Credentials): Promise<ProbeResult> {
@@ -73,15 +120,26 @@ export class GeminiTts implements TtsAdapter {
 
   async synthesize(c: Credentials, r: SynthesisRequest): Promise<SynthResult> {
     if (!c.apiKey) return { ok: false, status: 'INVALID', error: 'API key Gemini belum diatur' };
-    const style = [r.emotion, r.speed && r.speed !== 1 ? (r.speed > 1 ? `tempo lebih cepat (${r.speed}x)` : `tempo lebih lambat (${r.speed}x)`) : null, r.instructions].filter(Boolean).join('; ');
+    const style = [
+      r.emotion,
+      r.speed && r.speed !== 1 ? (r.speed > 1 ? `tempo lebih cepat (${r.speed}x)` : `tempo lebih lambat (${r.speed}x)`) : null,
+      r.pitch && r.pitch !== 0 ? (r.pitch > 0 ? `nada suara lebih tinggi (+${r.pitch} semitone)` : `nada suara lebih rendah (${r.pitch} semitone)`) : null,
+      r.instructions,
+    ]
+      .filter(Boolean)
+      .join('; ');
+    const promptText = style ? `Ucapkan teks berikut dengan gaya (${style}):\n${r.text}` : r.text;
     const model = r.model || this.env.GEMINI_TTS_MODEL;
     try {
       const res = await fetch(`${this.env.GEMINI_API_BASE}/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
         method: 'POST',
         headers: { 'x-goog-api-key': c.apiKey, 'content-type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: r.text, ...(style ? { speech_metadata: { style } } : {}) }] }],
-          generationConfig: { responseModalities: ['AUDIO'], speechConfig: { voiceConfig: { voice: r.voiceId } } },
+          contents: [{ role: 'user', parts: [{ text: promptText }] }],
+          generationConfig: {
+            responseModalities: ['AUDIO'],
+            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: r.voiceId } } },
+          },
         }),
         signal: AbortSignal.timeout(90_000),
       });
@@ -151,7 +209,7 @@ export class ElevenLabsTts implements TtsAdapter {
 @Injectable()
 export class FallbackTts implements TtsAdapter {
   readonly provider = 'cadangan' as const;
-  readonly capabilities = { emotion: false, speed: true, pitch: false, instructions: false };
+  readonly capabilities = { emotion: false, speed: true, pitch: true, instructions: false };
 
   async probe(c: Credentials): Promise<ProbeResult> {
     if (!c.baseUrl) return { status: 'UNAVAILABLE', error: 'URL engine cadangan belum diatur' };
@@ -167,10 +225,18 @@ export class FallbackTts implements TtsAdapter {
   async synthesize(c: Credentials, r: SynthesisRequest): Promise<SynthResult> {
     if (!c.baseUrl) return { ok: false, status: 'UNAVAILABLE', error: 'URL engine cadangan belum diatur' };
     try {
+      const pitchHz = r.pitch && r.pitch !== 0 ? `${r.pitch > 0 ? '+' : ''}${Math.round(r.pitch * 3)}Hz` : undefined;
       const res = await fetch(`${c.baseUrl.replace(/\/$/, '')}/v1/audio/speech`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', ...(c.apiKey ? { authorization: `Bearer ${c.apiKey}` } : {}) },
-        body: JSON.stringify({ model: r.model ?? 'tts-1', voice: r.voiceId, input: r.text, speed: r.speed ?? 1, response_format: 'mp3' }),
+        body: JSON.stringify({
+          model: r.model ?? 'tts-1',
+          voice: r.voiceId,
+          input: r.text,
+          speed: r.speed ?? 1,
+          ...(pitchHz ? { pitch: pitchHz } : {}),
+          response_format: 'mp3',
+        }),
         signal: AbortSignal.timeout(90_000),
       });
       if (!res.ok) return fail(res.status, `Engine cadangan ${res.status}`);

@@ -21,10 +21,17 @@ async function run() {
   const heading = await page.textContent('h1');
   console.log(`✓ Page header found: "${heading}"`);
 
-  // 3. Fill in Superadmin credentials
-  console.log('✍️ Filling credentials: ksanihtest@gmail.com');
-  await page.fill('#email', 'ksanihtest@gmail.com');
-  await page.fill('#password', 'Ksanihbous03_');
+  // 3. Fill in Superadmin credentials from env
+  const email = process.env.E2E_EMAIL ?? 'ksanihtest@gmail.com';
+  const password = process.env.E2E_PASSWORD;
+  if (!password) {
+    console.log('⏭️ Skipping login submit step: E2E_PASSWORD is not set in environment.');
+    await browser.close();
+    return;
+  }
+  console.log(`✍️ Filling credentials: ${email}`);
+  await page.fill('#email', email);
+  await page.fill('#password', password);
 
   // 4. Click Submit
   console.log('🖱️ Clicking button "Lanjut"');

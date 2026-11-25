@@ -14,6 +14,9 @@ function CallbackContent() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
+  const [done, setDone] = useState<'idle' | 'ok' | 'err'>('idle');
+  const isDesktopClient = searchParams.get('client') === 'desktop';
+
   useEffect(() => {
     if (handled.current) return;
     handled.current = true;
@@ -39,13 +42,11 @@ function CallbackContent() {
       if (!state && parts[1]) state = parts[1]?.trim() || '';
     }
 
-    const dest = session.data?.user.role === 'SUPERADMIN' ? '/admin/ai-providers' : '/settings/claude';
-
     if (error) {
       setStatus('error');
       setErrorMessage(`Otorisasi Claude ditolak: ${error}`);
       toast.error(`Otorisasi Claude ditolak: ${error}`);
-      setTimeout(() => router.replace(dest), 3000);
+      setDone('err');
       return;
     }
 
@@ -53,7 +54,7 @@ function CallbackContent() {
       setStatus('error');
       setErrorMessage('Parameter callback OAuth tidak lengkap (kode atau state tidak ditemukan).');
       toast.error('Parameter callback OAuth tidak lengkap');
-      setTimeout(() => router.replace(dest), 3000);
+      setDone('err');
       return;
     }
 
@@ -61,21 +62,29 @@ function CallbackContent() {
       .then(() => {
         setStatus('success');
         toast.success('Akun Claude berhasil terhubung via OAuth (9Router)!');
-        try {
-          window.location.href = 'dentsweb://oauth-success';
-        } catch {}
-        setTimeout(() => router.replace(dest), 1500);
+        if (isDesktopClient) {
+          try {
+            window.location.href = 'dentsweb://oauth-success';
+          } catch {}
+        }
+        setDone('ok');
       })
       .catch((e) => {
         setStatus('error');
         const msg = e instanceof ApiError ? e.message : 'Gagal menyelesaikan otorisasi Claude';
         setErrorMessage(msg);
         toast.error(msg);
-        setTimeout(() => router.replace(dest), 4000);
+        setDone('err');
       });
-  }, [router, searchParams, session.data?.user.role]);
+  }, [searchParams, isDesktopClient]);
 
   const targetPath = session.data?.user.role === 'SUPERADMIN' ? '/admin/ai-providers' : '/settings/claude';
+
+  useEffect(() => {
+    if (done === 'idle' || !session.isFetched) return;
+    const t = setTimeout(() => router.replace(targetPath), done === 'ok' ? 1500 : 3500);
+    return () => clearTimeout(t);
+  }, [done, session.isFetched, targetPath, router]);
 
   return (
     <div className="mx-auto flex min-h-[60vh] max-w-md items-center justify-center p-4">

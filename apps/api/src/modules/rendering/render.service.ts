@@ -43,30 +43,43 @@ export class RenderService {
     const ids = new Set<string>();
     for (const s of d.scenes) for (const l of s.layers) if ((l.type === 'image' || l.type === 'video') && l.assetId) ids.add(l.assetId);
     for (const a of d.audio) if (a.assetId) ids.add(a.assetId);
+    if (d.brand?.logoAssetId) ids.add(d.brand.logoAssetId);
     const map = new Map<string, string>();
     if (ids.size) {
       const rows = await this.db.select().from(mediaAssets).where(inArray(mediaAssets.id, [...ids]));
       for (const r of rows) {
-        // Members may use their own media and media referenced by published catalog items (owned by Superadmin).
-        if (r.ownerId !== userId && !(r.metadata as { importBatch?: string }).importBatch && !(r.metadata as { kind?: string }).kind?.startsWith('voice')) continue;
+        // Members may use their own media and published catalog media (importBatch or voice-sample, never private voice-preview).
+        const meta = r.metadata as { importBatch?: string; kind?: string };
+        if (r.ownerId !== userId && !meta.importBatch && meta.kind !== 'voice-sample') continue;
         map.set(r.id, this.abs(await this.storage.signedUrl(r.objectKey, { ttlSec: 6 * 3600 })));
       }
     }
     for (const s of d.scenes) for (const l of s.layers) if ((l.type === 'image' || l.type === 'video') && l.assetId) l.src = map.get(l.assetId) ?? l.src;
     for (const a of d.audio) if (a.assetId) a.src = map.get(a.assetId) ?? a.src;
+    if (d.brand?.logoAssetId) d.brand.logoUrl = map.get(d.brand.logoAssetId) ?? d.brand.logoUrl;
     return d;
   }
 
-  async create(userId: string, i: { projectId: string; mode: 'LOCAL' | 'CLOUD'; format: RenderFormat }) {
+  async create(userId: string, i: { projectId: string; mode: 'LOCAL' | 'CLOUD'; format: RenderFormat }, opts: { bypassLicense?: boolean } = {}) {
     if (i.mode === 'CLOUD') {
-      const ent = (await this.licenses.summary(userId)).entitlements;
-      if (!ent.cloudRender) throw Errors.forbidden('Lisensi Anda tidak mencakup render cloud');
+      if (!(await this.settings.flag('cloud_render', true))) throw Errors.forbidden('Fitur render cloud sedang dinonaktifkan oleh Superadmin');
+      if (!opts.bypassLicense) {
+        const ent = (await this.licenses.summary(userId)).entitlements;
+        if (!ent.cloudRender) throw Errors.forbidden('Lisensi Anda tidak mencakup render cloud');
+      }
       const [{ n }] = (await this.db.select({ n: count() }).from(renderJobs).where(and(eq(renderJobs.userId, userId), eq(renderJobs.mode, 'CLOUD'), inArray(renderJobs.status, ACTIVE)))) as [{ n: number }];
       const limit = await this.settings.num('quota.perMemberConcurrency', 2);
       if (n >= limit) throw Errors.tooMany(`Maksimal ${limit} render cloud bersamaan`);
+    } else if (i.mode === 'LOCAL') {
+      if (!(await this.settings.flag('local_render', true))) throw Errors.forbidden('Fitur render lokal sedang dinonaktifkan oleh Superadmin');
     }
     const snap = await this.projects.snapshot(userId, i.projectId);
-    const resolved = await this.resolveAssets(userId, MotionDocument.parse(snap.document));
+    const parsedDoc = MotionDocument.parse(snap.document);
+    const maxRes = await this.settings.num('render.maxResolution', 1920);
+    if (Math.max(parsedDoc.width, parsedDoc.height) > maxRes) {
+      throw Errors.invalid('RENDER_RESOLUTION', `Resolusi melebihi batas sistem (${maxRes}px)`);
+    }
+    const resolved = await this.resolveAssets(userId, parsedDoc);
     const [job] = await this.db
       .insert(renderJobs)
       .values({ userId, projectId: i.projectId, mode: i.mode, status: i.mode === 'CLOUD' ? 'QUEUED' : 'AWAITING_LOCAL', preset: { format: i.format, revision: snap.revision }, snapshotRef: snap.snapshotRef })
@@ -129,12 +142,13 @@ export class RenderService {
   // ------------- executor side (cloud worker via /internal, desktop via member routes) -------------
   async start(id: string, executor: { workerName?: string; capabilities?: Record<string, unknown> }) {
     const j = await this.own(null, id);
-    if (!['QUEUED', 'AWAITING_LOCAL', 'RUNNING'].includes(j.status)) return { proceed: false, status: j.status };
+    const [{ n }] = (await this.db.select({ n: count() }).from(renderAttempts).where(eq(renderAttempts.jobId, id))) as [{ n: number }];
+    const canRetryFailed = j.status === 'FAILED' && n < 3;
+    if (!['QUEUED', 'AWAITING_LOCAL', 'RUNNING'].includes(j.status) && !canRetryFailed) return { proceed: false, status: j.status };
     let workerId: string | null = null;
     if (executor.workerName) workerId = await this.heartbeat(executor.workerName, executor.capabilities ?? {});
-    const [{ n }] = (await this.db.select({ n: count() }).from(renderAttempts).where(eq(renderAttempts.jobId, id))) as [{ n: number }];
     const [att] = await this.db.insert(renderAttempts).values({ jobId: id, attemptNumber: n + 1, workerId, status: 'RUNNING' }).returning();
-    await this.db.update(renderJobs).set({ status: 'RUNNING', progress: 0 }).where(eq(renderJobs.id, id));
+    await this.db.update(renderJobs).set({ status: 'RUNNING', progress: 0, completedAt: null }).where(eq(renderJobs.id, id));
     const input = await this.storage.signedUrl(`renders/${id}/input.json`, { ttlSec: 3600 });
     return { proceed: true, attempt: att!.attemptNumber, inputUrl: this.abs(input), format: (j.preset as { format: RenderFormat }).format };
   }
@@ -162,10 +176,12 @@ export class RenderService {
   }
 
   async fail(id: string, error: string) {
-    await this.own(null, id);
-    await this.finishAttempt(id, 'FAILED', { message: error.slice(0, 2000) });
-    await this.db.update(renderJobs).set({ status: 'FAILED', completedAt: new Date() }).where(eq(renderJobs.id, id));
-    return { ok: true };
+    const j = await this.own(null, id);
+    const cancelled = j.status === 'CANCELLING' || error.includes('Dibatalkan');
+    const finalStatus = cancelled ? 'CANCELLED' : 'FAILED';
+    await this.finishAttempt(id, finalStatus, cancelled ? null : { message: error.slice(0, 2000) });
+    await this.db.update(renderJobs).set({ status: finalStatus, completedAt: new Date() }).where(eq(renderJobs.id, id));
+    return { ok: true, status: finalStatus };
   }
 
   private async finishAttempt(id: string, status: string, error: object | null) {
@@ -196,7 +212,7 @@ export class RenderService {
       ],
     });
     const p = await this.projects.create(adminId, { name: `Test render: ${preset.name}`, format, document: doc, status: 'SYSTEM' });
-    return this.create(adminId, { projectId: p.id, mode: 'CLOUD', format: 'mp4' });
+    return this.create(adminId, { projectId: p.id, mode: 'CLOUD', format: 'mp4' }, { bypassLicense: true });
   }
 
   /** Writes an uploaded executor file to scratch for ingestion. */

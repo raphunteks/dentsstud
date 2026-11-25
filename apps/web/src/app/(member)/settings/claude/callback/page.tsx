@@ -1,11 +1,11 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { api, ApiError } from '@/lib/api';
 import { Card, PageHead, Skeleton } from '@/components/ui';
 
-export default function ClaudeOAuthCallbackPage() {
+function ClaudeOAuthCallbackInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const handled = useRef(false);
@@ -69,5 +69,13 @@ export default function ClaudeOAuthCallbackPage() {
         </Card>
       </div>
     </>
+  );
+}
+
+export default function ClaudeOAuthCallbackPage() {
+  return (
+    <Suspense fallback={<Skeleton className="h-40 max-w-md rounded-card" />}>
+      <ClaudeOAuthCallbackInner />
+    </Suspense>
   );
 }

@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useSession } from '@/lib/session';
@@ -24,21 +25,23 @@ const greet = () => {
 
 export default function DashboardPage() {
   const { data: s } = useSession();
+  const [greeting, setGreeting] = useState('Selamat datang');
+  useEffect(() => setGreeting(greet()), []);
   const dash = useQuery({ queryKey: ['me-dashboard'], queryFn: () => api<Dash>('/me/dashboard') });
   const cats = useQuery({ queryKey: ['categories'], queryFn: () => api<Cats>('/styles/categories'), staleTime: 15 * 60_000 });
 
   const stats = [
     { k: 'readyToUpload', label: 'Siap upload', href: '/results?tab=READY' },
     { k: 'inProduction', label: 'Sedang diproduksi', href: '/progress' },
-    { k: 'uploaded', label: 'Diunggah', href: '/results' },
-    { k: 'failed', label: 'Gagal', href: '/results' },
+    { k: 'uploaded', label: 'Diunggah', href: '/results?tab=UPLOADED' },
+    { k: 'failed', label: 'Gagal', href: '/results?tab=FAILED' },
   ] as const;
 
   return (
     <>
       <PageHead
         eyebrow="Beranda"
-        title={`${greet()}, ${s?.user.displayName.split(' ')[0] ?? ''}`}
+        title={`${greeting}, ${s?.user.displayName.split(' ')[0] ?? ''}`}
         actions={<Link href="/create-content" className="inline-flex h-11 items-center rounded-[10px] bg-accent px-5 text-sm font-medium text-accent-contrast transition-transform active:scale-[0.98]">Buat konten baru</Link>}
       />
       {dash.isError && <ErrorNote error={dash.error} onRetry={() => dash.refetch()} />}

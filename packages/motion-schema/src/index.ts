@@ -79,7 +79,17 @@ export const AudioTrack = z.object({
 export type AudioTrack = z.infer<typeof AudioTrack>;
 
 export const Style = z.object({
-  palette: z.object({ background: color, surface: color.optional(), ink: color, accent: color, muted: color.optional() }),
+  presetSlug: z.string().max(150).optional(),
+  presetName: z.string().max(120).optional(),
+  palette: z.object({
+    background: color,
+    surface: color.optional(),
+    ink: color,
+    accent: color,
+    muted: color.optional(),
+    secondary: color.optional(),
+    highlight: color.optional(),
+  }),
   typography: z.object({ display: z.string().max(120), body: z.string().max(120), displayWeight: z.number().int().default(600) }),
   motion: z.object({ easing: z.enum(EASINGS).default('easeOut'), intensity: z.number().min(0).max(1).default(0.5), transition: z.enum(['cut', 'fade', 'slide', 'wipe', 'zoom']).default('fade') }),
   layout: z.object({ titleScale: z.number().default(1), safeArea: z.number().default(0.06), textAlign: z.enum(['left', 'center']).default('left') }),
@@ -93,6 +103,13 @@ export const DEFAULT_STYLE: Style = {
   layout: { titleScale: 1, safeArea: 0.06, textAlign: 'left' },
 };
 
+export const BrandOverlay = z.object({
+  name: z.string().max(120).optional(),
+  logoUrl: z.string().max(2000).optional(),
+  logoAssetId: z.uuid().optional(),
+});
+export type BrandOverlay = z.infer<typeof BrandOverlay>;
+
 export const MotionDocument = z.object({
   schemaVersion: z.literal(MOTION_SCHEMA_VERSION),
   title: z.string().max(255).default('Tanpa judul'),
@@ -100,8 +117,9 @@ export const MotionDocument = z.object({
   width: z.number().int().min(160).max(3840),
   height: z.number().int().min(160).max(3840),
   fps: z.number().int().min(12).max(60),
-  preset: z.object({ id: z.uuid(), version: z.number().int(), name: z.string().optional() }).nullish(),
+  preset: z.object({ id: z.uuid(), version: z.number().int(), name: z.string().optional(), slug: z.string().optional() }).nullish(),
   hook: z.object({ id: z.uuid(), version: z.number().int(), text: z.string().max(200), recipe: z.record(z.string(), z.unknown()) }).nullish(),
+  brand: BrandOverlay.nullish(),
   style: Style.default(DEFAULT_STYLE),
   scenes: z.array(Scene).min(1).max(200),
   audio: z.array(AudioTrack).max(50).default([]),
@@ -172,7 +190,7 @@ export const Operation = z.discriminatedUnion('op', [
   z.object({ op: z.literal('addLayer'), sceneId: id, layer: Layer }),
   z.object({ op: z.literal('updateLayer'), sceneId: id, layerId: id, patch: z.record(z.string(), z.unknown()) }),
   z.object({ op: z.literal('removeLayer'), sceneId: id, layerId: id }),
-  z.object({ op: z.literal('setMeta'), patch: z.object({ title: z.string().max(255).optional(), style: Style.optional(), preset: MotionDocument.shape.preset.optional(), audio: z.array(AudioTrack).max(50).optional() }) }),
+  z.object({ op: z.literal('setMeta'), patch: z.object({ title: z.string().max(255).optional(), style: Style.optional(), preset: MotionDocument.shape.preset.optional(), brand: MotionDocument.shape.brand.optional(), audio: z.array(AudioTrack).max(50).optional() }) }),
 ]);
 export type Operation = z.infer<typeof Operation>;
 

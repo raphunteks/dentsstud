@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { and, asc, count, desc, eq, gt, gte, inArray, isNull, ne, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import {
-  type Database, hookPresets, mediaAssets, memberTtsAccounts, productionEvents, productionOrders, productionRuns, productionStageRuns, users, videoResults,
+  type Database, hookPresets, mediaAssets, memberTtsAccounts, productionEvents, productionOrders, productionRuns, productionStageRuns, ttsProviderConfigs, users, videoResults,
   visualPresets, voiceProfiles, workflowDefinitions, workflowVersions, PRODUCTION_WORKFLOW,
 } from '@dentweb/database';
 import { DB } from '../../infra/tokens.js';
@@ -72,6 +72,9 @@ export class ProductionService {
     const ent = lic.entitlements;
     const claude = (await this.ai.resolveApiKey(userId)) !== null;
     const accounts = await this.db.select({ provider: memberTtsAccounts.provider }).from(memberTtsAccounts).where(eq(memberTtsAccounts.userId, userId));
+    const [cadangan] = await this.db.select({ isEnabled: ttsProviderConfigs.isEnabled }).from(ttsProviderConfigs).where(eq(ttsProviderConfigs.provider, 'cadangan'));
+    const ttsSet = new Set(accounts.map((a) => a.provider));
+    if (cadangan?.isEnabled) ttsSet.add('cadangan');
     const [{ voices }] = (await this.db.select({ voices: count() }).from(voiceProfiles).where(eq(voiceProfiles.status, 'PUBLISHED'))) as [{ voices: number }];
     const [{ presets }] = (await this.db.select({ presets: count() }).from(visualPresets).where(eq(visualPresets.status, 'PUBLISHED'))) as [{ presets: number }];
     const [{ hooks }] = (await this.db.select({ hooks: count() }).from(hookPresets).where(eq(hookPresets.status, 'PUBLISHED'))) as [{ hooks: number }];
@@ -82,7 +85,7 @@ export class ProductionService {
       usedToday: used,
       remainingToday: Math.max(0, ent.maxVideosPerDay - used),
       claudeApiKey: claude,
-      ttsAccounts: accounts.map((a) => a.provider),
+      ttsAccounts: [...ttsSet],
       published: { voices, presets, hooks },
     };
   }
@@ -110,7 +113,10 @@ export class ProductionService {
       const [v] = await this.db.select().from(voiceProfiles).where(and(eq(voiceProfiles.id, i.voice.voiceId!), eq(voiceProfiles.status, 'PUBLISHED')));
       if (!v) throw Errors.invalid('VOICE_UNAVAILABLE', 'Suara narator tidak tersedia');
       const [acc] = await this.db.select({ p: memberTtsAccounts.provider }).from(memberTtsAccounts).where(and(eq(memberTtsAccounts.userId, userId), eq(memberTtsAccounts.provider, v.provider)));
-      if (!acc) throw Errors.invalid('TTS_ACCOUNT_MISSING', `Atur akun ${v.provider} di Pengaturan → Akun Suara`);
+      if (!acc) {
+        const isGlobalCadangan = v.provider === 'cadangan' && !!(await this.db.select({ e: ttsProviderConfigs.isEnabled }).from(ttsProviderConfigs).where(eq(ttsProviderConfigs.provider, 'cadangan')))[0]?.e;
+        if (!isGlobalCadangan) throw Errors.invalid('TTS_ACCOUNT_MISSING', `Atur akun ${v.provider} di Pengaturan → Akun Suara`);
+      }
     }
     const own = async (id: string, kind: 'audio' | 'video') => {
       const [m] = await this.db.select().from(mediaAssets).where(and(eq(mediaAssets.id, id), eq(mediaAssets.ownerId, userId), eq(mediaAssets.status, 'READY')));

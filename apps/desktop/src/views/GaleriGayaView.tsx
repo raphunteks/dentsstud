@@ -22,7 +22,7 @@ interface Preset {
 }
 
 interface GaleriGayaViewProps {
-  onNavigate: (tab: NavTab) => void;
+  onNavigate: (tab: NavTab, opts?: { presetId?: string }) => void;
 }
 
 export function GaleriGayaView({ onNavigate }: GaleriGayaViewProps) {
@@ -138,10 +138,12 @@ export function GaleriGayaView({ onNavigate }: GaleriGayaViewProps) {
                 {item.previewUrl ? (
                   <video
                     src={toMediaUrl(item.previewUrl)}
+                    poster={item.thumbnailUrl ? toMediaUrl(item.thumbnailUrl) : undefined}
                     autoPlay
                     loop
                     muted
                     playsInline
+                    preload="auto"
                     className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 ) : item.thumbnailUrl ? (
@@ -215,8 +217,9 @@ export function GaleriGayaView({ onNavigate }: GaleriGayaViewProps) {
               </Button>
               <Button
                 onClick={() => {
+                  const pid = selectedPreset.id;
                   setSelectedPreset(null);
-                  onNavigate('buat-konten');
+                  onNavigate('buat-konten', { presetId: pid });
                 }}
               >
                 Gunakan Gaya Ini di Pesanan

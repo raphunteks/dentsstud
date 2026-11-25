@@ -9,7 +9,11 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json tsconfig.base.js
 COPY packages ./packages
 COPY apps/api ./apps/api
 RUN pnpm install --frozen-lockfile --filter @dentweb/api... \
- && pnpm --filter @dentweb/shared-types build && pnpm --filter @dentweb/database build && pnpm --filter @dentweb/api build \
+ && pnpm --filter @dentweb/shared-types build \
+ && pnpm --filter @dentweb/content-schema build \
+ && pnpm --filter @dentweb/motion-schema build \
+ && pnpm --filter @dentweb/database build \
+ && pnpm --filter @dentweb/api build \
  && pnpm deploy --filter @dentweb/api --prod --legacy /out \
  && cp -r apps/api/dist /out/dist \
  && mkdir -p /out/db && cp -r packages/database/migrations /out/db/migrations

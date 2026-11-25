@@ -1,14 +1,15 @@
 import clsx from 'clsx';
 import { Component, type ButtonHTMLAttributes, type ErrorInfo, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 import { BridgeError } from '../bridge';
+import logoSvg from '../assets/logo.svg';
 
 export const errMsg = (e: unknown) => (e instanceof BridgeError ? e.message : (e as Error)?.message ?? 'Gagal');
 
 export function Mark({ className }: { className?: string }) {
   return (
     <div className={clsx('inline-flex items-center gap-2.5 font-display font-medium tracking-tight', className)}>
-      <span aria-hidden className="grid size-7 place-items-center rounded-lg bg-text shadow-sm">
-        <span className="size-2.5 rounded-full bg-accent" />
+      <span aria-hidden className="grid size-8 place-items-center rounded-xl bg-[#10131F] p-1 shadow-sm ring-1 ring-white/10">
+        <img src={logoSvg} alt="" className="size-full object-contain" />
       </span>
       <div className="flex flex-col leading-none">
         <span className="text-sm font-semibold tracking-[-0.02em] text-text">
@@ -69,7 +70,7 @@ export function Card({
     <section
       onClick={onClick}
       className={clsx(
-        'rounded-card border border-line bg-surface p-5 shadow-xs transition-[border-color,background-color] duration-150',
+        'min-w-0 rounded-card border border-line bg-surface p-5 shadow-xs transition-[border-color,background-color] duration-150',
         className
       )}
     >

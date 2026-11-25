@@ -8,6 +8,7 @@ import { DB, ENV } from '../../infra/tokens.js';
 import type { Env } from '../../config/env.js';
 import { AuditService } from '../../infra/infra.module.js';
 import { SettingsService } from '../../infra/settings.service.js';
+import { NotificationService } from '../../infra/notifications.service.js';
 import { Errors } from '../../infra/errors.js';
 import { sha256 } from '../../infra/crypto.js';
 
@@ -23,6 +24,7 @@ export class LicenseService implements OnModuleInit {
     @Inject(ENV) private readonly env: Env,
     private readonly audit: AuditService,
     private readonly settings: SettingsService,
+    private readonly notifications: NotificationService,
   ) {}
 
   async onModuleInit() {
@@ -49,9 +51,11 @@ export class LicenseService implements OnModuleInit {
     const activeDevices = lic
       ? (await this.db.select({ n: count() }).from(licenseActivations).where(and(eq(licenseActivations.licenseId, lic.id), isNull(licenseActivations.revokedAt))))[0]!.n
       : 0;
+    const isExpired = !lic && latest && latest.status === 'ACTIVE' && !!latest.validUntil && latest.validUntil <= new Date();
+    const resolvedStatus = lic ? 'ACTIVE' : isExpired ? 'EXPIRED' : (latest?.status ?? 'NONE');
     return {
-      status: lic ? 'ACTIVE' : (latest?.status ?? 'NONE'),
-      license: lic ?? latest ?? null,
+      status: resolvedStatus,
+      license: lic ?? (latest ? { ...latest, status: resolvedStatus } : null),
       activeDevices,
       entitlements: lic?.entitlements ?? NO_ENTITLEMENTS,
       nonCommercial: true,
@@ -61,7 +65,26 @@ export class LicenseService implements OnModuleInit {
   async grant(actorId: string, input: LicenseGrantInput, ip?: string) {
     const [u] = await this.db.select({ id: users.id }).from(users).where(and(eq(users.id, input.userId), isNull(users.deletedAt)));
     if (!u) throw Errors.notFound('Member');
+    const defaultMaxDevices = await this.settings.num('license.defaultMaxDevices', 2);
+    const maxDevices = input.maxDevices ?? defaultMaxDevices;
     const lic = await this.db.transaction(async (tx) => {
+      // Find active license(s) to migrate active desktop device activations seamlessly.
+      const prevLics = await tx
+        .select({ id: licenses.id })
+        .from(licenses)
+        .where(and(eq(licenses.userId, input.userId), eq(licenses.status, 'ACTIVE')));
+      const prevIds = prevLics.map((p) => p.id);
+      const prevDeviceIds: string[] = [];
+      for (const pid of prevIds) {
+        const acts = await tx
+          .select({ deviceId: licenseActivations.deviceId })
+          .from(licenseActivations)
+          .where(and(eq(licenseActivations.licenseId, pid), isNull(licenseActivations.revokedAt)));
+        for (const a of acts) {
+          if (!prevDeviceIds.includes(a.deviceId)) prevDeviceIds.push(a.deviceId);
+        }
+      }
+
       // One active license per member: supersede previous.
       await tx
         .update(licenses)
@@ -72,14 +95,23 @@ export class LicenseService implements OnModuleInit {
         .values({
           userId: input.userId,
           status: 'ACTIVE',
-          maxDevices: input.maxDevices,
+          maxDevices,
           entitlements: input.entitlements,
           validUntil: input.validUntil ? new Date(input.validUntil) : null,
         })
         .returning();
+
+      // Re-attach previously active devices up to the new maxDevices limit.
+      for (const devId of prevDeviceIds.slice(0, maxDevices)) {
+        await tx
+          .insert(licenseActivations)
+          .values({ licenseId: l!.id, deviceId: devId })
+          .onConflictDoNothing();
+      }
       return l!;
     });
-    await this.audit.log({ actorId, action: 'license.grant', targetType: 'license', targetId: lic.id, metadata: { userId: input.userId, maxDevices: input.maxDevices }, ip });
+    await this.audit.log({ actorId, action: 'license.grant', targetType: 'license', targetId: lic.id, metadata: { userId: input.userId, maxDevices }, ip });
+    await this.notifications.notify(input.userId, 'license.granted', { licenseId: lic.id, maxDevices }).catch(() => undefined);
     return lic;
   }
 
@@ -92,6 +124,7 @@ export class LicenseService implements OnModuleInit {
     if (!l) throw Errors.notFound('Lisensi aktif');
     await this.db.update(licenseActivations).set({ revokedAt: new Date() }).where(and(eq(licenseActivations.licenseId, l.id), isNull(licenseActivations.revokedAt)));
     await this.audit.log({ actorId, action: 'license.revoke', targetType: 'license', targetId: l.id, metadata: { userId: l.userId }, ip });
+    await this.notifications.notify(l.userId, 'license.revoked', { licenseId: l.id }).catch(() => undefined);
     return l;
   }
 

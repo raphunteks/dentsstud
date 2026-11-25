@@ -45,6 +45,8 @@ describe('Upstash Redis & Scheduler Optimization', () => {
       const fakeDb = {} as any;
       const fakeEngine = {} as any;
       const fakeSvc = {} as any;
+      const fakeSettings = { flag: vi.fn().mockResolvedValue(true) } as any;
+      const fakeNotifications = { notify: vi.fn().mockResolvedValue({}) } as any;
 
       const worker = new ProductionWorker(
         fakeEnv,
@@ -52,6 +54,8 @@ describe('Upstash Redis & Scheduler Optimization', () => {
         fakeQueueService,
         fakeEngine,
         fakeSvc,
+        fakeSettings,
+        fakeNotifications,
       );
 
       await worker.onModuleInit();

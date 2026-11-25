@@ -13,7 +13,7 @@ export type UpdateState =
 let current: UpdateState = { state: 'idle' };
 const emit = (s: UpdateState) => {
   current = s;
-  BrowserWindow.getAllWindows().forEach((w) => w.webContents.send('dentweb:event', { channel: 'update:state', data: s }));
+  BrowserWindow.getAllWindows().forEach((w) => w.webContents.send('dentsweb:event', { channel: 'update:state', data: s }));
 };
 
 const newer = (a: string, b: string) => {
@@ -52,10 +52,12 @@ export async function checkForUpdates(): Promise<UpdateState> {
       return current;
     }
     emit({ state: 'checking' });
-    const res = await fetch(`${apiBase}/api/v1/releases/latest?platform=darwin&arch=${process.arch}`, { signal: AbortSignal.timeout(15_000) });
+    const res = await fetch(`${apiBase}/api/v1/releases/latest?platform=${process.platform}&arch=${process.arch}`, { signal: AbortSignal.timeout(15_000) });
     const r = res.ok ? ((await res.json()) as { version: string; releaseNotes: string | null; downloadUrl: string } | null) : null;
-    if (r && newer(r.version, app.getVersion())) emit({ state: 'available', version: r.version, notes: r.releaseNotes, mode: 'download', downloadUrl: `${apiBase}${r.downloadUrl}` });
-    else emit({ state: 'none' });
+    if (r && newer(r.version, app.getVersion())) {
+      const dl = r.downloadUrl.startsWith('http') ? r.downloadUrl : `${apiBase}${r.downloadUrl}`;
+      emit({ state: 'available', version: r.version, notes: r.releaseNotes, mode: 'download', downloadUrl: dl });
+    } else emit({ state: 'none' });
   } catch (e) {
     emit({ state: 'error', message: (e as Error).message.slice(0, 300) });
   }

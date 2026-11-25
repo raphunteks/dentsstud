@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, asc, eq, sql, type SQL } from 'drizzle-orm';
-import { type Database, memberTtsAccounts, memberVoicePreferences, secretVault, ttsProviderConfigs, voiceProfiles, voiceSamples } from '@dentweb/database';
+import { type Database, memberTtsAccounts, memberVoicePreferences, secretVault, systemSettings, ttsProviderConfigs, users, voiceProfiles, voiceSamples } from '@dentweb/database';
 import type { TtsProvider } from '@dentweb/content-schema';
 import { DB } from '../../infra/tokens.js';
 import { AuditService } from '../../infra/infra.module.js';
@@ -204,19 +204,43 @@ export class VoicesService {
     });
   }
 
-  private async memberCreds(userId: string, provider: string): Promise<Credentials> {
-    const [a] = await this.db.select().from(memberTtsAccounts).where(and(eq(memberTtsAccounts.userId, userId), eq(memberTtsAccounts.provider, provider)));
-    const apiKey = a?.credentialRef ? await this.getSecret(userId, `tts:${provider}`, a.credentialRef) : undefined;
-    const baseUrl = (a?.config as { baseUrl?: string })?.baseUrl;
-    if (apiKey || baseUrl) {
-      return { apiKey, baseUrl };
+  private applyDictionary(text: string, dictionary?: Record<string, string> | null): string {
+    if (!dictionary || Object.keys(dictionary).length === 0) return text;
+    let out = text;
+    const entries = Object.entries(dictionary)
+      .filter(([k, v]) => k.trim() && v.trim())
+      .sort((a, b) => b[0].length - a[0].length);
+    for (const [term, replacement] of entries) {
+      const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      out = out.replace(new RegExp(`\\b${escaped}\\b`, 'gi'), replacement);
     }
-    // Fallback to global provider config if enabled (e.g. for server-managed VoiceStudio / cadangan engine)
-    const [c] = await this.db.select().from(ttsProviderConfigs).where(eq(ttsProviderConfigs.provider, provider));
-    if (c?.isEnabled) {
-      const cfg = c.config as { baseUrl?: string };
-      const globalKey = c.secretRef ? await this.getSecret(null, `tts:${provider}`, c.secretRef) : undefined;
-      return { apiKey: globalKey, baseUrl: cfg.baseUrl };
+    return out;
+  }
+
+  private async getUserDictionary(userId?: string): Promise<Record<string, string>> {
+    if (!userId) return {};
+    const [row] = await this.db.select().from(systemSettings).where(eq(systemSettings.key, `voice.dict.${userId}`));
+    if (!row?.value || typeof row.value !== 'object' || Array.isArray(row.value)) return {};
+    return row.value as Record<string, string>;
+  }
+
+  private async memberCreds(userId: string | undefined, provider: string, isSuperadmin = false): Promise<Credentials> {
+    if (userId) {
+      const [a] = await this.db.select().from(memberTtsAccounts).where(and(eq(memberTtsAccounts.userId, userId), eq(memberTtsAccounts.provider, provider)));
+      const apiKey = a?.credentialRef ? await this.getSecret(userId, `tts:${provider}`, a.credentialRef) : undefined;
+      const baseUrl = (a?.config as { baseUrl?: string })?.baseUrl;
+      if (apiKey || baseUrl) {
+        return { apiKey, baseUrl };
+      }
+    }
+    // Only fall back to global server config for 'cadangan' (free VoiceStudio) or SUPERADMIN; never expose paid Gemini/ElevenLabs keys unauthenticated.
+    if (provider === 'cadangan' || isSuperadmin) {
+      const [c] = await this.db.select().from(ttsProviderConfigs).where(eq(ttsProviderConfigs.provider, provider));
+      if (c?.isEnabled) {
+        const cfg = c.config as { baseUrl?: string };
+        const globalKey = c.secretRef ? await this.getSecret(null, `tts:${provider}`, c.secretRef) : undefined;
+        return { apiKey: globalKey, baseUrl: cfg.baseUrl };
+      }
     }
     return {};
   }
@@ -248,32 +272,46 @@ export class VoicesService {
     return { ok: true };
   }
 
-  /** Member "Coba Suara": real synthesis with the member's own provider account. */
-  async memberPreview(userId: string, id: string, i: { text?: string; emotion?: string | null; speed?: number; pitch?: number | null; instructions?: string | null }) {
+  /** Member "Coba Suara": real synthesis with the member's own provider account or VoiceStudio server fallback. */
+  async memberPreview(
+    userId: string | undefined,
+    id: string,
+    i: { text?: string; emotion?: string | null; speed?: number; pitch?: number | null; instructions?: string | null; dictionary?: Record<string, string> },
+    isSuperadmin = false,
+  ) {
     const v = await this.get(id, true);
     const a = this.adapter(v.provider);
     const caps = a.capabilities;
     if ((i.pitch && !caps.pitch) || (i.emotion && !caps.emotion) || (i.instructions && !caps.instructions)) {
       throw Errors.invalid('TTS_CAPABILITY', 'Pengaturan ini tidak didukung provider suara tersebut');
     }
-    const creds = await this.memberCreds(userId, v.provider);
+    const creds = await this.memberCreds(userId, v.provider, isSuperadmin);
     if (!creds.apiKey && !creds.baseUrl) throw Errors.invalid('TTS_ACCOUNT_MISSING', 'Atur akun suara Anda di Pengaturan → Akun Suara');
     const sc = v.synthesisConfig as { model?: string; stability?: number; similarityBoost?: number };
-    const r = await a.synthesize(creds, { text: i.text ?? SAMPLE_TEXT, voiceId: v.providerVoiceId ?? '', emotion: i.emotion, speed: i.speed, pitch: i.pitch, instructions: i.instructions, model: sc.model, stability: sc.stability, similarityBoost: sc.similarityBoost });
+    const dict = i.dictionary ?? (await this.getUserDictionary(userId));
+    const finalText = this.applyDictionary(i.text ?? SAMPLE_TEXT, dict);
+    const r = await a.synthesize(creds, { text: finalText, voiceId: v.providerVoiceId ?? '', emotion: i.emotion, speed: i.speed, pitch: i.pitch, instructions: i.instructions, model: sc.model, stability: sc.stability, similarityBoost: sc.similarityBoost });
     if (!r.ok) throw Errors.unavailable('TTS_PREVIEW_FAILED', r.error);
-    const asset = await this.media.ingestBuffer(userId, r.audio, `preview-${v.slug}.${r.ext}`, r.mime, { voiceId: id, kind: 'voice-preview' });
+    let ownerId = userId;
+    if (!ownerId) {
+      const [sa] = await this.db.select({ id: users.id }).from(users).where(eq(users.role, 'SUPERADMIN')).limit(1);
+      ownerId = sa?.id;
+    }
+    const asset = await this.media.ingestBuffer(ownerId!, r.audio, `preview-${v.slug}.${r.ext}`, r.mime, { voiceId: id, kind: 'voice-preview' });
     return { audioUrl: await this.media.url(asset.id), mime: r.mime };
   }
 
-  /** Narration for production: member's own account, published voice only. */
+  /** Narration for production: member's own account (or global VoiceStudio for cadangan), published voice only. */
   async synthForMember(userId: string, voiceId: string, text: string, cfg: { emotion?: string | null; speed?: number; pitch?: number | null; instructions?: string | null }) {
     const v = await this.get(voiceId, true);
     const a = this.adapter(v.provider);
     const creds = await this.memberCreds(userId, v.provider);
     if (!creds.apiKey && !creds.baseUrl) throw Errors.invalid('TTS_ACCOUNT_MISSING', `Akun suara ${v.provider} belum diatur`);
     const sc = v.synthesisConfig as { model?: string; stability?: number; similarityBoost?: number };
+    const dict = await this.getUserDictionary(userId);
+    const finalText = this.applyDictionary(text, dict);
     const r = await a.synthesize(creds, {
-      text, voiceId: v.providerVoiceId ?? '', model: sc.model, stability: sc.stability, similarityBoost: sc.similarityBoost,
+      text: finalText, voiceId: v.providerVoiceId ?? '', model: sc.model, stability: sc.stability, similarityBoost: sc.similarityBoost,
       emotion: a.capabilities.emotion ? cfg.emotion : null, speed: a.capabilities.speed ? cfg.speed : 1, pitch: a.capabilities.pitch ? cfg.pitch : null, instructions: a.capabilities.instructions ? cfg.instructions : null,
     });
     if (!r.ok) throw Errors.unavailable('TTS_FAILED', r.error);
@@ -282,12 +320,13 @@ export class VoicesService {
 
   async getPreference(userId: string) {
     const [p] = await this.db.select().from(memberVoicePreferences).where(eq(memberVoicePreferences.userId, userId));
-    if (!p) return { voiceId: null, emotion: null, speed: 1, pitch: null, instructions: null, voice: null, voiceActive: false };
+    const dictionary = await this.getUserDictionary(userId);
+    if (!p) return { voiceId: null, emotion: null, speed: 1, pitch: null, instructions: null, voice: null, voiceActive: false, dictionary };
     const voice = p.voiceId ? (await this.db.select().from(voiceProfiles).where(eq(voiceProfiles.id, p.voiceId)))[0] : undefined;
-    return { ...p, voice: voice ? { id: voice.id, name: voice.name, provider: voice.provider } : null, voiceActive: voice?.status === 'PUBLISHED' };
+    return { ...p, voice: voice ? { id: voice.id, name: voice.name, provider: voice.provider } : null, voiceActive: voice?.status === 'PUBLISHED', dictionary };
   }
 
-  async putPreference(userId: string, i: { voiceId: string | null; emotion?: string | null; speed: number; pitch?: number | null; instructions?: string | null }) {
+  async putPreference(userId: string, i: { voiceId: string | null; emotion?: string | null; speed: number; pitch?: number | null; instructions?: string | null; dictionary?: Record<string, string> }) {
     if (i.voiceId) {
       const v = await this.get(i.voiceId, true);
       const caps = this.adapter(v.provider).capabilities;
@@ -295,6 +334,12 @@ export class VoicesService {
     }
     const values = { voiceId: i.voiceId, emotion: i.emotion ?? null, speed: i.speed, pitch: i.pitch ?? null, instructions: i.instructions ?? null };
     await this.db.insert(memberVoicePreferences).values({ userId, ...values }).onConflictDoUpdate({ target: memberVoicePreferences.userId, set: values });
+    if (i.dictionary !== undefined) {
+      await this.db
+        .insert(systemSettings)
+        .values({ key: `voice.dict.${userId}`, value: i.dictionary, updatedBy: userId })
+        .onConflictDoUpdate({ target: systemSettings.key, set: { value: i.dictionary, updatedBy: userId, updatedAt: new Date() } });
+    }
     return this.getPreference(userId);
   }
 

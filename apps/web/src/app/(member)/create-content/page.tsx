@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import clsx from 'clsx';
@@ -90,8 +90,11 @@ function Stepper({ value, min, max, onChange, label }: { value: number; min: num
   );
 }
 
-export default function CreateContentPage() {
+function CreateContentInner() {
   const router = useRouter();
+  const sp = useSearchParams();
+  const qPreset = sp.get('preset');
+  const qVoice = sp.get('voice');
   const ready = useQuery({ queryKey: ['production-readiness'], queryFn: () => api<Ready>('/production/readiness') });
   const voices = useQuery({ queryKey: ['voices-all'], queryFn: () => api<Voice[]>('/voices') });
   const presets = useQuery({ queryKey: ['presets-all'], queryFn: () => api<{ items: Preset[] }>('/styles/presets?limit=100') });
@@ -106,7 +109,7 @@ export default function CreateContentPage() {
   const [voiceMode, setVoiceMode] = useState<VoiceMode>('NONE');
   const [voiceId, setVoiceId] = useState<string>('');
   const [upload, setUpload] = useState<Media | null>(null);
-  const [presetId, setPresetId] = useState<string>('');
+  const [presetId, setPresetId] = useState<string>(qPreset ?? '');
   const [refs, setRefs] = useState<Media[]>([]);
   const [hookMode, setHookMode] = useState<HookMode>('AUTO');
   const [hookId, setHookId] = useState('');
@@ -117,14 +120,26 @@ export default function CreateContentPage() {
   const r = ready.data;
   const usableVoices = useMemo(() => (voices.data ?? []).filter((v) => r?.ttsAccounts.includes(v.provider)), [voices.data, r]);
   const ttsAvailable = usableVoices.length > 0;
-  // Default to the member's saved voice once data arrives (only if usable).
+  // Pre-select preset from query param if present
+  useEffect(() => {
+    if (qPreset && presets.data?.items.some((p) => p.id === qPreset)) setPresetId(qPreset);
+  }, [qPreset, presets.data]);
+  // Default to ?voice= query param or member's saved voice once data arrives (only if usable).
   const prefApplied = useRef(false);
   useEffect(() => {
-    if (prefApplied.current || !pref.data?.voiceId || !usableVoices.some((v) => v.id === pref.data!.voiceId)) return;
-    prefApplied.current = true;
-    setVoiceId(pref.data.voiceId);
-    setVoiceMode('TTS');
-  }, [pref.data, usableVoices]);
+    if (prefApplied.current || !usableVoices.length) return;
+    if (qVoice && usableVoices.some((v) => v.id === qVoice)) {
+      prefApplied.current = true;
+      setVoiceId(qVoice);
+      setVoiceMode('TTS');
+      return;
+    }
+    if (pref.data?.voiceId && usableVoices.some((v) => v.id === pref.data!.voiceId)) {
+      prefApplied.current = true;
+      setVoiceId(pref.data.voiceId);
+      setVoiceMode('TTS');
+    }
+  }, [qVoice, pref.data, usableVoices]);
   const lines = topic.split('\n').map((l) => l.trim()).filter((l) => l.length >= 2);
   const effQty = topicMode === 'PERSIS' ? Math.max(1, lines.length) : quantity;
   const maxWorkers = Math.max(1, r?.entitlements.maxWorkers ?? 1);
@@ -132,7 +147,7 @@ export default function CreateContentPage() {
 
   const blockers: string[] = [];
   if (r && r.license !== 'ACTIVE') blockers.push('Lisensi belum aktif');
-  if (r && !r.claudeApiKey) blockers.push('Claude belum terhubung lewat API key');
+  if (r && !r.claudeApiKey) blockers.push('Claude belum terhubung (API key / OAuth PKCE)');
   if (r && !r.entitlements.cloudRender) blockers.push('Lisensi tidak mencakup render cloud');
   if (r && effQty > remaining) blockers.push(`Kuota hari ini tersisa ${remaining} video`);
   if (topicMode !== 'BEBAS' && lines.length === 0) blockers.push('Isi tema atau topik');
@@ -205,7 +220,7 @@ export default function CreateContentPage() {
       <PageHead eyebrow="Produksi" title="Buat Konten" />
       {r && !r.claudeApiKey && (
         <Card className="mb-6 flex flex-wrap items-center justify-between gap-3 border-warn/40 px-5 py-4">
-          <p className="text-sm">Produksi otomatis berjalan di server dan memakai API key Anthropic milik Anda.</p>
+          <p className="text-sm">Produksi otomatis berjalan di server menggunakan koneksi Claude Anda (OAuth PKCE / API key) atau fallback Superadmin jika diaktifkan.</p>
           <Link href="/settings/claude" className="inline-flex h-10 items-center rounded-[10px] bg-accent px-4 text-sm font-medium text-accent-contrast">Hubungkan Claude</Link>
         </Card>
       )}
@@ -354,5 +369,13 @@ export default function CreateContentPage() {
         </aside>
       </div>
     </>
+  );
+}
+
+export default function CreateContentPage() {
+  return (
+    <Suspense fallback={<Skeleton className="h-96 rounded-card" />}>
+      <CreateContentInner />
+    </Suspense>
   );
 }

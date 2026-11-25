@@ -1,337 +1,172 @@
 'use client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { api, ApiError } from '@/lib/api';
+import { api } from '@/lib/api';
 import { Button, Card, ErrorNote, Field, Input, PageHead, Skeleton, Status } from '@/components/ui';
+import { MultiProviderPanel, type AiProviderInfo } from '@/components/ai/multi-provider-panel';
 
-interface Provider {
-  code: string;
-  name: string;
-  kind: string;
-  notes: string | null;
-  methods: { method: string; available: boolean; reason: string | null }[];
+interface OAuthClientCfg {
+  clientId: string;
+  hasSecret: boolean;
+  redirectUri: string;
+  configured: boolean;
+}
+interface OAuthClientsRes {
+  gemini: OAuthClientCfg;
+  openai: OAuthClientCfg;
 }
 
-interface Conn {
-  id: string;
-  provider: string;
-  method: string;
-  status: string;
-  credentialHint: string | null;
-  lastError: string | null;
-  lastCheckedAt: string | null;
-  capabilities: { models?: string[]; defaultModel?: string; version?: string };
+function OAuthClientsCard() {
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const q = useQuery({ queryKey: ['admin-oauth-clients'], queryFn: () => api<OAuthClientsRes>('/admin/ai/oauth-clients') });
+  const [gId, setGId] = useState('');
+  const [gSec, setGSec] = useState('');
+  const [gRedir, setGRedir] = useState('');
+  const [oId, setOId] = useState('');
+  const [oSec, setOSec] = useState('');
+  const [oRedir, setORedir] = useState('');
+
+  useEffect(() => {
+    if (!q.data) return;
+    setGId(q.data.gemini.clientId);
+    setGRedir(q.data.gemini.redirectUri);
+    setOId(q.data.openai.clientId);
+    setORedir(q.data.openai.redirectUri);
+  }, [q.data]);
+
+  const save = useMutation({
+    mutationFn: () =>
+      api<OAuthClientsRes>('/admin/ai/oauth-clients', {
+        method: 'PATCH',
+        json: {
+          gemini: { clientId: gId, ...(gSec.trim() ? { clientSecret: gSec } : {}), redirectUri: gRedir },
+          openai: { clientId: oId, ...(oSec.trim() ? { clientSecret: oSec } : {}), redirectUri: oRedir },
+        },
+      }),
+    onSuccess: () => {
+      toast.success('Konfigurasi OAuth Client disimpan (aktif instan tanpa restart)');
+      setGSec('');
+      setOSec('');
+      qc.invalidateQueries({ queryKey: ['admin-oauth-clients'] });
+      qc.invalidateQueries({ queryKey: ['ai-providers'] });
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+
+  return (
+    <Card className="p-5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 className="font-display text-base font-medium">Konfigurasi OAuth Client (Google / OpenAI)</h2>
+          <p className="mt-0.5 text-xs text-muted">
+            Simpan Client ID &amp; Secret resmi Anda agar tombol OAuth PKCE aktif secara dinamis untuk seluruh member.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {q.data && (
+            <>
+              <Status value={q.data.gemini.configured ? 'ok' : 'warn'} label={q.data.gemini.configured ? 'Google OK' : 'Google Off'} />
+              <Status value={q.data.openai.configured ? 'ok' : 'warn'} label={q.data.openai.configured ? 'OpenAI OK' : 'OpenAI Off'} />
+            </>
+          )}
+          <Button variant="ghost" className="h-9 text-xs" onClick={() => setOpen((v) => !v)}>
+            {open ? 'Tutup' : 'Atur OAuth Client'}
+          </Button>
+        </div>
+      </div>
+
+      {open && (
+        <form
+          className="mt-4 grid gap-4 border-t border-line pt-4 md:grid-cols-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            save.mutate();
+          }}
+        >
+          <div className="grid gap-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted">Google Cloud OAuth (Gemini)</p>
+            <Field id="g-cid" label="Google Client ID">
+              <Input id="g-cid" value={gId} onChange={(e) => setGId(e.target.value)} placeholder="xxxx.apps.googleusercontent.com" />
+            </Field>
+            <Field id="g-sec" label={q.data?.gemini.hasSecret ? 'Google Client Secret (tersimpan — isi untuk ganti)' : 'Google Client Secret'}>
+              <Input id="g-sec" type="password" value={gSec} onChange={(e) => setGSec(e.target.value)} placeholder="GOCSPX-…" />
+            </Field>
+            <Field id="g-redir" label="Redirect URI (opsional)">
+              <Input id="g-redir" value={gRedir} onChange={(e) => setGRedir(e.target.value)} placeholder="https://motion.dentsweb.my.id/callback" />
+            </Field>
+          </div>
+          <div className="grid gap-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted">OpenAI OAuth Client</p>
+            <Field id="o-cid" label="OpenAI Client ID">
+              <Input id="o-cid" value={oId} onChange={(e) => setOId(e.target.value)} placeholder="app_…" />
+            </Field>
+            <Field id="o-sec" label={q.data?.openai.hasSecret ? 'OpenAI Client Secret (tersimpan — isi untuk ganti)' : 'OpenAI Client Secret'}>
+              <Input id="o-sec" type="password" value={oSec} onChange={(e) => setOSec(e.target.value)} placeholder="Kosongkan jika PKCE public client" />
+            </Field>
+            <Field id="o-redir" label="Redirect URI (opsional)">
+              <Input id="o-redir" value={oRedir} onChange={(e) => setORedir(e.target.value)} placeholder="https://motion.dentsweb.my.id/callback" />
+            </Field>
+          </div>
+          <div className="md:col-span-2">
+            <Button type="submit" loading={save.isPending}>
+              Simpan Konfigurasi OAuth
+            </Button>
+          </div>
+        </form>
+      )}
+    </Card>
+  );
 }
 
 export default function AiProvidersPage() {
-  const qc = useQueryClient();
-  const q = useQuery({ queryKey: ['ai-providers'], queryFn: () => api<Provider[]>('/ai/providers') });
+  const q = useQuery({ queryKey: ['ai-providers'], queryFn: () => api<AiProviderInfo[]>('/ai/providers') });
   const d = useQuery({ queryKey: ['admin-dash'], queryFn: () => api<{ aiProviderHealth: Record<string, number> }>('/admin/dashboard') });
-  const conns = useQuery({ queryKey: ['ai-connections'], queryFn: () => api<Conn[]>('/ai/connections') });
-
-  const [testResult, setTestResult] = useState<string | null>(null);
-  const [apiKey, setApiKey] = useState('');
-  const [keyError, setKeyError] = useState<string | null>(null);
-  const [manualCode, setManualCode] = useState('');
-  const [manualError, setManualError] = useState<string>();
-
-  const exchangeManual = useMutation({
-    mutationFn: async () => {
-      const input = manualCode.trim();
-      if (input.startsWith('sk-ant-')) {
-        return api<{ connection: Conn }>('/ai/connections/start', {
-          method: 'POST',
-          json: { provider: 'anthropic', method: 'API_KEY', apiKey: input },
-        });
-      }
-      let code = input;
-      let state = '';
-      if (input.includes('://') || input.includes('callback?') || input.includes('code=') || input.includes('#')) {
-        try {
-          const urlStr = input.startsWith('http')
-            ? input
-            : input.includes('?') || input.includes('#')
-              ? `http://localhost/${input.replace(/^\/+/, '')}`
-              : `http://localhost/?${input}`;
-          const url = new URL(urlStr);
-          if (url.searchParams.get('code')) {
-            code = url.searchParams.get('code')!;
-          }
-          if (url.searchParams.get('state')) {
-            state = url.searchParams.get('state')!;
-          }
-          if (url.hash) {
-            const h = url.hash.replace(/^#\/?/, '');
-            const hp = new URLSearchParams(h);
-            if (hp.get('code')) {
-              code = hp.get('code')!;
-            }
-            if (hp.get('state')) {
-              state = hp.get('state')!;
-            } else if (!state && !h.includes('=')) {
-              state = h;
-            }
-          }
-        } catch {
-          // fallback
-        }
-      }
-      if (code.includes('#')) {
-        const parts = code.split('#');
-        code = parts[0]!.trim();
-        if (!state && parts[1]) state = parts[1].trim();
-      }
-      if (!code) throw new Error('Kode otorisasi tidak ditemukan');
-      return api(`/ai/connections/callback?code=${encodeURIComponent(code)}${state ? `&state=${encodeURIComponent(state)}` : ''}`);
-    },
-    onSuccess: () => {
-      setManualCode('');
-      setManualError(undefined);
-      toast.success('Akun Claude berhasil terhubung via kode otorisasi!');
-      invalidate();
-    },
-    onError: (e) => setManualError(e instanceof ApiError ? e.message : (e as Error).message),
-  });
-
-  const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ['ai-connections'] });
-    qc.invalidateQueries({ queryKey: ['admin-dash'] });
-  };
-
-  const connectApiKey = useMutation({
-    mutationFn: () =>
-      api<{ connection: Conn }>('/ai/connections/start', {
-        method: 'POST',
-        json: { provider: 'anthropic', method: 'API_KEY', apiKey: apiKey.trim() },
-      }),
-    onSuccess: () => {
-      setApiKey('');
-      setKeyError(null);
-      toast.success('Kredensial Claude berhasil disimpan dan diverifikasi');
-      invalidate();
-    },
-    onError: (e) => setKeyError(e instanceof ApiError ? e.message : 'Gagal menyimpan'),
-  });
-
-  const connectOAuth = useMutation({
-    mutationFn: () => {
-      const isLocal = typeof window !== 'undefined' && (
-        window.location.hostname === 'localhost' ||
-        window.location.hostname === '127.0.0.1' ||
-        window.location.origin.includes('localhost')
-      );
-      return api<{ authorizeUrl: string }>('/ai/connections/start', {
-        method: 'POST',
-        json: {
-          provider: 'anthropic',
-          method: 'OAUTH_PKCE',
-          redirectUri: isLocal
-            ? 'http://localhost:3000/callback'
-            : 'https://platform.claude.com/oauth/code/callback',
-        },
-      });
-    },
-    onSuccess: (r) => {
-      window.location.href = r.authorizeUrl;
-    },
-    onError: (e) => toast.error((e as Error).message),
-  });
-
-  const testConn = useMutation({
-    mutationFn: (id: string) => api<{ answer: string; model: string; latencyMs: number }>(`/ai/connections/${id}/test`, { method: 'POST', json: {} }),
-    onSuccess: (r) => {
-      setTestResult(`[${r.model} - ${r.latencyMs}ms]: ${r.answer}`);
-      toast.success('Koneksi Claude berhasil diuji!');
-    },
-    onError: (e) => {
-      toast.error((e as Error).message);
-      invalidate();
-    },
-  });
-
-  const removeConn = useMutation({
-    mutationFn: (id: string) => api(`/ai/connections/${id}`, { method: 'DELETE' }),
-    onSuccess: () => {
-      toast.success('Koneksi Claude diputuskan');
-      invalidate();
-    },
-    onError: (e) => toast.error((e as Error).message),
-  });
-
-  const claudeConn = conns.data?.find((c) => c.provider === 'anthropic' || c.provider === 'claude');
 
   return (
     <div className="grid gap-6">
-      <PageHead eyebrow="06 · AI provider center" title="Provider Registry & Koneksi OAuth" />
+      <PageHead eyebrow="06 · AI provider center" title="Multi-Provider AI & Auto-Fallback" />
+      <MultiProviderPanel isAdmin />
+      <OAuthClientsCard />
 
-      {/* SUPERADMIN CLAUDE OAUTH INTEGRATION CARD */}
-      <Card className="border border-primary/20 bg-primary/5 p-6 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white shadow">
-              <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold">Integrasi Claude AI (Akun Superadmin)</h2>
-              <p className="text-sm text-muted">Hubungkan Claude via OAuth PKCE (9Router) untuk alur kerja agentik dan sintesis naskah studio.</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            {claudeConn ? (
-              <Status value={claudeConn.status} label={claudeConn.status} />
-            ) : (
-              <span className="rounded-full bg-surface-2 px-3 py-1 text-xs text-muted">Belum Terhubung</span>
-            )}
-            <Button onClick={() => connectOAuth.mutate()} loading={connectOAuth.isPending} className="h-10">
-              <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-              </svg>
-              {claudeConn ? 'Sambung Ulang OAuth' : 'Connect Claude via OAuth'}
-            </Button>
-            {claudeConn && (
-              <>
-                <Button variant="ghost" onClick={() => testConn.mutate(claudeConn.id)} loading={testConn.isPending} className="h-10">
-                  Uji Model
-                </Button>
-                <Button variant="ghost" onClick={() => removeConn.mutate(claudeConn.id)} loading={removeConn.isPending} className="h-10 text-bad hover:bg-bad/10">
-                  Putus
-                </Button>
-              </>
-            )}
-          </div>
+      <div className="grid gap-4">
+        <h2 className="font-display text-xl font-medium">Provider Registry &amp; Status Global</h2>
+        {q.isError && <ErrorNote error={q.error} onRetry={() => q.refetch()} />}
+        {q.isLoading && <Skeleton className="h-40 rounded-card" />}
+        <div className="grid gap-3 md:grid-cols-2">
+          {q.data?.map((p) => (
+            <Card key={p.code} className="p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-display text-base font-medium">{p.name}</h3>
+                <span className="font-mono text-xs text-muted">
+                  {p.code} · {p.kind}
+                </span>
+              </div>
+              {p.notes && <p className="mt-1.5 text-xs text-muted">{p.notes}</p>}
+              <ul className="mt-3 grid gap-2 text-xs">
+                {p.methods.map((m) => (
+                  <li key={m.method} className="flex items-center justify-between rounded-lg border border-line px-3 py-2">
+                    <span className="font-mono">{m.method}</span>
+                    <Status value={m.available ? 'ok' : 'warn'} label={m.available ? 'Tersedia' : 'Perlu Config'} />
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          ))}
         </div>
 
-        {claudeConn && (
-          <div className="mt-4 rounded-lg bg-surface p-3 text-xs space-y-2.5">
-            <div className="flex flex-wrap gap-4 text-muted">
-              <span>Metode: <strong className="text-text">{claudeConn.method}</strong></span>
-              <span>Hint: <strong className="text-text">{claudeConn.credentialHint ?? 'oauth-9router'}</strong></span>
+        {d.data && (
+          <Card className="p-4">
+            <div className="flex flex-wrap items-center gap-3 text-sm">
+              <span className="text-muted">Ringkasan koneksi member:</span>
+              {Object.entries(d.data.aiProviderHealth).map(([s, n]) => (
+                <Status key={s} value={s} label={`${s} ${n}`} />
+              ))}
             </div>
-
-            <div className="pt-2 border-t border-line/50">
-              <label className="block text-[11px] font-semibold text-text mb-1.5">
-                Model AI Aktif (Claude Pro / Max / Team):
-              </label>
-              <div className="flex flex-wrap items-center gap-2">
-                <select
-                  value={claudeConn.capabilities?.defaultModel ?? 'claude-3-7-sonnet-20250219'}
-                  onChange={async (e) => {
-                    const newModel = e.target.value;
-                    try {
-                      await api(`/ai/connections/${claudeConn.id}/model`, { method: 'POST', json: { model: newModel } });
-                      qc.invalidateQueries({ queryKey: ['admin-ai-connections'] });
-                    } catch (err: any) {
-                      alert('Gagal mengubah model: ' + (err?.message || 'Error'));
-                    }
-                  }}
-                  className="rounded-xl border border-line bg-surface-2 px-3 py-1.5 text-xs text-text font-medium focus:border-accent focus:outline-hidden"
-                >
-                  <option value="claude-3-7-sonnet-20250219">Claude 3.7 Sonnet (Flagship 2025 · Hybrid Extended Thinking)</option>
-                  <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet v2 (Serbaguna · Sangat Pintar)</option>
-                  <option value="claude-3-opus-20240229">Claude 3 Opus (Analisis & Penulisan Kompleks)</option>
-                  <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (Ringan · Cepat Sekali)</option>
-                </select>
-                <span className="text-[10px] text-ok font-semibold px-2 py-0.5 rounded-full bg-ok/10">Aktif</span>
-              </div>
-              <p className="text-[10px] text-muted mt-1.5 leading-relaxed">
-                *<strong>Claude 3.7 Sonnet</strong> adalah model flagship tertinggi & tercanggih dari Anthropic (Februari 2025) dengan penalaran mendalam.
-              </p>
-            </div>
-
-            {testResult && (
-              <div className="mt-2 rounded bg-surface-2 p-2 font-mono text-[11px] text-emerald-600">
-                {testResult}
-              </div>
-            )}
-          </div>
+          </Card>
         )}
-
-        <div className="mt-5 border-t border-line/60 pt-4">
-          <p className="text-xs font-medium text-muted">Fallback: Tempel Kode Otorisasi / Callback URL jika redirect otomatis terhalang:</p>
-          <form
-            className="mt-2 flex flex-wrap items-center gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!manualCode.trim()) return setManualError('Masukkan kode atau URL callback');
-              exchangeManual.mutate();
-            }}
-          >
-            <div className="min-w-[280px] flex-1">
-              <Input
-                type="text"
-                placeholder="http://localhost:3000/callback?code=... atau Kode#State"
-                value={manualCode}
-                onChange={(e) => setManualCode(e.target.value)}
-                invalid={!!manualError}
-                className="h-9 text-xs"
-              />
-            </div>
-            <Button type="submit" loading={exchangeManual.isPending} variant="ghost" className="h-9 border border-line text-xs">
-              Tukar & Hubungkan
-            </Button>
-          </form>
-          {manualError && <p className="mt-1 text-xs text-bad">{manualError}</p>}
-        </div>
-
-        <div className="mt-4 border-t border-line/60 pt-4">
-          <p className="text-xs font-medium text-muted">Atau masukkan API Key / OAuth Token (9Router) langsung:</p>
-          <form
-            className="mt-2 flex flex-wrap items-center gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (apiKey.trim().length < 20) return setKeyError('Kredensial minimal 20 karakter');
-              connectApiKey.mutate();
-            }}
-          >
-            <div className="min-w-[280px] flex-1">
-              <Input
-                type="password"
-                placeholder="sk-ant-api... atau sk-ant-oat... (OAuth 9Router)"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                invalid={!!keyError}
-                className="h-9 text-xs"
-              />
-            </div>
-            <Button type="submit" loading={connectApiKey.isPending} className="h-9 text-xs">
-              Simpan & Hubungkan
-            </Button>
-          </form>
-          {keyError && <p className="mt-1 text-xs text-bad">{keyError}</p>}
-        </div>
-      </Card>
-
-      {q.isError && <ErrorNote error={q.error} onRetry={() => q.refetch()} />}
-      {!q.data && <Skeleton className="h-40 rounded-card" />}
-      {q.data?.map((p) => (
-        <Card key={p.code} className="p-6">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="font-display text-xl font-medium">{p.name}</h2>
-            <span className="font-mono text-xs text-muted">
-              {p.code} · {p.kind}
-            </span>
-          </div>
-          {p.notes && <p className="mt-2 max-w-3xl text-sm text-muted">{p.notes}</p>}
-          <ul className="mt-5 grid gap-3 md:grid-cols-3">
-            {p.methods.map((m) => (
-              <li key={m.method} className="rounded-xl border border-line p-4 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs">{m.method}</span>
-                  <Status value={m.available ? 'ok' : 'bad'} label={m.available ? 'available' : 'UNSUPPORTED'} />
-                </div>
-                {m.reason && <p className="mt-2 text-muted">{m.reason}</p>}
-              </li>
-            ))}
-          </ul>
-          <div className="mt-5 flex flex-wrap gap-3 text-sm">
-            <span className="text-muted">Koneksi member:</span>
-            {d.data && Object.entries(d.data.aiProviderHealth).map(([s, n]) => <Status key={s} value={s} label={`${s} ${n}`} />)}
-          </div>
-        </Card>
-      ))}
+      </div>
     </div>
   );
 }

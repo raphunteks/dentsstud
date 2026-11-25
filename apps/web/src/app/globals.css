@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 @import '@fontsource-variable/chivo';
 @import '@fontsource/chivo-mono/400.css';
 @import '@fontsource/chivo-mono/500.css';
@@ -119,6 +120,9 @@ h1.font-display { letter-spacing: -0.035em; }
   :root:not([data-theme='light']) .lit {
     background: radial-gradient(70% 60% at 18% 10%, color-mix(in oklch, var(--surface-2) 70%, var(--accent) 12%), transparent 70%), var(--surface);
   }
+}
+[data-theme='dark'] .lit {
+  background: radial-gradient(70% 60% at 18% 10%, color-mix(in oklch, var(--surface-2) 70%, var(--accent) 12%), transparent 70%), var(--surface);
 }
 /* Auth aside: tracks enter once, left to right (transform + opacity only). */
 @keyframes track-in { from { transform: scaleX(0); opacity: 0; } to { transform: scaleX(1); opacity: 1; } }

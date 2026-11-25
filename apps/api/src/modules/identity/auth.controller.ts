@@ -4,8 +4,27 @@ import { Throttle } from '@nestjs/throttler';
 import type { Response, CookieOptions } from 'express';
 import { and, eq, isNull } from 'drizzle-orm';
 import { Inject } from '@nestjs/common';
+import { z } from 'zod';
 import { type Database, users } from '@dentweb/database';
 import { LoginInput, OtpResendInput, OtpVerifyInput, RegisterInput, UpdateMeInput, type SessionUser } from '@dentweb/shared-types';
+
+const PasswordPolicy = z
+  .string()
+  .min(10, 'Password minimal 10 karakter')
+  .max(128)
+  .regex(/[a-zA-Z]/, 'Password harus mengandung huruf')
+  .regex(/[0-9]/, 'Password harus mengandung angka');
+
+const ForgotPasswordInput = z.object({ email: z.email().transform((v) => v.toLowerCase().trim()) });
+const ResetPasswordInput = z.object({
+  challengeId: z.uuid(),
+  code: z.string().regex(/^\d{6}$/, 'Kode OTP harus 6 digit'),
+  newPassword: PasswordPolicy,
+});
+const ChangePasswordInput = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: PasswordPolicy,
+});
 import { ApiZodBody, ZBody } from '../../common/zod.js';
 import { CurrentUser, Public, type AuthedRequest } from '../../common/auth-context.js';
 import { DB, ENV } from '../../infra/tokens.js';
@@ -96,15 +115,50 @@ export class AuthController {
     return { session: this.applySession(res, s, fromBody ? 'desktop' : 'web') };
   }
 
+  @Public()
   @HttpCode(200)
   @Post('logout')
   async logout(@Req() req: AuthedRequest, @Res({ passthrough: true }) res: Response) {
-    if (req.sessionId) await this.sessions.revoke(req.sessionId);
-    await this.audit.log({ actorId: req.user!.id, action: 'auth.logout', targetType: 'session', targetId: req.sessionId, ip: req.ip });
+    if (req.sessionId) {
+      await this.sessions.revoke(req.sessionId);
+      if (req.user) {
+        await this.audit.log({ actorId: req.user.id, action: 'auth.logout', targetType: 'session', targetId: req.sessionId, ip: req.ip });
+      }
+    }
     res.clearCookie(SESSION_COOKIE, { ...this.cookieBase(), path: '/' });
     res.clearCookie(REFRESH_COOKIE, { ...this.cookieBase(), path: '/api/v1/auth' });
     res.clearCookie('dw_auth', { ...this.cookieBase(), httpOnly: false, path: '/' });
     return { ok: true };
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @HttpCode(200)
+  @Post('password/forgot')
+  @ApiZodBody(ForgotPasswordInput)
+  forgotPassword(@ZBody(ForgotPasswordInput) body: { email: string }, @Req() req: AuthedRequest) {
+    return this.auth.forgotPassword(body.email, this.meta(req));
+  }
+
+  @Public()
+  @Throttle(AUTH_LIMIT)
+  @HttpCode(200)
+  @Post('password/reset')
+  @ApiZodBody(ResetPasswordInput)
+  resetPassword(@ZBody(ResetPasswordInput) body: { challengeId: string; code: string; newPassword: string }, @Req() req: AuthedRequest) {
+    return this.auth.resetPassword(body.challengeId, body.code, body.newPassword, this.meta(req));
+  }
+
+  @Throttle(AUTH_LIMIT)
+  @HttpCode(200)
+  @Post('password/change')
+  @ApiZodBody(ChangePasswordInput)
+  changePassword(
+    @CurrentUser() user: SessionUser,
+    @ZBody(ChangePasswordInput) body: { currentPassword: string; newPassword: string },
+    @Req() req: AuthedRequest,
+  ) {
+    return this.auth.changePassword(user.id, body.currentPassword, body.newPassword, this.meta(req));
   }
 
   @Get('session')

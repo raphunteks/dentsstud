@@ -10,14 +10,23 @@ export function registerSchemePrivileges() {
   protocol.registerSchemesAsPrivileged([{ scheme: APP_SCHEME, privileges: { standard: true, secure: true, supportFetchAPI: true } }]);
 }
 
+const ALLOWED_REMOTE = [
+  'https://motion.dentsweb.my.id',
+  'https://*.dentsweb.my.id',
+  'https://*.dentsweb.studio',
+  'https://*.dentweb.studio',
+  'http://localhost:*',
+  'http://127.0.0.1:*',
+].join(' ');
+
 const CSP = [
   "default-src 'self'",
   "script-src 'self'",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  `img-src 'self' data: blob: ${ALLOWED_REMOTE}`,
   "font-src 'self' data:",
-  "connect-src 'self'",
-  "media-src 'self' blob:",
+  `connect-src 'self' ${ALLOWED_REMOTE}`,
+  `media-src 'self' blob: data: ${ALLOWED_REMOTE}`,
   "object-src 'none'",
   "base-uri 'none'",
   "frame-ancestors 'none'",

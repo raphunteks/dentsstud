@@ -8,7 +8,14 @@ if [ -f .env ]; then _keep="$(export -p)"; set -a; . ./.env; set +a; eval "$_kee
 : "${DATABASE_URL:?DATABASE_URL belum diset}"
 DIR="${1:?backup dir}"; TS="${2:?timestamp, mis. 20261116T120000Z}"
 [ "${3:-}" = "--yes" ] || { echo "Tambahkan --yes untuk konfirmasi (operasi ini menimpa data)."; exit 1; }
-( cd "$DIR" && sha256sum -c "dentweb-$TS.sha256" )
+sha256_check() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum -c "$@"
+  else
+    shasum -a 256 -c "$@"
+  fi
+}
+( cd "$DIR" && sha256_check "dentweb-$TS.sha256" )
 pg_restore --clean --if-exists --no-owner --no-privileges --dbname="$DATABASE_URL" "$DIR/dentweb-db-$TS.dump"
 echo "Database dipulihkan."
 if [ -f "$DIR/dentweb-storage-$TS.tar.gz" ]; then

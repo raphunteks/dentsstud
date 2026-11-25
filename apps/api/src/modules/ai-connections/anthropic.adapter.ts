@@ -10,12 +10,15 @@ export type ProbeResult =
 const VERSION = '2023-06-01';
 
 export const OAUTH_SUPPORTED_MODELS = [
+  'claude-sonnet-4-5-20250929',
+  'claude-sonnet-4-20250514',
+  'claude-3-7-sonnet-20250219',
+  'claude-3-5-haiku-20241022',
   'claude-haiku-4-5',
+  'claude-sonnet-4-5',
   'claude-sonnet-5-5',
   'claude-opus-5-5',
-  'claude-sonnet-4-5',
   'claude-haiku-5-5',
-  'claude-3-7-sonnet-20250219',
 ];
 
 /** Talks to the official Anthropic Messages API with the member's own API key or Claude Code OAuth token. */

@@ -23,15 +23,21 @@ const idemKey = (h: string | undefined) => {
 };
 const statuses = (s?: string) => (s ? s.split(',').map((x) => x.trim().toUpperCase()).filter(Boolean) : undefined);
 
-function stream(fetch: (after?: string) => Promise<{ createdAt: Date }[]>, state: () => Promise<{ status: string; progress: number; currentStage: string | null }>): Observable<MessageEvent> {
+function stream(fetch: (after?: string) => Promise<{ id?: string; createdAt: Date }[]>, state: () => Promise<{ status: string; progress: number; currentStage: string | null }>): Observable<MessageEvent> {
   return new Observable<MessageEvent>((sub) => {
     let after: string | undefined;
+    const seen = new Set<string>();
     let closed = false;
     const loop = async () => {
       while (!closed) {
         try {
           const evs = await fetch(after);
-          for (const e of evs) sub.next({ type: 'event', data: e });
+          for (const e of evs) {
+            const key = e.id ?? `${e.createdAt.toISOString()}`;
+            if (seen.has(key)) continue;
+            seen.add(key);
+            sub.next({ type: 'event', data: e });
+          }
           if (evs.length) after = evs[evs.length - 1]!.createdAt.toISOString();
           const s = await state();
           sub.next({ type: 'state', data: s });

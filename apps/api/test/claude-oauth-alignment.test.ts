@@ -202,6 +202,9 @@ describe('Claude OAuth PKCE Alignment & Adapter Tests', () => {
 
       const globalFetch = global.fetch;
       global.fetch = vi.fn().mockImplementation(async (url: string, init: any) => {
+        if (url.includes('/api/oauth/claude_cli/roles')) {
+          return { ok: false, status: 404, json: async () => ({}) };
+        }
         capturedHeaders = init.headers;
         return {
           ok: true,
@@ -220,7 +223,7 @@ describe('Claude OAuth PKCE Alignment & Adapter Tests', () => {
         expect(capturedHeaders['Authorization']).toBe('Bearer sk-ant-oat-0123456789abcdefghijklmnopqrstuvwxyz');
         expect(capturedHeaders['anthropic-beta']).toBe('oauth-2025-04-20,claude-code-20250219');
         expect(capturedHeaders['anthropic-dangerous-direct-browser-access']).toBe('true');
-        expect(capturedHeaders['User-Agent']).toBe('claude-cli/1.0.0 (external, sdk-cli)');
+        expect(capturedHeaders['User-Agent']).toContain('claude-code/');
         expect(capturedHeaders['X-App']).toBe('cli');
       } finally {
         global.fetch = globalFetch;
@@ -233,6 +236,9 @@ describe('Claude OAuth PKCE Alignment & Adapter Tests', () => {
 
       const globalFetch = global.fetch;
       global.fetch = vi.fn().mockImplementation(async (url: string, init: any) => {
+        if (url.includes('/api/oauth/claude_cli/roles')) {
+          return { ok: false, status: 404, json: async () => ({}) };
+        }
         capturedHeaders = init.headers;
         return {
           ok: true,
