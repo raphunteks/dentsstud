@@ -2,7 +2,8 @@
 import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Role } from '@dentweb/shared-types';
 import { api, fmtDate } from '@/lib/api';
@@ -126,9 +127,12 @@ function ThemeIcon({ dark }: { dark: boolean }) {
 function NotificationBell({ collapsed }: { collapsed?: boolean }) {
   const qc = useQueryClient();
   const router = useRouter();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [pushPerm, setPushPerm] = useState<'default' | 'granted' | 'denied' | 'unsupported'>('unsupported');
-  const popRef = useRef<HTMLDivElement>(null);
+  const [panelStyle, setPanelStyle] = useState<CSSProperties | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const seenIdsRef = useRef<Set<string>>(new Set());
 
   const q = useQuery({
@@ -205,14 +209,51 @@ function NotificationBell({ collapsed }: { collapsed?: boolean }) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications'] }),
   });
 
+  const computePos = useCallback(() => {
+    const el = btnRef.current;
+    if (!el || typeof window === 'undefined') return;
+    const rect = el.getBoundingClientRect();
+    const width = Math.min(320, window.innerWidth - 24);
+    const inBottomHalf = rect.top > window.innerHeight / 2;
+    const style: CSSProperties = { position: 'fixed', zIndex: 9999, width };
+    if (inBottomHalf) {
+      style.bottom = Math.max(12, window.innerHeight - rect.top + 8);
+      const rawLeft = collapsed ? rect.right + 8 : rect.left;
+      style.left = Math.max(12, Math.min(rawLeft, window.innerWidth - width - 12));
+    } else {
+      style.top = Math.min(rect.bottom + 8, window.innerHeight - 120);
+      style.right = Math.max(12, window.innerWidth - rect.right);
+    }
+    setPanelStyle(style);
+  }, [collapsed]);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
   useEffect(() => {
     if (!open) return;
+    computePos();
     const onDocClick = (e: MouseEvent) => {
-      if (popRef.current && !popRef.current.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      if (btnRef.current?.contains(target) || panelRef.current?.contains(target)) return;
+      setOpen(false);
     };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    const onReposition = () => computePos();
     document.addEventListener('mousedown', onDocClick);
-    return () => document.removeEventListener('mousedown', onDocClick);
-  }, [open]);
+    document.addEventListener('keydown', onKey);
+    window.addEventListener('resize', onReposition);
+    window.addEventListener('scroll', onReposition, true);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+      window.removeEventListener('resize', onReposition);
+      window.removeEventListener('scroll', onReposition, true);
+    };
+  }, [open, computePos]);
 
   const items = q.data ?? [];
   const unread = items.filter((n) => !(n.isRead || n.readAt)).length;
@@ -224,11 +265,13 @@ function NotificationBell({ collapsed }: { collapsed?: boolean }) {
   };
 
   return (
-    <div ref={popRef} className="relative">
+    <div className="relative">
       <button
+        ref={btnRef}
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-label="Notifikasi"
+        aria-expanded={open}
         title="Notifikasi"
         className="relative rounded-lg p-1.5 text-muted hover:bg-surface-2 hover:text-text transition-colors cursor-pointer"
       >
@@ -242,13 +285,13 @@ function NotificationBell({ collapsed }: { collapsed?: boolean }) {
         )}
       </button>
 
-      {open && (
-        <div
-          className={clsx(
-            'absolute z-50 w-80 max-w-[calc(100vw-32px)] rounded-2xl border border-line bg-surface p-3 shadow-xl',
-            collapsed ? 'bottom-0 left-12' : 'bottom-10 left-0',
-          )}
-        >
+      {open && panelStyle && typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            ref={panelRef}
+            style={panelStyle}
+            className="max-w-[calc(100vw-24px)] max-h-[75vh] overflow-hidden rounded-2xl border border-line bg-surface p-3 shadow-2xl"
+          >
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2">
             <span className="text-xs font-semibold text-text">Notifikasi ({unread})</span>
             <div className="flex items-center gap-2">
@@ -317,7 +360,8 @@ function NotificationBell({ collapsed }: { collapsed?: boolean }) {
               );
             })}
           </ul>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
@@ -629,12 +673,12 @@ export function AppShell({
       )}
     >
       {/* DESKTOP SIDEBAR */}
-      <aside className="sticky top-0 hidden h-dvh border-r border-line bg-surface lg:block z-30">
+      <aside className="sticky top-0 hidden h-dvh border-r border-line bg-surface lg:block z-40">
         {sidebarContent}
       </aside>
 
       {/* MOBILE BAR */}
-      <div className="flex items-center justify-between border-b border-line bg-surface px-4 py-3 lg:hidden">
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-line bg-surface px-4 py-3 lg:hidden">
         <div className="flex items-center gap-2">
           <img src="/logo.svg" alt="DENTSWEB STUDIO" className="h-8 w-8 rounded-lg object-contain" />
           <span className="font-semibold text-sm">DENTSWEB STUDIO</span>
@@ -657,7 +701,7 @@ export function AppShell({
             {mobileOpen ? 'Tutup' : 'Menu'}
           </button>
         </div>
-      </div>
+      </header>
 
       {/* MOBILE DRAWER */}
       {mobileOpen && (

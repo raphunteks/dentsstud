@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { get, invoke, mutate, setMediaBase } from './bridge';
 import { Button, Card, ErrorBoundary, Input, Mark, Pill, errMsg } from './components/UI';
 import { Icon } from './components/Icons';
@@ -194,7 +195,31 @@ function StudioShell({
   const [resultsSubTab, setResultsSubTab] = useState<'READY' | 'UPLOADED' | 'FAILED' | 'ALL' | 'TRASH'>('ALL');
   const [socialResultId, setSocialResultId] = useState<string | null>(null);
   const [notifOpen, setNotifOpen] = useState(false);
+  const bellBtnRef = useRef<HTMLButtonElement | null>(null);
+  const [notifPos, setNotifPos] = useState<{ top: number; right: number }>({ top: 52, right: 16 });
   const [updState, setUpdState] = useState<UpdateState>({ state: 'idle' });
+
+  useEffect(() => {
+    if (!notifOpen) return;
+    const syncPos = () => {
+      const rect = bellBtnRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      setNotifPos({
+        top: Math.round(rect.bottom + 8),
+        right: Math.max(12, Math.round(window.innerWidth - rect.right)),
+      });
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setNotifOpen(false);
+    };
+    syncPos();
+    window.addEventListener('resize', syncPos);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('resize', syncPos);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [notifOpen]);
 
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (typeof window !== 'undefined' && (localStorage.getItem('dentsweb-theme') as 'light' | 'dark')) || 'light';
@@ -302,7 +327,7 @@ function StudioShell({
       <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
         {/* Top Bar */}
         <header
-          className="relative flex h-11 items-center justify-between border-b border-line bg-surface/50 backdrop-blur-xs px-6 select-none shrink-0"
+          className="relative z-40 flex h-11 items-center justify-between border-b border-line bg-surface/50 backdrop-blur-xs px-6 select-none shrink-0"
           style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
         >
           <div className="flex items-center gap-2">
@@ -334,12 +359,14 @@ function StudioShell({
               </button>
             )}
 
-            {/* In-App Notifications Bell */}
+            {/* In-App Notifications Bell (Portal to document.body z-[9999]) */}
             {!offlineMode && (
               <div className="relative">
                 <button
+                  ref={bellBtnRef}
                   onClick={() => setNotifOpen((o) => !o)}
                   title="Notifikasi"
+                  aria-expanded={notifOpen}
                   className="relative rounded-lg p-1.5 hover:bg-surface-2 text-muted hover:text-text transition cursor-pointer"
                 >
                   <Icon name="bell" className="w-4 h-4" />
@@ -350,66 +377,81 @@ function StudioShell({
                   )}
                 </button>
 
-                {notifOpen && (
-                  <div className="absolute right-0 top-9 z-50 w-80 rounded-2xl border border-line bg-surface shadow-xl p-3 space-y-2">
-                    <div className="flex items-center justify-between border-b border-line pb-2">
-                      <span className="text-xs font-semibold text-text">Notifikasi ({unreadCount} baru)</span>
-                      {unreadCount > 0 && (
-                        <button
-                          onClick={() => markAllRead.mutate()}
-                          className="text-[11px] text-accent hover:underline cursor-pointer"
-                        >
-                          Tandai semua dibaca
-                        </button>
-                      )}
-                    </div>
-                    <div className="max-h-72 overflow-y-auto space-y-1.5">
-                      {notifs.length === 0 ? (
-                        <p className="py-4 text-center text-xs text-muted">Belum ada notifikasi.</p>
-                      ) : (
-                        notifs.slice(0, 20).map((n) => {
-                          const fmt = formatNotif(n);
-                          return (
-                            <div
-                              key={n.id}
-                              onClick={() => {
-                                if (!n.readAt) markRead.mutate(n.id);
-                                if (fmt.tab) {
-                                  setCurrentTab(fmt.tab);
-                                  setNotifOpen(false);
-                                }
-                              }}
-                              className={clsx(
-                                'rounded-xl border p-2.5 text-xs transition cursor-pointer hover:border-accent',
-                                n.readAt ? 'border-line/50 bg-surface opacity-75' : 'border-accent/50 bg-accent/5'
-                              )}
+                {notifOpen &&
+                  typeof document !== 'undefined' &&
+                  createPortal(
+                    <>
+                      <div
+                        className="fixed inset-0 z-[9998]"
+                        onClick={() => setNotifOpen(false)}
+                        aria-hidden="true"
+                      />
+                      <div
+                        role="dialog"
+                        aria-label="Notifikasi"
+                        style={{ top: notifPos.top, right: notifPos.right }}
+                        className="fixed z-[9999] w-80 max-w-[calc(100vw-24px)] max-h-[75vh] flex flex-col rounded-2xl border border-line bg-surface shadow-2xl p-3 space-y-2"
+                      >
+                        <div className="flex items-center justify-between border-b border-line pb-2 shrink-0">
+                          <span className="text-xs font-semibold text-text">Notifikasi ({unreadCount} baru)</span>
+                          {unreadCount > 0 && (
+                            <button
+                              onClick={() => markAllRead.mutate()}
+                              className="text-[11px] text-accent hover:underline cursor-pointer"
                             >
-                              <div className="flex items-start justify-between gap-2">
-                                <p className="font-semibold text-text leading-snug">{fmt.title}</p>
-                                {!n.readAt && <span className="mt-1 size-2 shrink-0 rounded-full bg-accent" />}
-                              </div>
-                              <p className="text-[11px] text-muted mt-0.5 leading-relaxed">{fmt.body}</p>
-                              {n.createdAt && (
-                                <p className="text-[10px] font-mono text-muted/80 mt-1">
-                                  {new Date(n.createdAt).toLocaleString('id-ID', {
-                                    day: 'numeric',
-                                    month: 'short',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                  })}
-                                </p>
-                              )}
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  </div>
-                )}
+                              Tandai semua dibaca
+                            </button>
+                          )}
+                        </div>
+                        <div className="overflow-y-auto space-y-1.5 pr-0.5">
+                          {notifs.length === 0 ? (
+                            <p className="py-4 text-center text-xs text-muted">Belum ada notifikasi.</p>
+                          ) : (
+                            notifs.slice(0, 20).map((n) => {
+                              const fmt = formatNotif(n);
+                              return (
+                                <div
+                                  key={n.id}
+                                  onClick={() => {
+                                    if (!n.readAt) markRead.mutate(n.id);
+                                    if (fmt.tab) {
+                                      setCurrentTab(fmt.tab);
+                                      setNotifOpen(false);
+                                    }
+                                  }}
+                                  className={clsx(
+                                    'rounded-xl border p-2.5 text-xs transition cursor-pointer hover:border-accent',
+                                    n.readAt ? 'border-line/50 bg-surface opacity-75' : 'border-accent/50 bg-accent/5'
+                                  )}
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <p className="font-semibold text-text leading-snug">{fmt.title}</p>
+                                    {!n.readAt && <span className="mt-1 size-2 shrink-0 rounded-full bg-accent" />}
+                                  </div>
+                                  <p className="text-[11px] text-muted mt-0.5 leading-relaxed">{fmt.body}</p>
+                                  {n.createdAt && (
+                                    <p className="text-[10px] font-mono text-muted/80 mt-1">
+                                      {new Date(n.createdAt).toLocaleString('id-ID', {
+                                        day: 'numeric',
+                                        month: 'short',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                      })}
+                                    </p>
+                                  )}
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
+                      </div>
+                    </>,
+                    document.body,
+                  )}
               </div>
             )}
 
-            <span className="num font-mono text-[11px]">v{info?.version ?? '1.0.15'}</span>
+            <span className="num font-mono text-[11px]">v{info?.version ?? '1.0.16'}</span>
           </div>
         </header>
 
