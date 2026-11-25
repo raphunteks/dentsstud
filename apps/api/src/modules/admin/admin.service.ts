@@ -116,23 +116,79 @@ export class AdminService {
     }
     const rows = await this.db
       .select({
-        id: users.id, email: users.email, displayName: users.displayName, role: users.role, status: users.status, createdAt: users.createdAt,
-        licenseStatus: sql<string | null>`(select case when l.status = 'ACTIVE' and l.valid_until is not null and l.valid_until <= now() then 'EXPIRED' else l.status end from ${licenses} l where l.user_id = ${users.id} order by l.created_at desc limit 1)`,
-        licenseValidUntil: sql<string | null>`(select l.valid_until from ${licenses} l where l.user_id = ${users.id} order by l.created_at desc limit 1)`,
-        licenseMaxDevices: sql<number | null>`(select l.max_devices from ${licenses} l where l.user_id = ${users.id} order by l.created_at desc limit 1)`,
-        activeDevicesCount: sql<number>`(select count(*)::int from ${devices} d where d.user_id = ${users.id} and d.revoked_at is null)`,
-        activeSessionsCount: sql<number>`(select count(*)::int from ${sessions} s where s.user_id = ${users.id} and s.revoked_at is null and s.expires_at > now())`,
-        lastSeenAt: sql<string | null>`greatest(
-          (select max(s.last_seen_at) from ${sessions} s where s.user_id = ${users.id}),
-          (select max(d.last_seen_at) from ${devices} d where d.user_id = ${users.id})
-        )`,
+        id: users.id,
+        email: users.email,
+        displayName: users.displayName,
+        role: users.role,
+        status: users.status,
+        createdAt: users.createdAt,
       })
       .from(users)
       .where(and(...where))
       .orderBy(desc(users.createdAt), desc(users.id))
       .limit(q.limit + 1);
     const more = rows.length > q.limit;
-    const items = rows.slice(0, q.limit);
+    const baseItems = rows.slice(0, q.limit);
+    const userIds = baseItems.map((u) => u.id);
+    if (userIds.length === 0) return { items: [], nextCursor: null };
+
+    const now = new Date();
+    const [licRows, devRows, sessRows] = await Promise.all([
+      this.db
+        .select({
+          userId: licenses.userId,
+          status: licenses.status,
+          validUntil: licenses.validUntil,
+          maxDevices: licenses.maxDevices,
+          createdAt: licenses.createdAt,
+        })
+        .from(licenses)
+        .where(inArray(licenses.userId, userIds))
+        .orderBy(desc(licenses.createdAt)),
+      this.db
+        .select({ userId: devices.userId, revokedAt: devices.revokedAt, lastSeenAt: devices.lastSeenAt })
+        .from(devices)
+        .where(inArray(devices.userId, userIds)),
+      this.db
+        .select({ userId: sessions.userId, revokedAt: sessions.revokedAt, expiresAt: sessions.expiresAt, lastSeenAt: sessions.lastSeenAt })
+        .from(sessions)
+        .where(inArray(sessions.userId, userIds)),
+    ]);
+
+    const licByUser = new Map<string, (typeof licRows)[number]>();
+    for (const l of licRows) {
+      const prev = licByUser.get(l.userId);
+      const isLiveActive = l.status === 'ACTIVE' && (!l.validUntil || l.validUntil > now);
+      const prevLiveActive = prev && prev.status === 'ACTIVE' && (!prev.validUntil || prev.validUntil > now);
+      if (!prev || (isLiveActive && !prevLiveActive)) licByUser.set(l.userId, l);
+    }
+
+    const items = baseItems.map((u) => {
+      const lic = licByUser.get(u.id) ?? null;
+      const licenseStatus = lic
+        ? lic.status === 'ACTIVE' && lic.validUntil && lic.validUntil <= now
+          ? 'EXPIRED'
+          : lic.status
+        : null;
+      const userDevs = devRows.filter((d) => d.userId === u.id);
+      const userSess = sessRows.filter((s) => s.userId === u.id);
+      const activeDevicesCount = userDevs.filter((d) => !d.revokedAt).length;
+      const activeSessionsCount = userSess.filter((s) => !s.revokedAt && s.expiresAt > now).length;
+      const seenTs = [
+        ...userDevs.map((d) => d.lastSeenAt?.getTime() ?? 0),
+        ...userSess.map((s) => s.lastSeenAt?.getTime() ?? 0),
+      ].filter((t) => t > 0);
+      const lastSeenAt = seenTs.length > 0 ? new Date(Math.max(...seenTs)).toISOString() : null;
+      return {
+        ...u,
+        licenseStatus,
+        licenseValidUntil: lic?.validUntil ? lic.validUntil.toISOString() : null,
+        licenseMaxDevices: lic?.maxDevices ?? null,
+        activeDevicesCount,
+        activeSessionsCount,
+        lastSeenAt,
+      };
+    });
     return { items, nextCursor: more ? items[items.length - 1]!.id : null };
   }
 
