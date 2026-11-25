@@ -144,6 +144,7 @@ export type NavTab =
   | 'buat-konten'
   | 'progress'
   | 'hasil'
+  | 'sosial-media'
   | 'galeri-gaya'
   | 'suara'
   | 'pengaturan'
@@ -165,4 +166,5 @@ export type NavTab =
   | 'admin-releases'
   | 'admin-support'
   | 'admin-analytics'
-  | 'admin-office';
+  | 'admin-office'
+  | 'admin-social';

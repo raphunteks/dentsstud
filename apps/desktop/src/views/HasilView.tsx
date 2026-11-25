@@ -7,7 +7,7 @@ import { Icon } from '../components/Icons';
 import type { HookItem, NavTab, ResultDetail, ResultItem, StylePreset, VoiceItem } from '../types';
 
 interface HasilViewProps {
-  onNavigate: (tab: NavTab) => void;
+  onNavigate: (tab: NavTab, opts?: { socialResultId?: string }) => void;
   initialSubTab?: 'READY' | 'UPLOADED' | 'FAILED' | 'ALL' | 'TRASH';
 }
 
@@ -42,7 +42,7 @@ function HasilDetailView({
   id: string;
   onBack: () => void;
   onSelectId: (nextId: string) => void;
-  onNavigate: (tab: NavTab) => void;
+  onNavigate: (tab: NavTab, opts?: { socialResultId?: string }) => void;
 }) {
   const qc = useQueryClient();
   const [caption, setCaption] = useState('');
@@ -221,6 +221,9 @@ function HasilDetailView({
         </div>
 
         <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <Button variant="primary" size="sm" onClick={() => onNavigate('sosial-media', { socialResultId: d.id })}>
+            <Icon name="upload" className="w-3.5 h-3.5" /> Publish Sosmed
+          </Button>
           <Button variant="outline" size="sm" onClick={() => setRevoiceOpen(true)}>
             <Icon name="mic" className="w-3.5 h-3.5" /> Ganti Suara
           </Button>

@@ -135,6 +135,9 @@ export default function ResultDetail() {
         title={d.title}
         actions={
           <div className="flex flex-wrap gap-2">
+            <Link href={`/social?resultId=${id}`} className="inline-flex h-10 items-center rounded-[10px] border border-accent bg-accent/10 px-4 text-sm font-medium text-accent hover:bg-accent/15">
+              Publish / Jadwalkan Sosmed
+            </Link>
             <a href={`/api/v1/results/${id}/download`} className="inline-flex h-10 items-center rounded-[10px] bg-accent px-4 text-sm font-medium text-accent-contrast">Unduh MP4 · {fmtBytes(d.file.sizeBytes)}</a>
             {d.coverUrl && <a href={`/api/v1/results/${id}/cover`} className="inline-flex h-10 items-center rounded-[10px] border border-line px-4 text-sm">Unduh cover</a>}
           </div>

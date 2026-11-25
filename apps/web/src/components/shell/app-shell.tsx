@@ -54,6 +54,7 @@ interface NotificationItem {
 function notifHref(n: NotificationItem): string | null {
   if (n.actionTab === 'hasil') return n.targetId ? `/results/${n.targetId}` : '/results';
   if (n.actionTab === 'progress') return n.targetId ? `/progress?run=${n.targetId}` : '/progress';
+  if (n.actionTab === 'sosial-media') return '/social';
   if (n.actionTab === 'bantuan') return '/help';
   if (n.actionTab === 'pengaturan') return n.type?.startsWith('license.') ? '/settings/license' : '/settings/production';
   return null;
@@ -78,6 +79,7 @@ const ROUTE_ICONS: Record<string, typeof IconHome> = {
   '/create-content': IconCreate,
   '/progress': IconProgress,
   '/results': IconResults,
+  '/social': IconReleases,
   '/styles': IconStyles,
   '/voices': IconVoices,
   '/studio/projects': IconStudio,
@@ -105,6 +107,7 @@ const ROUTE_ICONS: Record<string, typeof IconHome> = {
   '/admin/analytics': IconAnalytics,
   '/admin/system': IconSystem,
   '/admin/office': IconUsers,
+  '/admin/social': IconReleases,
 };
 
 function ThemeIcon({ dark }: { dark: boolean }) {

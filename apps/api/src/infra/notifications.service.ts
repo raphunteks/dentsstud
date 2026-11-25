@@ -102,6 +102,24 @@ export function formatNotification(row: {
       actionTab = 'pengaturan';
       break;
     }
+    case 'social.published': {
+      const platform = str(payload.platform) || 'Sosial Media';
+      const caption = str(payload.caption);
+      title = `Postingan terbit di ${platform}`;
+      body = caption ? `"${caption.slice(0, 80)}" berhasil dipublikasikan.` : 'Konten Anda berhasil dipublikasikan ke media sosial.';
+      actionTab = 'sosial-media';
+      targetId = str(payload.postId) || null;
+      break;
+    }
+    case 'social.failed': {
+      const platform = str(payload.platform) || 'Sosial Media';
+      const msg = str(payload.message);
+      title = `Gagal terbit di ${platform}`;
+      body = msg || 'Publikasi media sosial gagal. Periksa koneksi akun dan coba lagi.';
+      actionTab = 'sosial-media';
+      targetId = str(payload.postId) || null;
+      break;
+    }
     default: {
       title = str(payload.title) || row.type.replace(/[._-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
       body = str(payload.body) || str(payload.message) || 'Pemberitahuan baru dari DENTSWEB STUDIO.';

@@ -15,6 +15,7 @@ import { PengaturanView } from './views/PengaturanView';
 import { BantuanView } from './views/BantuanView';
 import { FolderImportView, LocalRenderView, OfflineProjectsView } from './views/DesktopEngineViews';
 import { AdminOfficeView } from './views/AdminOfficeView';
+import { AdminSocialView, SocialView } from './views/SocialView';
 import {
   AdminAIProvidersView,
   AdminAnalyticsView,
@@ -191,6 +192,7 @@ function StudioShell({
   const [currentTab, setCurrentTab] = useState<NavTab>(offlineMode ? 'project-offline' : 'beranda');
   const [createPrefill, setCreatePrefill] = useState<CreatePrefill | undefined>(undefined);
   const [resultsSubTab, setResultsSubTab] = useState<'READY' | 'UPLOADED' | 'FAILED' | 'ALL' | 'TRASH'>('ALL');
+  const [socialResultId, setSocialResultId] = useState<string | null>(null);
   const [notifOpen, setNotifOpen] = useState(false);
   const [updState, setUpdState] = useState<UpdateState>({ state: 'idle' });
 
@@ -264,13 +266,16 @@ function StudioShell({
 
   const handleNavigate = (
     tab: NavTab,
-    opts?: { presetId?: string; voiceId?: string; resultsTab?: 'READY' | 'UPLOADED' | 'FAILED' | 'ALL' | 'TRASH' }
+    opts?: { presetId?: string; voiceId?: string; resultsTab?: 'READY' | 'UPLOADED' | 'FAILED' | 'ALL' | 'TRASH'; socialResultId?: string }
   ) => {
     if (opts?.presetId || opts?.voiceId) {
       setCreatePrefill({ presetId: opts.presetId, voiceId: opts.voiceId });
     }
     if (opts?.resultsTab) {
       setResultsSubTab(opts.resultsTab);
+    }
+    if (opts?.socialResultId) {
+      setSocialResultId(opts.socialResultId);
     }
     setCurrentTab(tab);
   };
@@ -404,7 +409,7 @@ function StudioShell({
               </div>
             )}
 
-            <span className="num font-mono text-[11px]">v{info?.version ?? '1.0.14'}</span>
+            <span className="num font-mono text-[11px]">v{info?.version ?? '1.0.15'}</span>
           </div>
         </header>
 
@@ -428,6 +433,7 @@ function StudioShell({
                   )}
                   {currentTab === 'progress' && <ProgressView onNavigate={handleNavigate} />}
                   {currentTab === 'hasil' && <HasilView onNavigate={handleNavigate} initialSubTab={resultsSubTab} />}
+                  {currentTab === 'sosial-media' && <SocialView initialResultId={socialResultId} />}
                   {currentTab === 'galeri-gaya' && <GaleriGayaView onNavigate={handleNavigate} />}
                   {currentTab === 'suara' && <SuaraView onNavigate={handleNavigate} />}
                   {currentTab === 'pengaturan' && (
@@ -452,6 +458,7 @@ function StudioShell({
                   {currentTab === 'admin-analytics' && <AdminAnalyticsView />}
                   {currentTab === 'admin-system' && <AdminSystemView />}
                   {currentTab === 'admin-office' && <AdminOfficeView />}
+                  {currentTab === 'admin-social' && <AdminSocialView />}
                 </>
               )}
             </ErrorBoundary>

@@ -98,6 +98,7 @@ export function Sidebar({
               pulse: activeCount > 0,
             },
             { id: 'hasil', label: 'Hasil', icon: 'film' },
+            { id: 'sosial-media', label: 'Sosial Media', icon: 'upload' },
           ],
         },
         {
@@ -139,6 +140,7 @@ export function Sidebar({
                   { id: 'admin-analytics' as NavTab, label: '13 Analitik & Error', icon: 'search' as IconName },
                   { id: 'admin-system' as NavTab, label: '14 Sistem & VPS', icon: 'server' as IconName },
                   { id: 'admin-office' as NavTab, label: '15 Kantor & RBAC', icon: 'monitor' as IconName },
+                  { id: 'admin-social' as NavTab, label: '16 Social Publisher', icon: 'upload' as IconName },
                 ],
               },
             ]

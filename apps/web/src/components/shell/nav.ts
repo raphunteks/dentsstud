@@ -20,6 +20,7 @@ export const MEMBER_NAV: NavGroup[] = [
       { href: '/create-content', label: 'Buat Konten' },
       { href: '/progress', label: 'Progress', badge: 'LIVE' },
       { href: '/results', label: 'Hasil' },
+      { href: '/social', label: 'Sosial Media' },
     ],
   },
   {
@@ -80,6 +81,7 @@ export const ADMIN_NAV: NavGroup[] = [
       { href: '/admin/analytics', label: '13 Analitik & Error' },
       { href: '/admin/system', label: '14 Sistem & VPS' },
       { href: '/admin/office', label: '15 Kantor & RBAC' },
+      { href: '/admin/social', label: '16 Social Publisher' },
     ],
   },
 ];
