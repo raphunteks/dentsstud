@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { useState } from 'react';
 import type { NavTab, SessionUser } from '../types';
 import { Icon, type IconName } from './Icons';
+import logoSvg from '../assets/logo.svg';
 
 interface SidebarProps {
   currentTab: NavTab;
@@ -170,8 +171,8 @@ export function Sidebar({
       <div className={clsx('flex items-center pb-4 pt-2 border-b border-line', collapsed ? 'flex-col gap-2 px-2' : 'justify-between px-4')}>
         {!collapsed ? (
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-contrast shadow font-bold text-sm">
-              D
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#10131F] p-1 shadow-sm ring-1 ring-white/10">
+              <img src={logoSvg} alt="DENTSWEB STUDIO" className="h-full w-full object-contain" />
             </div>
             <div>
               <span className="block font-display font-semibold tracking-tight text-sm text-text leading-tight">
@@ -183,8 +184,8 @@ export function Sidebar({
             </div>
           </div>
         ) : (
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-contrast shadow font-bold text-sm">
-            D
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#10131F] p-1 shadow-sm ring-1 ring-white/10">
+            <img src={logoSvg} alt="DENTSWEB STUDIO" className="h-full w-full object-contain" />
           </div>
         )}
 
