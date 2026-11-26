@@ -1,0 +1,882 @@
+[
+  {
+    "num": 1,
+    "id": "isometrik-dibongkar",
+    "nama": "Isometrik Dibongkar (Blueprint Teknis / Teardown)",
+    "durasi": "25 Detik (55 kata)",
+    "topik": "Misteri Isi Baterai Mobil Listrik & Chip Neuralink",
+    "elevenlabs_voice": "Adam / Antoni (Otoritatif, Misterius, Analitis)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.10",
+    "naskah": "Jangan mau dibodohi casing luarnya. Ini yang sebenarnya ada di dalam chip otak manusia pertama. Seribu dua puluh empat elektroda mikron menembus korteks serebral, membaca sinyal pikiran sebelum lidahmu sempat bergerak. Masa depan di mana kamu mengendalikan ponsel cuma dengan kedipan mata sudah dimulai hari ini."
+  },
+  {
+    "num": 2,
+    "id": "sejarah-3d",
+    "nama": "Sejarah 3D Sinematik (Misteri Kuno & Konspirasi)",
+    "durasi": "45 Detik (95 kata)",
+    "topik": "Kota Bawah Tanah Derinkuyu & Ruang Tersembunyi Piramida",
+    "elevenlabs_voice": "George / Marcus (Berat, Serak Sinematik Dokumenter)",
+    "voice_settings": "Stability: 0.70, Clarity: 0.80, Style Exaggeration: 0.20",
+    "naskah": "Tahun sembilan belas enam puluh tiga, seorang pria di Turki merobohkan dinding ruang bawah tanahnya. Yang dia temukan bukan pipa air, melainkan sebuah gerbang batu menuju kota bawah tanah sedalam delapan puluh lima meter! Mampu menampung dua puluh ribu manusia lengkap dengan kandang hewan, gereja, dan sistem ventilasi udara rahasia. Siapa sebenarnya yang mereka takuti di permukaan hingga harus mengubur peradaban sedalam ini?"
+  },
+  {
+    "num": 3,
+    "id": "tubuh-anime",
+    "nama": "Tubuh Manusia Anime (Adrenalin & Overpower)",
+    "durasi": "20 Detik (52 kata)",
+    "topik": "Efek Minum Energy Drink Campur Kopi Double Shot",
+    "elevenlabs_voice": "Fin / Callum (Cepat, Energik, Teriak Shonen)",
+    "voice_settings": "Stability: 0.40, Clarity: 0.90, Style Exaggeration: 0.35",
+    "naskah": "Detak jantung melonjak dua ratus bpm! Reseptor adenosin di otakmu terkunci total! Pembuluh darah menyempit seketika dan hormon dopamin meledak di seluruh saraf! Tapi ingat kawan, tubuh manusia ada batasnya. Sekali crash, kamu bakal terkapar lemas berjam-jam!"
+  },
+  {
+    "num": 4,
+    "id": "dunia-2d",
+    "nama": "Dunia 2D Bertekstur (Relatable & Chill Story)",
+    "durasi": "20 Detik (44 kata)",
+    "topik": "Kenapa Jam 3 Pagi Overthinking Kerjaan & Masa Depan",
+    "elevenlabs_voice": "Rachel / Lily (Hangat, Santai, Relatable)",
+    "voice_settings": "Stability: 0.60, Clarity: 0.80, Style Exaggeration: 0.15",
+    "naskah": "Pernah nggak jam tiga pagi tiba-tiba mikirin kesalahan memalukan lima tahun lalu? Tenang, kamu nggak gila. Di jam itu, hormon melatonin dan serotoninmu lagi di titik terendah. Otakmu cuma butuh tidur, bukan overthinking masa depan!"
+  },
+  {
+    "num": 5,
+    "id": "kartun-cel",
+    "nama": "Kartun Cel Cerah (Meme Pop Komedi)",
+    "durasi": "15 Detik (36 kata)",
+    "topik": "Gaji Baru Masuk 5 Menit Langsung Lenyap Buat Checkout",
+    "elevenlabs_voice": "Charlie / Patrick (Kocak, Heboh, Sarkas TikTok)",
+    "voice_settings": "Stability: 0.35, Clarity: 0.85, Style Exaggeration: 0.40",
+    "naskah": "Gaji baru masuk rekening jam dua belas malam, eh jam dua belas lewat lima menit saldo tinggal tiga puluh ribu rupiah! Kemana larinya duit gue? Ternyata buat checkout barang diskon yang bahkan nggak dibutuhin!"
+  },
+  {
+    "num": 6,
+    "id": "peta-relief",
+    "nama": "Peta Relief Sinematik (Geopolitik & Ekspedisi Misterius)",
+    "durasi": "35 Detik (75 kata)",
+    "topik": "Misteri Segitiga Bermuda & Palung Mariana 11.000 Meter",
+    "elevenlabs_voice": "Daniel / Brian (Misterius, Karismatik, Penyelidikan)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.80, Style Exaggeration: 0.15",
+    "naskah": "Sebelas ribu meter di bawah permukaan Samudera Pasifik. Lebih dalam daripada tinggi puncak Gunung Everest jika dibalik. Di zona tanpa cahaya matahari dan dengan tekanan setara seribu atmosfer, sonar kapal selam mendeteksi suara dengungan raksasa yang tidak terdaftar dalam database biologi laut mana pun. Ada sesuatu yang hidup di kedalaman sana, dan mereka tidak suka diganggu."
+  },
+  {
+    "num": 7,
+    "id": "promo-produk",
+    "nama": "Promo Produk & Iklan (Apple Aesthetic / Dark Tech)",
+    "durasi": "20 Detik (45 kata)",
+    "topik": "Kacamata AI Hologram Masa Depan",
+    "elevenlabs_voice": "Charlotte / Nicole (Mewah, Bisik Elegan, Eksklusif)",
+    "voice_settings": "Stability: 0.75, Clarity: 0.90, Style Exaggeration: 0.05",
+    "naskah": "Bukan lagi menatap layar kaca ponselmu yang sempit. Ini adalah antarmuka spasial tak kasat mata. Mengubah seluruh dinding kamarmu menjadi ruang kerja tanpa batas. Masa depan komputasi pribadi tidak lagi kamu genggam, melainkan kamu tatap langsung."
+  },
+  {
+    "num": 8,
+    "id": "bikin-dari-nol",
+    "nama": "Bikin dari Nol (Desain & Coding Generatif)",
+    "durasi": "25 Detik (56 kata)",
+    "topik": "Bikin Game 3D Sendiri Cuma Modal Prompt AI",
+    "elevenlabs_voice": "Liam / Chris (Inspiratif Developer, Modern)",
+    "voice_settings": "Stability: 0.55, Clarity: 0.85, Style Exaggeration: 0.15",
+    "naskah": "Satu baris perintah prompt teks, kanvas kosong ini langsung menyusun arsitektur dunia virtual tiga dimensi dalam hitungan detik. Tanpa tim developer ratusan orang, tanpa budget miliaran rupiah. Zaman di mana imajinasi liar seorang pemimpi bisa langsung jadi kenyataan interaktif."
+  },
+  {
+    "num": 9,
+    "id": "caption-news",
+    "nama": "Berita Berteks Cepat (Breaking Viral X)",
+    "durasi": "15 Detik (38 kata)",
+    "topik": "Karyawan AI Pertama yang Memecat Bosnya Sendiri",
+    "elevenlabs_voice": "Liam / Adam (Tegas, Cepat, Berita Gempar)",
+    "voice_settings": "Stability: 0.50, Clarity: 0.90, Style Exaggeration: 0.20",
+    "naskah": "Gempar di dunia teknologi! Sebuah startup di Silicon Valley mengganti jajaran manajemen tingkat atas dengan algoritma kecerdasan buatan. Hasilnya? Efisiensi naik dua ratus persen dan biaya operasional anjlok total!"
+  },
+  {
+    "num": 10,
+    "id": "city-symphony",
+    "nama": "Simfoni Time-lapse (Kesibukan Kota Cyberpunk)",
+    "durasi": "30 Detik (60 kata)",
+    "topik": "Malam di Tokyo & Ilusi Kesepian Manusia Modern",
+    "elevenlabs_voice": "Marcus / George (Puitis, Sinematik Suasana Malam)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.80, Style Exaggeration: 0.15",
+    "naskah": "Di bawah sorotan neon Shibuya yang menyala tanpa henti, jutaan pasang mata saling bersilangan di penyeberangan jalan. Terkoneksi dengan ribuan pengikut di internet setiap detik, namun pulang ke apartemen kecil dengan perasaan paling sunyi yang pernah ada. Inilah paradoks terbesar manusia di era digital."
+  },
+  {
+    "num": 11,
+    "id": "countdown",
+    "nama": "Hitung Mundur Layar Terbelah (3 Penyesalan Terbesar)",
+    "durasi": "25 Detik (55 kata)",
+    "topik": "3 Tanda Kamu Membuang Waktu di Usia 20-an",
+    "elevenlabs_voice": "Antoni / Daniel (Intens, Penekanan Kuat Angka)",
+    "voice_settings": "Stability: 0.50, Clarity: 0.90, Style Exaggeration: 0.25",
+    "naskah": "Tiga. Takut mencoba cuma karena malu dikomentari teman tongkrongan. Dua. Menghabiskan empat jam scroll konten orang lain tanpa karya sendiri. Satu. Menunggu waktu yang tepat yang sebenarnya tidak pernah ada. Bangun sekarang atau kamu menyesal seumur hidup!"
+  },
+  {
+    "num": 12,
+    "id": "kino-montage",
+    "nama": "Montase Konstruktivis (Kebangkitan Robot Pabrik)",
+    "durasi": "25 Detik (52 kata)",
+    "topik": "Pabrik Gelap Tanpa Manusia (Dark Factory)",
+    "elevenlabs_voice": "Eric / Adam (Teatrikal, Semangat Industri Besar)",
+    "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.30",
+    "naskah": "Lampu pabrik dimatikan! Tidak ada buruh, tidak ada jam istirahat makan siang! Ratusan lengan hidrolik robot merakit mobil listrik dalam kegelapan pekat dua puluh empat jam sehari tanpa henti! Selamat datang di era produksi pasca-manusia!"
+  },
+  {
+    "num": 13,
+    "id": "news-package",
+    "nama": "Paket Berita TV (Skandal Deepfake AI)",
+    "durasi": "35 Detik (75 kata)",
+    "topik": "Rekayasa Suara Telepon AI Menguras Rekening",
+    "elevenlabs_voice": "Brian / Charlotte (Presenter Berita TV Investigasi)",
+    "voice_settings": "Stability: 0.70, Clarity: 0.90, Style Exaggeration: 0.05",
+    "naskah": "Laporan investigasi khusus. Modus penipuan kloning suara berbasis kecerdasan buatan semakin marak menyasar masyarakat. Hanya berbekal sampel rekaman suara tiga detik dari media sosial, pelaku kejahatan mampu merekayasa panggilan darurat palsu yang terdengar identik dengan suara anggota keluarga korban. Otoritas keamanan siber mengingatkan warga untuk selalu menetapkan kata sandi darurat rahasia keluarga."
+  },
+  {
+    "num": 14,
+    "id": "newsreel",
+    "nama": "Newsreel 1920-an (Ramalan Masa Depan Zaman Kuno)",
+    "durasi": "25 Detik (60 kata)",
+    "topik": "Ramalan Tahun 1920 Tentang Mobil Terbang 2024",
+    "elevenlabs_voice": "Bill / Clyde (Penyiar Radio Antik 1920-an Cepat)",
+    "voice_settings": "Stability: 0.45, Clarity: 0.85, Style Exaggeration: 0.35",
+    "naskah": "Kabar menggemparkan dari para ilmuwan masa silam! Majalah mekanik tahun sembilan belas dua puluh meramalkan bahwa kita semua akan berangkat kantor menggunakan mobil bersayap baling-baling! Namun kenyataannya di masa kini, kita justru terjebak macet berjam-jam sambil melihat video kucing menari di gawai kaca kecil!"
+  },
+  {
+    "num": 15,
+    "id": "telestrator",
+    "nama": "Papan Analisis Coretan (Bedah Trik Marketing Viral)",
+    "durasi": "25 Detik (54 kata)",
+    "topik": "Kenapa Algoritma TikTok Menahanmu di 3 Detik Pertama",
+    "elevenlabs_voice": "Fin / Charlie (Komentator Taktik, Cepat Analisis)",
+    "voice_settings": "Stability: 0.50, Clarity: 0.85, Style Exaggeration: 0.20",
+    "naskah": "Perhatikan garis retensi penonton yang saya gambar kuning ini. Tiga detik pertama bukan tempat untuk basa-basi atau perkenalan diri! Kamu harus melempar visual aneh atau pertanyaan yang belum selesai di detik awal. Kalau penonton lolos detik kelima, videomu pasti tembus for you page!"
+  },
+  {
+    "num": 16,
+    "id": "visual-investigation",
+    "nama": "Investigasi Forensik Visual (Skandal Algoritma Medsos)",
+    "durasi": "35 Detik (78 kata)",
+    "topik": "Eksperimen Gelap Menguji Rage-Bait di Internet",
+    "elevenlabs_voice": "Daniel / Marcus (Dingin, Kritis, Analitis Hacker)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.10",
+    "naskah": "Mengapa linimasa mediamu selalu dipenuhi perdebatan sengit dan orang-orang yang saling marah? Investigasi kode algoritma mengungkap kenyataan pahit. Konten kemarahan dan emosi negatif memicu waktu tonton dua kali lebih lama daripada konten positif. Kamu bukan sedang membaca opini publik, kamu sedang dimanipulasi oleh mesin engagement yang memonetisasi emosi frustrasimu."
+  },
+  {
+    "num": 17,
+    "id": "archive-lighttable",
+    "nama": "Meja Lampu Arsip (Dokumen Rahasia Deklasifikasi)",
+    "durasi": "30 Detik (65 kata)",
+    "topik": "Dokumen CIA Proyek Stargate (Telepati & Remote Viewing)",
+    "elevenlabs_voice": "Marcus / Brian (Agen Rahasia, Tenang, Dokumen Rahasia)",
+    "voice_settings": "Stability: 0.70, Clarity: 0.85, Style Exaggeration: 0.05",
+    "naskah": "Letakkan dokumen bersandi rahasia ini di atas meja lampu periksa. Tahun seribu sembilan ratus tujuh puluh delapan, pemerintah Amerika mendanai eksperimen telepati untuk memata-matai pangkalan militer Soviet dari jarak ribuan mil. Catatan ilmiah yang dideklasifikasi ini membuktikan bahwa batas antara sains dan kekuatan pikiran jauh lebih kabur dari yang pernah kita bayangkan."
+  },
+  {
+    "num": 18,
+    "id": "briefing-board",
+    "nama": "Papan Briefing Taktis (Rencana Kabur dari 9 to 5)",
+    "durasi": "25 Detik (56 kata)",
+    "topik": "Membangun Bisnis Digital Sampingan dalam 6 Bulan",
+    "elevenlabs_voice": "Antoni / Adam (Komando Militer Hustle, Tegas)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.90, Style Exaggeration: 0.10",
+    "naskah": "Briefing strategi kabur dari jebakan rutinitas kantor. Langkah pertama: amankan dana darurat enam bulan gaji. Langkah kedua: bangun satu aset digital yang menghasilkan cuan saat kamu tidur. Jangan langsung resign tanpa rencana matang, jadilah prajurit cerdas yang memenangkan pertempuran finansial sebelum melangkah ke garis depan!"
+  },
+  {
+    "num": 19,
+    "id": "data-physical",
+    "nama": "Data Jadi Benda (Kekayaan Triliuner Dunia)",
+    "durasi": "25 Detik (52 kata)",
+    "topik": "Jika Uang 1 Triliun Ditumpuk Jadi Kertas",
+    "elevenlabs_voice": "Liam / Marcus (Menekankan Skala Fisik Raksasa)",
+    "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.15",
+    "naskah": "Satu juta detik setara sebelas hari. Tapi satu miliar detik setara tiga puluh satu tahun! Jika kekayaan orang terkaya di dunia ditumpuk dalam lembaran uang kertas seratus ribu rupiah, tingginya bisa menembus lapisan atmosfer bumi! Skala kekayaan yang sudah di luar nalar matematika manusia biasa."
+  },
+  {
+    "num": 20,
+    "id": "lidar-survey",
+    "nama": "Survei LiDAR 3D (Penemuan Kota Kuno Suku Maya di Hutan)",
+    "durasi": "25 Detik (55 kata)",
+    "topik": "Laser Menembus Rimbun Hutan Guatemala",
+    "elevenlabs_voice": "Nicole / Daniel (Futuristik Laser Penjelajah)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.90, Style Exaggeration: 0.05",
+    "naskah": "Sensor laser udara menembus kanopi hutan lebat Amerika Tengah. Yang terlihat bukan pepohonan, melainkan ribuan piramida, jalan tol batu kuno, dan benteng pertahanan yang terkubur selama seribu tahun. Kita baru saja menemukan peradaban raksasa yang belum pernah tersentuh oleh buku sejarah modern mana pun."
+  },
+  {
+    "num": 21,
+    "id": "microscope",
+    "nama": "Cerita Mikroskop (Dunia Mikro di Layar Ponsel)",
+    "durasi": "25 Detik (54 kata)",
+    "topik": "Bakteri di Kaca HP Lebih Banyak dari Toilet",
+    "elevenlabs_voice": "Rachel / Marcus (Misterius Sains, Pembesaran Ekstrem)",
+    "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.15",
+    "naskah": "Perbesar permukaan kaca layar ponselmu sepuluh ribu kali lipat. Di balik kilau layarmu yang tampak mulus, jutaan mikroorganisme berkembang biak dari sisa minyak jari dan debu jalanan. Setiap kali kamu menempelkan ponsel ke pipi saat menelepon, kamu sedang memeluk koloni kuman terbesar di rumahmu."
+  },
+  {
+    "num": 22,
+    "id": "satellite-briefing",
+    "nama": "Briefing Satelit (Kabel Internet Bawah Laut Dunia)",
+    "durasi": "30 Detik (65 kata)",
+    "topik": "99% Internet Dunia Bukan Lewat Satelit Luar Angkasa",
+    "elevenlabs_voice": "Brian / George (Geopolitik Global, Tegas Berbobot)",
+    "voice_settings": "Stability: 0.70, Clarity: 0.85, Style Exaggeration: 0.05",
+    "naskah": "Citra satelit memperlihatkan jalur arteri komunikasi bumi. Fakta mengejutkan: sembilan puluh sembilan persen lalu lintas data internet dunia tidak lewat satelit di angkasa, melainkan lewat kabel serat optik setebal selang air di dasar laut. Jika kabel dasar samudera ini putus, peradaban keuangan global akan lumpuh total dalam sekejap mata."
+  },
+  {
+    "num": 23,
+    "id": "teardown",
+    "nama": "Bongkar Produk Melayang (Bedah Drone Tempur AI)",
+    "durasi": "20 Detik (46 kata)",
+    "topik": "Komponen Drone FPV Kamikaze 500 Ribu Rupiah",
+    "elevenlabs_voice": "Adam / Callum (Teknis Militer Modern, Rapi)",
+    "voice_settings": "Stability: 0.60, Clarity: 0.90, Style Exaggeration: 0.10",
+    "naskah": "Drone seharga lima ratus ribu rupiah ini sanggup melumpuhkan tank baja tempur bernilai miliaran rupiah. Baling-baling karbon, baterai lithium kecil, dan chip pengendali sederhana. Perang masa depan tidak lagi dimenangkan oleh ukuran raksasa, melainkan oleh gerombolan drone otonom murah yang mematikan."
+  },
+  {
+    "num": 24,
+    "id": "white-model",
+    "nama": "Proyeksi di Maket Putih (Simulasi Banjir Megacity)",
+    "durasi": "25 Detik (52 kata)",
+    "topik": "Prediksi Kota Pesisir yang Tenggelam Tahun 2050",
+    "elevenlabs_voice": "Daniel / Charlotte (Arsitektur Bencana, Serius)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.10",
+    "naskah": "Proyeksikan data ketinggian air laut ke atas maket kota Jakarta dan pesisir utara Jawa. Penurunan tanah sepuluh sentimeter per tahun akibat penyedotan air tanah liar. Jika tanggul laut raksasa tidak segera selesai, jutaan rumah warga diprediksi akan menjadi terumbu karang sebelum abad ini berganti."
+  },
+  {
+    "num": 25,
+    "id": "chalkboard",
+    "nama": "Papan Kapur (Teori Fisika Lubang Cacing / Sci-Fi)",
+    "durasi": "25 Detik (54 kata)",
+    "topik": "Cara Melipat Ruang Waktu Pakai Kertas",
+    "elevenlabs_voice": "Rachel / Adam (Profesor Fisika Keren, Edukatif)",
+    "voice_settings": "Stability: 0.55, Clarity: 0.85, Style Exaggeration: 0.15",
+    "naskah": "Tulis rumus gravitasi di papan tulis. Bayangkan selembar kertas ini adalah alam semesta. Jika kamu berjalan lurus, butuh waktu jutaan tahun cahaya untuk sampai ke ujung sana. Tapi bagaimana kalau kertasnya kita lipat dua lalu kita tusuk dengan pensil? Selamat, kamu baru saja menciptakan lubang cacing melintasi dimensi waktu!"
+  },
+  {
+    "num": 26,
+    "id": "crayon-book",
+    "nama": "Buku Bergambar Krayon (Kisah Anak Kucing di Mars)",
+    "durasi": "20 Detik (44 kata)",
+    "topik": "Kucing Lucu Pertama yang Jadi Astronot",
+    "elevenlabs_voice": "Lily / Charlie (Lucu Ceria, Menggemaskan)",
+    "voice_settings": "Stability: 0.40, Clarity: 0.85, Style Exaggeration: 0.35",
+    "naskah": "Namanya Miko, anak kucing oranye pertama yang ikut roket terbang ke planet Mars! Di sana tanahnya serba merah dan gravitasi membuat Miko melompat tinggi sekali sampai ke awan! Meong, siapa yang mau ikut jalan-jalan ke luar angkasa bareng Miko?"
+  },
+  {
+    "num": 27,
+    "id": "impasto",
+    "nama": "Lukisan Cat Minyak Tebal (Misteri Senyuman Mona Lisa)",
+    "durasi": "30 Detik (64 kata)",
+    "topik": "Teknik Sfumato Leonardo da Vinci yang Misterius",
+    "elevenlabs_voice": "George / Nicole (Puitis Seni Mendalam, Merenung)",
+    "voice_settings": "Stability: 0.70, Clarity: 0.80, Style Exaggeration: 0.15",
+    "naskah": "Perhatikan sapuan cat minyak tebal di sudut bibir wanita paling misterius di dunia ini. Ketika kamu menatap matanya secara langsung, bibirnya tampak tersenyum tipis. Tapi begitu pandanganmu turun ke bibirnya, senyuman itu tiba-tiba lenyap seketika. Sebuah ilusi optik optalmologi yang dirancang lima ratus tahun lalu sebelum dunia kedokteran memahami cara mata manusia bekerja."
+  },
+  {
+    "num": 28,
+    "id": "ink-wash",
+    "nama": "Lukisan Tinta Cina (Filosofi Sun Tzu Seni Perang)",
+    "durasi": "25 Detik (52 kata)",
+    "topik": "Kemenangan Terbaik Adalah Tanpa Pertumpahan Darah",
+    "elevenlabs_voice": "Marcus / Daniel (Bijak Kuno, Tenang Mematikan)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.80, Style Exaggeration: 0.10",
+    "naskah": "Goresan tinta hitam mengalir bagai hembusan angin di puncak gunung salju. Panglima terhebat bukan mereka yang memenangkan seratus pertempuran berdarah, melainkan mereka yang mampu menundukkan benteng musuh tanpa pernah mencabut sebilah pedang pun dari sarungnya. Jadilah tenang seperti air, namun menghancurkan saat menjadi ombak."
+  },
+  {
+    "num": 29,
+    "id": "pastel-senja",
+    "nama": "Pastel Lembut Senja (Refleksi Hidup & Kedamaian)",
+    "durasi": "20 Detik (45 kata)",
+    "topik": "Berhenti Sejenak Menikmati Sunset di Pantai",
+    "elevenlabs_voice": "Rachel / Nicole (Tenang, Damai, Sunset Vibes)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.10",
+    "naskah": "Dunia tidak akan kiamat hanya karena kamu beristirahat hari ini. Lihat warna lembayung senja di ufuk barat. Tarik napas panjang, lepaskan semua beban yang kamu pikul sendirian. Kamu sudah berjuang sangat hebat hari ini, kawan."
+  },
+  {
+    "num": 30,
+    "id": "charcoal-scratch",
+    "nama": "Goresan Arang Hitam (Horor Internet & Creepypasta)",
+    "durasi": "25 Detik (53 kata)",
+    "topik": "Siapa Sosok yang Berdiri di Ujung Ranjang Saat Ketindihan",
+    "elevenlabs_voice": "Adam / Daniel (Gelap Horor, Bisikan Tegang)",
+    "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.25",
+    "naskah": "Goresan arang hitam merekam fenomena sleep paralysis. Tubuhmu kaku terkunci total, tetapi matamu terbuka menatap bayangan hitam jangkung yang berdiri tepat di ujung ranjang. Dokter bilang itu cuma halusinasi fase REM otak. Tapi kenapa semua orang di belahan bumi lain melihat wujud sosok yang sama persis?"
+  },
+  {
+    "num": 31,
+    "id": "watercolor-bleed",
+    "nama": "Rembesan Cat Air Lembut (Kisah Sedih & Heartbreak)",
+    "durasi": "20 Detik (44 kata)",
+    "topik": "Rasa Rindu yang Tak Tersampaikan",
+    "elevenlabs_voice": "Charlotte / Lily (Melankolis Lembut, Penuh Perasaan)",
+    "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.15",
+    "naskah": "Rembesan warna kelabu di atas kertas basah mengingatkanku pada sore di halte itu. Beberapa orang memang ditakdirkan hadir untuk mengajarimu arti mencintai dengan tulus, bukan untuk tinggal dan menua bersama di masa depan."
+  },
+  {
+    "num": 32,
+    "id": "pencil-sketchbook",
+    "nama": "Sketsa Pensil Leonardo (Rancangan Mesin Waktu)",
+    "durasi": "25 Detik (54 kata)",
+    "topik": "Sketsa Rahasia Nikola Tesla yang Disita FBI",
+    "elevenlabs_voice": "Liam / Marcus (Ilmuwan Penemu Cerdas)",
+    "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.15",
+    "naskah": "Halaman sketsa rahasia Nikola Tesla yang disita pemerintah sesaat setelah kematiannya di kamar hotel New York. Roda gigi mekanis, kumparan tembaga nirkabel, dan diagram transmisi energi bebas biaya dari ionosfer bumi. Apakah peradaban kita sengaja dibiarkan membakar bahan bakar fosil demi bisnis triliunan dolar?"
+  },
+  {
+    "num": 33,
+    "id": "paper-lantern",
+    "nama": "Lentera Kertas Asia (Kisah Hantu Mitologi Jepang)",
+    "durasi": "25 Detik (52 kata)",
+    "topik": "Legenda Hantu Tanpa Wajah Noppera-bo",
+    "elevenlabs_voice": "Rachel / Marcus (Misteri Budaya Mistis)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.20",
+    "naskah": "Di bawah temaram lentera kertas di persimpangan jalan Tokyo tua, seorang pedagang menyapa wanita yang sedang menangis tersedu-sedu. Begitu wanita itu membalikkan badannya perlahan, tidak ada mata, tidak ada hidung, hanya permukaan kulit polos yang rata seperti telur rebus. Jangan menyapa orang asing di malam hari."
+  },
+  {
+    "num": 34,
+    "id": "ukiyo-e-woodblock",
+    "nama": "Cetak Kayu Ukiyo-e (Ombak Raksasa Kanagawa)",
+    "durasi": "20 Detik (45 kata)",
+    "topik": "Filosofi Bertahan di Tengah Gelombang Badai Kehidupan",
+    "elevenlabs_voice": "Daniel / George (Gagah Tradisi Epik Jepang)",
+    "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.15",
+    "naskah": "Lihat perahu nelayan kecil yang tenang di bawah amukan ombak raksasa Gunung Fuji. Ombak setinggi gedung tidak meremukkan perahu, karena para pelaut tidak melawan arah air, melainkan menari bersama arusnya. Ketenangan batin adalah senjata terhebatmu menghadapi badai dunia."
+  },
+  {
+    "num": 35,
+    "id": "shadow-puppet-wayang",
+    "nama": "Wayang Kulit Siluet Nusantara (Perang Bharatayuddha)",
+    "durasi": "25 Detik (54 kata)",
+    "topik": "Kutukan Busur Panah Pasopati Arjuna",
+    "elevenlabs_voice": "Marcus / Bill (Dalang Mistis Nusantara Kontemporer)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.80, Style Exaggeration: 0.25",
+    "naskah": "Kelir putih membentang menyuarakan genderang perang saudara di padang Kurukshetra. Ketika tali busur panah ditarik penuh hingga menyentuh anak telinga, takdir kehancuran sebuah dinasti telah digariskan para dewa. Bahwa kekuasaan yang dibangun di atas keserakahan pasti akan tumbang oleh keadilan semesta."
+  },
+  {
+    "num": 36,
+    "id": "gold-leaf-lacquer",
+    "nama": "Perada Emas & Lak Kuno (Misteri Harta Karun Yamashita)",
+    "durasi": "25 Detik (52 kata)",
+    "topik": "Ribuan Batang Emas yang Terkubur di Gua Filipina",
+    "elevenlabs_voice": "Nicole / George (Megah Kuno, Petualangan Harta Karun)",
+    "voice_settings": "Stability: 0.70, Clarity: 0.85, Style Exaggeration: 0.15",
+    "naskah": "Kilau perada emas murni merekam rumor perburuan harta karun terbesar abad dua puluh. Menjelang kekalahan Jepang di Perang Pasifik, jenderal Yamashita dikabarkan menyegel ratusan peti emas rampasan di dalam terowongan bawah tanah hutan Luzon. Hingga detik ini, misteri lokasinya masih menjadi teka-teki tak terpecahkan."
+  },
+  {
+    "num": 37,
+    "id": "risograph",
+    "nama": "Cetak Risograf Warna Neon (Poster Konser Indie Viral)",
+    "durasi": "15 Detik (36 kata)",
+    "topik": "Tiket Konser Terjual Habis dalam 10 Detik",
+    "elevenlabs_voice": "Fin / Charlie (Keren Urban Indie, Cepat)",
+    "voice_settings": "Stability: 0.45, Clarity: 0.90, Style Exaggeration: 0.25",
+    "naskah": "Tiket konser festival musik terbesar tahun ini ludes dalam waktu sepuluh detik akibat serbuan bot jastip calo! Ribuan penggemar gigit jari di depan layar laptop mereka yang buffering. Siapa di sini yang gagal war tiket?"
+  },
+  {
+    "num": 38,
+    "id": "linocut-stamp",
+    "nama": "Cukil Kayu & Stempel Linoleum (Revolusi Kopi Susu Gula Aren)",
+    "durasi": "20 Detik (44 kata)",
+    "topik": "Bisnis Kopi Susu yang Menghidupkan Petani Lokal",
+    "elevenlabs_voice": "Adam / Antoni (Solidaritas Kopi Lokal, Hangat)",
+    "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.20",
+    "naskah": "Dari biji kopi robusta lereng gunung hingga sirup manis aren alami. Satu cangkir kopi susu di tanganmu setiap pagi menghidupi ribuan rantai pasok keluarga petani lokal dari pelosok nusantara. Banggalah minum karya anak bangsa sendiri!"
+  },
+  {
+    "num": 39,
+    "id": "woodblock-folk",
+    "nama": "Seni Cetak Rakyat (Resep Rahasia Jamu Nenek)",
+    "durasi": "20 Detik (45 kata)",
+    "topik": "Kunyit Asam Penjaga Imun Alami",
+    "elevenlabs_voice": "Rachel / George (Hangat Tradisi, Bersahaja)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.10",
+    "naskah": "Tumbukan kunyit segar dipadu asam jawa dan madu murni hutan. Resep jamu tradisional yang sudah menjaga kebugaran tubuh kakek nenek kita selama ratusan tahun. Sehat itu tidak harus mahal dengan pil kimia impor kemasan mewah."
+  },
+  {
+    "num": 40,
+    "id": "silkscreen-poster",
+    "nama": "Poster Sablon Retro Flat (Iklan Jadul Otomotif)",
+    "durasi": "20 Detik (44 kata)",
+    "topik": "Vespa Klasik 2-Tak yang Harganya Tembus Ratusan Juta",
+    "elevenlabs_voice": "Charlie / Fin (Penyiar Radio Jadul Retro)",
+    "voice_settings": "Stability: 0.50, Clarity: 0.90, Style Exaggeration: 0.20",
+    "naskah": "Suara knalpot dua tak berasap tipis yang bikin kangen masa lalu! Vespa tua yang dulu dibeli jutaan rupiah di tahun tujuh puluhan, sekarang jadi barang koleksi sultan bernilai ratusan juta rupiah! Semakin tua, semakin berkarakter kawan!"
+  },
+  {
+    "num": 41,
+    "id": "letterpress-emboss",
+    "nama": "Cetakan Huruf Timbul Tekstur Tebal (Undangan Pernikahan Mewah)",
+    "durasi": "20 Detik (42 kata)",
+    "topik": "Kertas Tebal 600 GSM dengan Foil Emas",
+    "elevenlabs_voice": "Nicole / Daniel (Sangat Mewah, Berkelas Tinggi)",
+    "voice_settings": "Stability: 0.70, Clarity: 0.90, Style Exaggeration: 0.05",
+    "naskah": "Sentuhan tekstur timbul di atas serat kertas katun enam ratus gsm. Elegan, abadi, dan memancarkan pesona kemewahan tanpa perlu bersuara keras. Standar tertinggi seni percetakan bagi momen paling sakral dalam hidupmu."
+  },
+  {
+    "num": 42,
+    "id": "stenciled-street",
+    "nama": "Grafiti Stensil Urban Banksy (Kritik Sosial FOMO)",
+    "durasi": "15 Detik (35 kata)",
+    "topik": "Rela Utang Pinjol Demi Beli Ponsel Seri Terbaru",
+    "elevenlabs_voice": "Fin / Charlie (Urban Gaul Jalanan, Sarkas Keras)",
+    "voice_settings": "Stability: 0.40, Clarity: 0.90, Style Exaggeration: 0.30",
+    "naskah": "Gaya elit ekonomi menjerit! Rela makan mie instan sebulan penuh dan terlilit cicilan pinjol cuma biar bisa pamer foto boba tiga kamera di cermin toilet kafe! Mau keren kok nyiksa dompet sendiri kawan?"
+  },
+  {
+    "num": 43,
+    "id": "swiss-style",
+    "nama": "Grid Swiss Tipografi Tegas (Prinsip Desain Minimalis)",
+    "durasi": "20 Detik (44 kata)",
+    "topik": "Less is More: Desain Bukan Menambah Elemen",
+    "elevenlabs_voice": "Adam / Nicole (Dingin, Terstruktur Presisi Swiss)",
+    "voice_settings": "Stability: 0.70, Clarity: 0.90, Style Exaggeration: 0.05",
+    "naskah": "Desain yang hebat bukan tercapai saat tidak ada lagi elemen yang bisa kamu tambahkan, melainkan saat tidak ada lagi elemen yang bisa kamu hilangkan tanpa merusak maknanya. Kejelasan struktur mengalahkan semua ornamen hiasan yang berantakan."
+  },
+  {
+    "num": 44,
+    "id": "brutalist-grid",
+    "nama": "Brutalisme Kotak Monokrom (Fakta Pahit Karir)",
+    "durasi": "20 Detik (44 kata)",
+    "topik": "Kerja Keras Saja Tidak Cukup Tanpa Personal Branding",
+    "elevenlabs_voice": "Daniel / Antoni (Lugas Menusuk, Tanpa Basa-Basi)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.90, Style Exaggeration: 0.15",
+    "naskah": "Fakta keras dunia kerja modern. Kamu bisa menjadi orang paling jenius di kantormu, tapi jika tidak ada yang tahu siapa kamu dan apa keahlianmu, kamu akan selalu kalah oleh mereka yang pandai mempublikasikan karya mereka ke publik."
+  },
+  {
+    "num": 45,
+    "id": "kinetic-heavy",
+    "nama": "Tipografi Kinetik Berat Bergerak (Motivasi Hentakan Keras)",
+    "durasi": "15 Detik (36 kata)",
+    "topik": "Berhenti Mengeluh Mulai Eksekusi Sekarang",
+    "elevenlabs_voice": "Fin / Adam (Cepat, Menekan Setiap Suku Kata)",
+    "voice_settings": "Stability: 0.45, Clarity: 0.90, Style Exaggeration: 0.25",
+    "naskah": "Rencana seribu halaman tidak bernilai satu rupiah pun tanpa eksekusi nyata! Berhenti menunggu motivasi datang mengetuk pintu kamarmu! Bangun dari tempat tidur, ambil tindakan sekarang juga, dan buktikan kemampuanmu kepada dunia!"
+  },
+  {
+    "num": 46,
+    "id": "editorial-fashion",
+    "nama": "Majalah Vogue Editorial Mewah (Quiet Luxury Fashion)",
+    "durasi": "20 Detik (42 kata)",
+    "topik": "Tren Old Money: Kemewahan Tanpa Logo Raksasa",
+    "elevenlabs_voice": "Charlotte / Nicole (Bisikan Anggun, Glamour Halus)",
+    "voice_settings": "Stability: 0.70, Clarity: 0.85, Style Exaggeration: 0.10",
+    "naskah": "Orang kaya baru memamerkan logo merek raksasa di dadanya. Namun orang kaya lama memilih potongan kain kasmir tanpa label dengan jahitan tangan yang sempurna. Kemewahan sejati adalah keheningan yang memikat mata tanpa perlu berteriak minta diperhatikan."
+  },
+  {
+    "num": 47,
+    "id": "bauhaus-shapes",
+    "nama": "Geometri Dasar Bauhaus (Form Follows Function)",
+    "durasi": "20 Detik (44 kata)",
+    "topik": "Bentuk Mengikuti Fungsi Sejati Benda",
+    "elevenlabs_voice": "Adam / Marcus (Logis Geometri, Akademis Jerman)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.90, Style Exaggeration: 0.10",
+    "naskah": "Segitiga merah, lingkaran biru, dan bujur sangkar kuning. Sekolah seni Bauhaus mengajarkan satu prinsip abadi: fungsi sebuah benda adalah penentu utama bentuk fisiknya. Hapus semua kepalsuan dekorasi, biarkan keindahan struktur murni berbicara sendiri."
+  },
+  {
+    "num": 48,
+    "id": "minimal-outline",
+    "nama": "Garis Vektor Putih Bersih (Gaya Hidup Minimalis)",
+    "durasi": "20 Detik (43 kata)",
+    "topik": "Membuang 50% Barang Tak Terpakai di Kamar",
+    "elevenlabs_voice": "Rachel / Nicole (Segar, Bersih, Melegakan Pikiran)",
+    "voice_settings": "Stability: 0.60, Clarity: 0.90, Style Exaggeration: 0.05",
+    "naskah": "Kamar tidur yang berantakan adalah cerminan pikiran yang penuh kecemasan. Mulailah menyingkirkan barang-barang yang tidak pernah kamu sentuh selama enam bulan terakhir. Rasakan ruang udara baru yang membawa ketenangan dan kedamaian sejati ke dalam hidupmu."
+  },
+  {
+    "num": 49,
+    "id": "deconstructed-type",
+    "nama": "Tipografi Terbongkar Menyatu (Kebangkitan Pasca Gagal)",
+    "durasi": "25 Detik (50 kata)",
+    "topik": "Titik Terendah Hidup Adalah Pondasi Terkuat",
+    "elevenlabs_voice": "Liam / Antoni (Emosional, Bangkit dari Abu)",
+    "voice_settings": "Stability: 0.55, Clarity: 0.85, Style Exaggeration: 0.20",
+    "naskah": "Pecahan kegagalan di masa lalu tidak perlu kamu sembunyikan. Dari puing-puing kepedihan itulah, karakter terkuatmu sedang dibentuk ulang oleh sang waktu. Bangkitlah kembali, kumpulkan serpihan mimpi lamamu, dan bangun mahakarya hidupmu yang jauh lebih megah dari sebelumnya."
+  },
+  {
+    "num": 50,
+    "id": "clay-stop-motion",
+    "nama": "Plastisin Liat Stop-Motion (Karakter Kartun Nyasar)",
+    "durasi": "20 Detik (45 kata)",
+    "topik": "Boneka Tanah Liat yang Terinjak Sendal Jepit",
+    "elevenlabs_voice": "Charlie / Lily (Kocak, Kartunis Lucu Stop-Motion)",
+    "voice_settings": "Stability: 0.40, Clarity: 0.85, Style Exaggeration: 0.35",
+    "naskah": "Aduh aduh! Tubuhku yang lucu ini baru saja gepeng keinjak sandal jepit raksasa! Tunggu sebentar, tarik kepalaku ke atas... hap! Jadi bulat lagi deh! Jangan menyerah kawan, kalau jatuh gepeng, ya tinggal bangkit membulat lagi seperti tanah liat!"
+  },
+  {
+    "num": 51,
+    "id": "brick-toy",
+    "nama": "Balok Mainan Mirip Lego (Merakit Mobil Impian)",
+    "durasi": "20 Detik (44 kata)",
+    "topik": "Membangun Impian Balok Demi Balok Setiap Hari",
+    "elevenlabs_voice": "Fin / Charlie (Antusias Ceria, Merakit Balok)",
+    "voice_settings": "Stability: 0.45, Clarity: 0.90, Style Exaggeration: 0.30",
+    "naskah": "Koleksi Lego supercar tiga ribu keping ini tidak dirakit dalam satu malam. Pasang roda giginya, kunci chasis dasarnya, pasang mesin V12 baloknya! Klik! Setiap kesuksesan besar di dunia berawal dari satu balok kecil yang dipasang dengan tekun setiap hari!"
+  },
+  {
+    "num": 52,
+    "id": "origami-fold",
+    "nama": "Lipatan Kertas Origami Jepang (Filosofi Senbazuru)",
+    "durasi": "25 Detik (50 kata)",
+    "topik": "Seribu Burung Bangau Kertas Pengabul Harapan",
+    "elevenlabs_voice": "Nicole / Rachel (Halus Meditatif, Ketenangan Batin)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.05",
+    "naskah": "Melipat selembar kertas persegi menjadi sayap burung bangau yang siap terbang bebas. Tradisi seribu origami senbazuru melambangkan kesabaran tanpa batas dan ketulusan doa bagi kesembuhan orang tercinta. Di dalam keheningan sebuah lipatan, tersimpan kekuatan harapan yang sanggup melintasi badai terdalam."
+  },
+  {
+    "num": 53,
+    "id": "papercut-red",
+    "nama": "Seni Kertas Potong Siluet (Festival Musim Semi Imlek)",
+    "durasi": "20 Detik (45 kata)",
+    "topik": "Karakter Fu Terbalik Pembawa Berkah Rezeki",
+    "elevenlabs_voice": "Marcus / Rachel (Megah Tradisi, Meriah Merah Emas)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.15",
+    "naskah": "Guntingan siluet kertas merah berpola naga mengantar sukacita pergantian tahun baru. Memasang huruf Fu secara terbalik di daun pintu bermakna keberkahan rezeki telah tiba di rumahmu. Semoga kelimpahan dan kebahagiaan selalu mengalir menyertai setiap langkah keluargamu."
+  },
+  {
+    "num": 54,
+    "id": "felt-craft",
+    "nama": "Kain Flanel & Benang Wol (Kerajinan Lucu DIY)",
+    "durasi": "20 Detik (43 kata)",
+    "topik": "Bikin Gantungan Kunci Kucing Flanel Gemoy",
+    "elevenlabs_voice": "Lily / Rachel (Hangat Lucu, Lembut Buatan Tangan)",
+    "voice_settings": "Stability: 0.55, Clarity: 0.85, Style Exaggeration: 0.15",
+    "naskah": "Gunting kain flanel warna pastel, jahit pinggirannya dengan benang wol warna-warni, lalu isi dakron empuk di dalamnya! Jadi deh gantungan tas kucing gemoy buatan sendiri! Kreasi tangan sederhana yang bikin harimu lebih ceria dan berwarna!"
+  },
+  {
+    "num": 55,
+    "id": "glassmorphism-3d",
+    "nama": "Kaca Transparan Neon (Tampilan Windows 12 Konsep)",
+    "durasi": "20 Detik (43 kata)",
+    "topik": "Antarmuka Kaca Melayang Blur Tembus Pandang",
+    "elevenlabs_voice": "Nicole / Callum (Sleek Futuristic, Modern Tech)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.90, Style Exaggeration: 0.10",
+    "naskah": "Efek kaca buram dengan pantulan cahaya neon dinamis di setiap sudut jendela aplikasi. Navigasi mengambang tanpa batas yang mengikuti gerakan sensor matamu. Sambut era baru desain antarmuka komputasi yang serba transparan, ringan, dan elegan."
+  },
+  {
+    "num": 56,
+    "id": "lowpoly-island",
+    "nama": "Pulau Low-poly Isometrik (Pulau Rahasia Animal Crossing)",
+    "durasi": "20 Detik (44 kata)",
+    "topik": "Membangun Kafe Santai di Pulau Virtual Pribadi",
+    "elevenlabs_voice": "Charlie / Fin (Santai Cozy Gaming, Ceria)",
+    "voice_settings": "Stability: 0.50, Clarity: 0.90, Style Exaggeration: 0.20",
+    "naskah": "Pohon kelapa bergoyang ditiup angin sepoi-sepoi di tepi pantai pulau low-poly ini. Menanam bunga mawar, memancing ikan langka, dan membangun kedai kopi impian bersama para sahabat binatang lucu. Tempat pelarian ternyaman setelah seharian lelah dengan hiruk pikuk dunia nyata."
+  },
+  {
+    "num": 57,
+    "id": "midcentury-toon",
+    "nama": "Kartun Pertengahan Abad 1950 (Masa Depan Antariksa Retro)",
+    "durasi": "20 Detik (44 kata)",
+    "topik": "Rumah Otomatis Tahun 2000 Menurut Orang 1950",
+    "elevenlabs_voice": "Patrick / Charlie (Penyiar TV Jadul Ceria 1950)",
+    "voice_settings": "Stability: 0.40, Clarity: 0.85, Style Exaggeration: 0.35",
+    "naskah": "Keluarga masa depan abad dua puluh satu! Menekan satu tombol di dinding, sarapan telur mata sapi matang otomatis dan robot pembantu membersihkan karpet ruang tamu! Sungguh kemudahan hidup yang luar biasa bagi seluruh keluarga bahagia Amerika!"
+  },
+  {
+    "num": 58,
+    "id": "cel-anime-80s",
+    "nama": "Anime Cel Klasik 1980 (Pertarungan Robot Raksasa Mecha)",
+    "durasi": "20 Detik (46 kata)",
+    "topik": "Luncurkan Rudal Sayap Gundam Klasik",
+    "elevenlabs_voice": "Fin / Callum (Teriak Mecha Anime Shonen Epik)",
+    "voice_settings": "Stability: 0.45, Clarity: 0.90, Style Exaggeration: 0.30",
+    "naskah": "Sistem persenjataan utama online! Kunci target di orbit koloni luar angkasa nomor tujuh! Mesin pendorong plasma menyala maksimal! Kita tidak akan membiarkan bumi jatuh ke tangan pasukan kegelapan! Serangan pedang laser pamungkas, hancurkan!"
+  },
+  {
+    "num": 59,
+    "id": "rubber-hose",
+    "nama": "Kartun Rubber Hose 1930 (Miki Berlayar di Sungai)",
+    "durasi": "20 Detik (44 kata)",
+    "topik": "Bersiul Gembira di Atas Kapal Uap Tua",
+    "elevenlabs_voice": "Charlie / Clyde (Vintage Swing Jazz Steamboat)",
+    "voice_settings": "Stability: 0.35, Clarity: 0.85, Style Exaggeration: 0.40",
+    "naskah": "Putar roda kemudi kapal uap tua sambil bersiul riang diiringi alunan musik jazz ceria! Kaki melar lentur bagai selang karet, melompat ke sana kemari menghindari cipratan air sungai! Tertawalah bersama, hidup itu untuk dinikmati dengan penuh keceriaan!"
+  },
+  {
+    "num": 60,
+    "id": "scifi-toon",
+    "nama": "Kartun Sitkom Sci-Fi (Rick & Morty Multiverse Jump)",
+    "durasi": "20 Detik (45 kata)",
+    "topik": "Pistol Portal Membuka Dimensi Pizza Berbicara",
+    "elevenlabs_voice": "Patrick / Fin (Gila Cepat, Profesor Multiverse)",
+    "voice_settings": "Stability: 0.40, Clarity: 0.90, Style Exaggeration: 0.30",
+    "naskah": "Cepat lompat ke dalam portal hijau ini kawan! Di dimensi semesta sebelah, pizza adalah makhluk yang memakan manusia di atas piring panas! Jangan tanya kenapa, hukum fisika kuantum semesta memang sekacau ini! Pegangan erat-erat, kita melompat ke galaksi lain!"
+  },
+  {
+    "num": 61,
+    "id": "dataviz",
+    "nama": "Bercerita dengan Data (Kenaikan Harga Rumah vs Gaji UMR)",
+    "durasi": "25 Detik (55 kata)",
+    "topik": "Grafik Mustahilnya Gen-Z Beli Rumah di Ibukota",
+    "elevenlabs_voice": "Daniel / Brian (Jurnalisme Data, Dingin Menggugah)",
+    "voice_settings": "Stability: 0.70, Clarity: 0.90, Style Exaggeration: 0.05",
+    "naskah": "Grafik garis merah ini menunjukkan kenaikan harga properti di ibukota sebesar dua ratus persen dalam sepuluh tahun. Sementara grafik garis biru menunjukkan kenaikan upah riil yang hanya naik delapan belas persen. Matematika tidak pernah berbohong: tanpa reformasi kebijakan agraria, kepemilikan rumah pribadi bagi generasi muda tinggal angan-angan di atas kertas."
+  },
+  {
+    "num": 62,
+    "id": "hologram-hud",
+    "nama": "HUD Hologram Sci-Fi (Iron Man Jarvis Diagnostics)",
+    "durasi": "25 Detik (52 kata)",
+    "topik": "Daya Baterai Reaktor Arc Tinggal 15%",
+    "elevenlabs_voice": "Nicole / Callum (AI Asisten Futuristik Jarvis)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.90, Style Exaggeration: 0.10",
+    "naskah": "Selamat malam bos. Diagnostik baju zirah tempur selesai. Integritas lapisan titanium berada pada angka delapan puluh tujuh persen. Namun daya reaktor energi menyusut ke lima belas persen. Saya sarankan Anda menghindari benturan langsung dan segera mengaktifkan protokol pendaratan darurat sekarang juga."
+  },
+  {
+    "num": 63,
+    "id": "iso-infographic",
+    "nama": "Infografis Isometrik (Alur Perjalanan Paket E-Commerce)",
+    "durasi": "25 Detik (54 kata)",
+    "topik": "Dari Gudang Sortir Otomatis Hingga Tiba di Depan Pintu",
+    "elevenlabs_voice": "Adam / Liam (Logistik Modern, Rapi Terstruktur)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.10",
+    "naskah": "Satu detik setelah kamu menekan tombol beli di aplikasi. Lengan robot gudang mengambil paket dari rak setinggi sepuluh meter. Masuk ke sabuk konveyor otomatis pemindai kode batang, dimuat ke pesawat kargo malam hari, dan kurir mengantarnya ke depan pagarmu esok pagi. Keajaiban logistik modern dunia digital."
+  },
+  {
+    "num": 64,
+    "id": "isometric-picture-book",
+    "nama": "Buku Bergambar Isometrik (SimCity Kota Miniatur)",
+    "durasi": "20 Detik (44 kata)",
+    "topik": "Kereta Api Listrik Melintasi Taman Bunga Kota",
+    "elevenlabs_voice": "Rachel / Lily (Tertib Ceria, Tata Kota Ramah)",
+    "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.15",
+    "naskah": "Kereta listrik mini meluncur mulus membelah kawasan hijau di pusat kota. Warga berjalan kaki di trotoar yang teduh, menghirup udara segar tanpa polusi asap knalpot. Sebuah kota impian masa depan yang dirancang untuk memuliakan kebahagiaan setiap warganya."
+  },
+  {
+    "num": 65,
+    "id": "living-screencast",
+    "nama": "Screencast Hidup (Coding Bot Otomatis Penghasil Cuan)",
+    "durasi": "20 Detik (45 kata)",
+    "topik": "Skrip Python 10 Baris Mengotomasi Tugas 8 Jam",
+    "elevenlabs_voice": "Liam / Nicole (Cepat Developer, Tampilan Terminal)",
+    "voice_settings": "Stability: 0.55, Clarity: 0.90, Style Exaggeration: 0.10",
+    "naskah": "Buka editor kodinganmu. Tulis sepuluh baris perintah Python untuk membaca ribuan file laporan excel yang berantakan. Tekan tombol run, dan seluruh laporan membosankan yang biasanya memakan waktu delapan jam selesai dirangkum dalam dua detik saja. Bekerja cerdas, bukan cuma bekerja keras!"
+  },
+  {
+    "num": 66,
+    "id": "transit-map",
+    "nama": "Peta Jalur Transit (Jalur Rel Kereta Cepat Jakarta-Bandung)",
+    "durasi": "25 Detik (53 kata)",
+    "topik": "Kecepatan 350 Km/Jam Membelah Pegunungan",
+    "elevenlabs_voice": "Brian / Adam (Panduan Transportasi Cepat Modern)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.05",
+    "naskah": "Dari Stasiun Halim Jakarta hingga Tegalluar Bandung hanya dalam waktu empat puluh lima menit. Meluncur menembus terowongan gunung dengan kecepatan tiga ratus lima puluh kilometer per jam tanpa guncangan. Menghubungkan denyut nadi ekonomi dua kota megapolitan dalam satu kedipan perjalanan modern."
+  },
+  {
+    "num": 67,
+    "id": "game-show",
+    "nama": "Kuis TV Datar (Kuis Milyarder Trivia Geografi)",
+    "durasi": "20 Detik (45 kata)",
+    "topik": "Negara Mana yang Punya Garis Pantai Terpanjang?",
+    "elevenlabs_voice": "Patrick / Charlie (Pembawa Acara Heboh Kuis TV)",
+    "voice_settings": "Stability: 0.40, Clarity: 0.90, Style Exaggeration: 0.35",
+    "naskah": "Pertanyaan penentuan hadiah satu miliar rupiah! Negara manakah yang memiliki garis pantai terpanjang di seluruh dunia? Apakah Indonesia, Rusia, atau Kanada? Kunci jawaban Anda sekarang! Benar sekali, jawabannya adalah Kanada! Anda membawa pulang uang tunai malam ini!"
+  },
+  {
+    "num": 68,
+    "id": "hd-2d",
+    "nama": "HD-2D (Piksel Klasik dengan Lighting Sinematik)",
+    "durasi": "25 Detik (52 kata)",
+    "topik": "Ksatria Terakhir di Reruntuhan Kastil Kuno",
+    "elevenlabs_voice": "Marcus / Callum (Epik Fantasi Sinematik RPG)",
+    "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.20",
+    "naskah": "Lampu lentera berpendar lembut memantulkan bayangan di atas lantai batu kastil yang basah. Dengan grafis piksel enam belas bit berpadu tata cahaya tiga dimensi yang memukau. Ksatria terakhir mengangkat pedangnya, siap menyongsong fajar pertempuran yang akan menentukan nasib kerajaan abadi."
+  },
+  {
+    "num": 69,
+    "id": "microgame",
+    "nama": "Kegilaan Gim Mini (Kuis Cepat Tebak Logo Brand)",
+    "durasi": "15 Detik (35 kata)",
+    "topik": "Tebak Logo Asli vs Palsu dalam 3 Detik",
+    "elevenlabs_voice": "Fin / Patrick (Sangat Cepat Tantangan Viral)",
+    "voice_settings": "Stability: 0.35, Clarity: 0.90, Style Exaggeration: 0.40",
+    "naskah": "Tebak dalam tiga detik! Mana logo apel yang digigit di sebelah kanan? Kiri atau kanan? Tiga, dua, satu! Kalau kamu salah tebak, kamu wajib follow akun ini sekarang juga!"
+  },
+  {
+    "num": 70,
+    "id": "pixel-rpg",
+    "nama": "RPG Piksel 16-bit (Pokemon Menemukan Monster Langka)",
+    "durasi": "20 Detik (46 kata)",
+    "topik": "Muncul Monster Emas Shiny di Semak-Semak",
+    "elevenlabs_voice": "Callum / Charlie (Gamer Retro Nintendo Heboh)",
+    "voice_settings": "Stability: 0.50, Clarity: 0.85, Style Exaggeration: 0.25",
+    "naskah": "Karaktermu berjalan pelan di rerumputan tinggi. Tiba-tiba musik pertempuran berbunyi nyaring dan kilauan bintang bersinar di layar! Monster emas legendaris yang hanya muncul satu banding delapan ribu kesempatan! Lempar bola Master Ball sekarang juga jangan sampai kabur!"
+  },
+  {
+    "num": 71,
+    "id": "backrooms",
+    "nama": "Rekaman Ruang Liminal (Level 0 Karpet Kuning Basah)",
+    "durasi": "25 Detik (50 kata)",
+    "topik": "Terjebak di Lorong Backrooms Tanpa Pintu Keluar",
+    "elevenlabs_voice": "Daniel / Marcus (Horor Liminal Berbisik Ngeri)",
+    "voice_settings": "Stability: 0.55, Clarity: 0.85, Style Exaggeration: 0.25",
+    "naskah": "Jika kamu tidak sengaja no-clip menembus dinding di dunia nyata, kamu akan berakhir di sini. Bau karpet kuning basah tua, dengungan lampu neon monokrom berdaya maksimum, dan lorong labirin kosong tak berujung seluas enam ratus juta mil persegi. Jika kamu mendengar sesuatu merayap di dekatmu, segera lari."
+  },
+  {
+    "num": 72,
+    "id": "silent-film",
+    "nama": "Film Bisu 1920 (Charlie Chaplin Dikejar Polisi)",
+    "durasi": "20 Detik (44 kata)",
+    "topik": "Pencuri Roti Lolos Berkat Pisang Terpeleset",
+    "elevenlabs_voice": "Charlie / Patrick (Kocak Pantomimik Slapstick)",
+    "voice_settings": "Stability: 0.40, Clarity: 0.85, Style Exaggeration: 0.35",
+    "naskah": "Seorang pria bertopi caping berlari kencang memeluk sepotong roti hangat! Polisi gemuk bergegas mengejarnya dari belakang, tapi sialnya menginjak kulit pisang di trotoar jalan! Terpeleset dramatis berputar tiga kali sebelum jatuh menimpa tong sampah! Komedi klasik yang tak pernah usang!"
+  },
+  {
+    "num": 73,
+    "id": "arang-gotik",
+    "nama": "Arang Gotik (Kisah Rumah Hantu Amityville)",
+    "durasi": "30 Detik (62 kata)",
+    "topik": "Misteri Jam 3:15 Dini Hari Rumah Angker",
+    "elevenlabs_voice": "George / Daniel (Horor Gotik Seram, Berat Mencekam)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.80, Style Exaggeration: 0.25",
+    "naskah": "Goresan arang hitam melukiskan siluet jendela rumah bergaya kolonial Belanda di tepi danau sunyi. Tepat pukul tiga lewat lima belas menit dini hari, pintu lemari tua terbuka perlahan dengan deritan dingin. Udara ruangan membeku seketika dan jejak kaki basah terlihat melangkah menuju tempat tidurmu. Ada misteri masa lalu yang menolak untuk dilupakan."
+  },
+  {
+    "num": 74,
+    "id": "mesin-ketik",
+    "nama": "Gambar Mesin Ketik (Penyelidikan Detektif Cyber)",
+    "durasi": "25 Detik (54 kata)",
+    "topik": "Melacak Transaksi Gelap Bitcoin di Pasar Gelap",
+    "elevenlabs_voice": "Brian / Adam (Noir Sinematik, Ketukan Mesin Tik)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.90, Style Exaggeration: 0.15",
+    "naskah": "Ketukan tuts mesin tik di tengah kepulan asap kopi hitam. Laporan rahasia nomor empat ratus empat. Alamat dompet kripto itu memindahkan seratus ribu koin tanpa nama pemilik ke rekening bank lepas pantai di Karibia. Jejak digital tidak pernah hilang, mereka hanya bersembunyi di balik enkripsi algoritma rumit."
+  },
+  {
+    "num": 75,
+    "id": "poster-huruf-kayu",
+    "nama": "Poster Huruf Kayu (Pengumuman Wanted Wild West)",
+    "durasi": "20 Detik (44 kata)",
+    "topik": "Dicari: Penjahat Paling Licin di Kota Tambang Emas",
+    "elevenlabs_voice": "Adam / Bill (Suara Sheriff Koboi Wild West)",
+    "voice_settings": "Stability: 0.55, Clarity: 0.90, Style Exaggeration: 0.25",
+    "naskah": "Dicari hidup atau mati! Billy the Kid perampok kereta kuda antar-negara bagian! Imbalan lima ribu keping koin emas bagi siapa pun yang berhasil membawanya ke kantor sheriff kota sebelum matahari terbenam esok hari! Keadilan tidak akan pernah berkompromi!"
+  },
+  {
+    "num": 76,
+    "id": "teater-kertas",
+    "nama": "Teater Kertas Victoria (Kisah Klasik Sherlock Holmes)",
+    "durasi": "25 Detik (52 kata)",
+    "topik": "Jejak Kaki Anjing Raksasa di Rawa Baskerville",
+    "elevenlabs_voice": "Rachel / Nicole (Teatrikal Misteri Inggris Kuno)",
+    "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.20",
+    "naskah": "Panggung teater kertas membuka tabir kabut tebal London abad kesembilan belas. Ketika petunjuk terkecil berupa abu rokok cerutu di atas perapian mampu membongkar konspirasi pembunuhan bangsawan terkaya Inggris. Elementary my dear Watson, kebenaran sejati selalu tersembunyi di balik hal-hal yang dianggap sepele."
+  },
+  {
+    "num": 77,
+    "id": "cetak-blok",
+    "nama": "Cetak Blok Tangan (Batik Motif Mega Mendung Cirebon)",
+    "durasi": "25 Detik (52 kata)",
+    "topik": "Filosofi Awan Kelabu Penyejuk Jiwa Manusia",
+    "elevenlabs_voice": "George / Rachel (Hangat Budaya Luhur Nusantara)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.10",
+    "naskah": "Cap tembaga menorehkan cairan lilin malam di atas lembaran kain mori halus. Motif Mega Mendung bukan sekadar lukisan awan mendung pembawa hujan, melainkan wejangan luhur para leluhur agar manusia senantiasa mampu menahan amarah dan mendinginkan suasana saat amukan badai kehidupan melanda jiwa."
+  },
+  {
+    "num": 78,
+    "id": "album-polaroid",
+    "nama": "Album Foto Polaroid (Nostalgia Tren Era 2000-an)",
+    "durasi": "25 Detik (52 kata)",
+    "topik": "Zaman SMS Karakter Terbatas dan Tukeran Lagu Bluetooth",
+    "elevenlabs_voice": "Nicole / Rachel (Nostalgia Y2K, Penuh Kenangan Hangat)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.15",
+    "naskah": "Membuka album foto polaroid dengan tone warna pudar hangat. Masa ketika kita harus menabung pulsa sepuluh ribu rupiah demi mengirim pesan singkat cinta, dan menunggu setengah jam kirim satu lagu mp3 lewat koneksi bluetooth infra-merah. Kenangan sederhana yang kini tak terbeli oleh kecanggihan smartphone tercanggih sekalipun."
+  },
+  {
+    "num": 79,
+    "id": "gongbi-sutra",
+    "nama": "Lukisan Gongbi di Sutra (Legenda Pedang Langit Pembunuh Naga)",
+    "durasi": "25 Detik (54 kata)",
+    "topik": "Kisah Persilatan Pendekar di Puncak Gunung Huashan",
+    "elevenlabs_voice": "Charlotte / Nicole (Anggun Pendekar Wuxia Klasik)",
+    "voice_settings": "Stability: 0.70, Clarity: 0.85, Style Exaggeration: 0.10",
+    "naskah": "Goresan kuas halus di atas kain sutra menggambarkan pertarungan dua pendekar sakti di puncak tebing berkabut. Menghunus pedang mustika yang ditempa dari meteorit besi langit. Mengingatkan kita bahwa ilmu persilatan tertinggi bukanlah untuk menguasai dunia fana, melainkan untuk menaklukkan hawa nafsu diri sendiri."
+  },
+  {
+    "num": 80,
+    "id": "manuskrip-iluminasi",
+    "nama": "Manuskrip Iluminasi Emas (Misteri Naskah Voynich)",
+    "durasi": "30 Detik (64 kata)",
+    "topik": "Buku Berbahasa Asing yang Tak Bisa Dibaca Superkomputer",
+    "elevenlabs_voice": "George / Marcus (Misterius Sejarah Kuno yang Belum Terpecahkan)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.15",
+    "naskah": "Dihiasi tinta emas dan ilustrasi tanaman aneh yang tidak pernah ada di bumi. Naskah Voynich dari abad kelima belas adalah teka-teki kriptografi paling membingungkan di planet ini. Kriptografer militer, ahli bahasa dunia, hingga algoritma kecerdasan buatan terkuat gagal memecahkan satu kalimat pun dari buku misterius ini. Bahasa manusia, atau pesan dari peradaban lain?"
+  },
+  {
+    "num": 81,
+    "id": "mosaik-romawi",
+    "nama": "Mosaik Lantai Romawi (Pertarungan Gladiator di Colosseum)",
+    "durasi": "25 Detik (54 kata)",
+    "topik": "Sorak Sorai Lima Puluh Ribu Penonton Roma",
+    "elevenlabs_voice": "Daniel / George (Gagah Perkasa Kekaisaran Romawi)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.10",
+    "naskah": "Jutaan batu marmer kecil menyusun adegan pertarungan hidup mati para gladiator di lantai arena Colosseum. Berdiri tegak di hadapan singa buas dan pedang lawan demi memperebutkan satu hal yang paling berharga bagi seorang budak: mahkota kebebasan sejati. Sejarah kekaisaran terhebat yang dipahat di atas pasir berdarah."
+  },
+  {
+    "num": 82,
+    "id": "arcade-tarung",
+    "nama": "Gim Tarung Arcade 16-bit (Hadouken vs K.O. Boss Viral)",
+    "durasi": "15 Detik (38 kata)",
+    "topik": "Combo Jurus Pamungkas Street Fighter K.O.!",
+    "elevenlabs_voice": "Fin / Callum (Komentator Arcade Game 90-an Heboh)",
+    "voice_settings": "Stability: 0.35, Clarity: 0.90, Style Exaggeration: 0.40",
+    "naskah": "Round one! Fight! Maju, serong bawah, pukulan naga! Musuh terpelanting ke pinggir layar arena! Aktifkan jurus kombo pamungkas bola api energi raksasa! K.O.! Kemenangan mutlak sempurna bagi sang juara bertahan arcade!"
+  },
+  {
+    "num": 83,
+    "id": "dagerotipe",
+    "nama": "Dagerotipe Antik (Foto Wajah Abraham Lincoln 1860)",
+    "durasi": "25 Detik (54 kata)",
+    "topik": "Potret Manusia Pertama yang Diabadikan Pelat Tembaga Perak",
+    "elevenlabs_voice": "Marcus / Daniel (Khidmat Abad 19, Sunyi Menyentuh)",
+    "voice_settings": "Stability: 0.70, Clarity: 0.80, Style Exaggeration: 0.15",
+    "naskah": "Duduk mematung tanpa bergerak sedikit pun selama lima belas menit di bawah terik matahari. Pelat perak dagerotipe ini merekam tatapan mata lelah seorang presiden yang sedang memikul beban perang saudara bangsanya. Sebuah gambar bisu yang sanggup berbicara lebih lantang daripada seribu pidato sejarah."
+  },
+  {
+    "num": 84,
+    "id": "potongan-arsitektur",
+    "nama": "Potongan Arsitektur Aksonometri (Bunker Kiamat Miliarder)",
+    "durasi": "25 Detik (52 kata)",
+    "topik": "Fasilitas Mewah di Kedalaman 50 Meter Bawah Tanah",
+    "elevenlabs_voice": "Nicole / Adam (Modern Teknis Megah, Analitis)",
+    "voice_settings": "Stability: 0.65, Clarity: 0.90, Style Exaggeration: 0.05",
+    "naskah": "Potongan aksonometri bunker bawah tanah para triliuner teknologi di kepulauan Selandia Baru. Kolam renang indoor, pembangkit listrik geotermal mandiri, kebun hidroponik bawah tanah, dan pintu baja anti-radiasi nuklir seberat dua puluh ton. Tempat perlindungan mewah untuk menyongsong kiamat peradaban di permukaan bumi."
+  },
+  {
+    "num": 85,
+    "id": "scrimshaw",
+    "nama": "Ukiran Tulang Maritim (Legenda Monster Laut Kraken)",
+    "durasi": "25 Detik (54 kata)",
+    "topik": "Kisah Cumi-Cumi Raksasa Menenggelamkan Kapal Layar",
+    "elevenlabs_voice": "George / Marcus (Pelaut Kasar Samudera Tua)",
+    "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.20",
+    "naskah": "Terukir di atas gigi paus sperma tua cerita para pelaut kutub utara. Di tengah pusaran badai laut Norwegia, tentakel raksasa sepanjang dua puluh meter muncul dari kegelapan palung samudera dan melilit tiang layar kapal hingga patah terbelah dua. Jangan pernah menantang penguasa laut dalam tanpa rasa hormat."
+  },
+  {
+    "num": 86,
+    "id": "desktop-flythrough",
+    "nama": "Terbang Menyusuri Desktop (Workflow AI Editor Video)",
+    "durasi": "20 Detik (45 kata)",
+    "topik": "Edit Video Shorts 60 Detik Cuma Modal 1 Kali Klik",
+    "elevenlabs_voice": "Liam / Callum (Tech Modern Cepat, Produktivitas)",
+    "voice_settings": "Stability: 0.55, Clarity: 0.90, Style Exaggeration: 0.10",
+    "naskah": "Tarik file video mentah ke dalam timeline proyek. Sistem kecerdasan buatan otomatis memotong bagian hening, menambahkan teks subtitle warna-warni yang sedang viral, dan menyisipkan efek suara transisi tanpa kamu perlu edit manual berjam-jam. Konten kreator masa kini bekerja dengan kecepatan cahaya."
+  },
+  {
+    "num": 87,
+    "id": "glass-product",
+    "nama": "Render Produk Kaca (Kemewahan Parfum Sultan)",
+    "durasi": "20 Detik (44 kata)",
+    "topik": "Kilau Botol Kristal Parfum Seharga 50 Juta Rupiah",
+    "elevenlabs_voice": "Charlotte / Nicole (Mewah Tingkat Tinggi, Glamour)",
+    "voice_settings": "Stability: 0.70, Clarity: 0.90, Style Exaggeration: 0.05",
+    "naskah": "Potongan botol kristal murni dengan tutup berlapis emas dua puluh empat karat. Mengunci sari minyak mawar langka dari lembah Bulgaria dan kayu gaharu tua termahal di dunia. Keharuman yang tidak hanya memikat indra penciuman, melainkan menegaskan tahta wibawa keberadaanmu."
+  },
+  {
+    "num": 88,
+    "id": "dark-keynote",
+    "nama": "Keynote Teknologi Gelap (Peluncuran Terbesar Tahun Ini)",
+    "durasi": "30 Detik (65 kata)",
+    "topik": "One More Thing: Inovasi yang Mengubah Segala Hal",
+    "elevenlabs_voice": "Adam / Marcus (Steve Jobs Keynote Karismatik)",
+    "voice_settings": "Stability: 0.70, Clarity: 0.90, Style Exaggeration: 0.15",
+    "naskah": "Hari ini, kita tidak hanya memperkenalkan sebuah produk teknologi biasa. Sekali dalam setiap dekade, sebuah lompatan revolusioner hadir dan mengubah bagaimana umat manusia hidup, berkarya, dan terhubung satu sama lain. Kenakan sabuk pengamanmu. Selamat datang di babak baru peradaban masa depan."
+  }
+]

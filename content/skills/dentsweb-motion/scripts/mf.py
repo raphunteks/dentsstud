@@ -138,11 +138,17 @@ class Halaman:
 
     def __init__(self, html, kueri=''):
         self.prof = tempfile.mkdtemp(prefix='mf-chrome-')
-        self.proc = subprocess.Popen([cari_chrome(), '--headless=new', f'--remote-debugging-port={PORT}', f'--user-data-dir={self.prof}',
-                                      '--hide-scrollbars', '--force-device-scale-factor=1', '--allow-file-access-from-files',
-                                      '--autoplay-policy=no-user-gesture-required', '--mute-audio', '--enable-webgl',
-                                      '--ignore-gpu-blocklist', '--use-angle=default', 'about:blank'],
-                                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        flags = [cari_chrome(), '--headless=new', f'--remote-debugging-port={PORT}', f'--user-data-dir={self.prof}',
+                 '--hide-scrollbars', '--force-device-scale-factor=1', '--allow-file-access-from-files',
+                 '--autoplay-policy=no-user-gesture-required', '--mute-audio', '--enable-webgl',
+                 '--ignore-gpu-blocklist', '--use-angle=default']
+        if platform.system() == 'Linux':
+            flags += ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
+        extra_flags = os.environ.get('CHROME_FLAGS', '').split()
+        if extra_flags:
+            flags += [x for x in extra_flags if x]
+        flags.append('about:blank')
+        self.proc = subprocess.Popen(flags, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         try:
             page = None
             for _ in range(150):
@@ -505,6 +511,35 @@ def cmd_render(a):
     print('selesai ->', out)
 
 
+def cmd_batch(a):
+    root = pathlib.Path(a.folder).expanduser().resolve()
+    if not root.is_dir():
+        sys.exit(f'Folder batch tidak ada: {root}')
+    proyeks = []
+    if (root / 'scene.html').exists() or (root / 'index.html').exists():
+        proyeks = [root]
+    else:
+        for d in sorted(root.iterdir()):
+            if d.is_dir() and ((d / 'scene.html').exists() or (d / 'index.html').exists()):
+                proyeks.append(d)
+    if not proyeks:
+        sys.exit(f'Tidak ada subfolder proyek dengan scene.html/index.html di {root}')
+    print(f'Batch render: ditemukan {len(proyeks)} proyek di {root}')
+    sukses, gagal = [], []
+    for i, p in enumerate(proyeks, 1):
+        print(f'\n=== [{i}/{len(proyeks)}] Proyek: {p.name} ===')
+        try:
+            cmd_render(argparse.Namespace(proyek=str(p), fps=a.fps, sampai=a.sampai, out=a.out, tanpa_audio=a.tanpa_audio, q=a.q))
+            sukses.append(p.name)
+        except Exception as e:
+            print(f'   ! Gagal render {p.name}: {e}')
+            gagal.append((p.name, str(e)))
+    print(f'\nRingkasan Batch: {len(sukses)} berhasil, {len(gagal)} gagal.')
+    if gagal:
+        for n, err in gagal:
+            print(f'  - {n}: {err}')
+
+
 # ---------------------------------------------------------------- cadangan / riwayat / pulihkan
 SIMPAN = ['scene.html', 'naskah.md', 'kata.js', 'gaya.md']
 
@@ -576,6 +611,9 @@ def main():
     re_ = sp.add_parser('render'); re_.add_argument('proyek'); re_.add_argument('--fps', type=int, default=30)
     re_.add_argument('--sampai', type=float, default=0); re_.add_argument('--out', default=''); re_.add_argument('--tanpa-audio', action='store_true'); re_.add_argument('--q', default='')
     re_.set_defaults(f=cmd_render)
+    ba = sp.add_parser('batch'); ba.add_argument('folder'); ba.add_argument('--fps', type=int, default=30)
+    ba.add_argument('--sampai', type=float, default=0); ba.add_argument('--out', default=''); ba.add_argument('--tanpa-audio', action='store_true'); ba.add_argument('--q', default='')
+    ba.set_defaults(f=cmd_batch)
     c = sp.add_parser('cadangan'); c.add_argument('proyek'); c.add_argument('catatan', nargs='?', default=''); c.set_defaults(f=cmd_cadangan)
     rw = sp.add_parser('riwayat'); rw.add_argument('proyek'); rw.set_defaults(f=cmd_riwayat)
     pu = sp.add_parser('pulihkan'); pu.add_argument('proyek'); pu.add_argument('nomor', nargs='?', type=int, default=0); pu.set_defaults(f=cmd_pulihkan)

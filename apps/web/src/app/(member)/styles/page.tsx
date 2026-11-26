@@ -34,11 +34,11 @@ export default function StylesGallery() {
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
         {list.data?.items.map((p) => (
           <button key={p.id} onClick={() => setOpen(p)} className="group overflow-hidden rounded-card border border-line bg-surface text-left transition-transform hover:-translate-y-0.5">
-            <div className="lit relative aspect-[3/4] overflow-hidden">
-              {p.previewUrl ? (
-                <video src={p.previewUrl} autoPlay muted loop playsInline className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-              ) : p.thumbnailUrl ? (
-                <img src={p.thumbnailUrl} alt="" loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+            <div className="lit relative aspect-[3/4] overflow-hidden bg-surface-2">
+              {p.thumbnailUrl ? (
+                <img src={p.thumbnailUrl} alt={p.name} loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+              ) : p.previewUrl ? (
+                <video src={p.previewUrl} muted loop playsInline className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
               ) : null}
             </div>
             <div className="p-3"><p className="font-medium">{p.name}</p><p className="text-xs text-muted">{p.category.name}</p></div>
@@ -48,7 +48,13 @@ export default function StylesGallery() {
       <Modal open={!!open} onClose={() => setOpen(null)} title={open?.name ?? ''}>
         {open && (
           <div className="grid gap-4">
-            <div className="lit aspect-[9/16] max-h-[60vh] overflow-hidden rounded-xl">{open.previewUrl ? <video src={open.previewUrl} autoPlay muted loop playsInline className="size-full object-cover" /> : open.thumbnailUrl && <img src={open.thumbnailUrl} alt={open.name} className="size-full object-cover" />}</div>
+            <div className="lit aspect-[9/16] max-h-[60vh] overflow-hidden rounded-xl bg-black">
+              {open.previewUrl ? (
+                <video src={open.previewUrl} controls autoPlay loop playsInline className="size-full object-cover" />
+              ) : open.thumbnailUrl ? (
+                <img src={open.thumbnailUrl} alt={open.name} className="size-full object-cover" />
+              ) : null}
+            </div>
             <p className="text-sm text-muted">{open.description || open.category.name}</p>
             <Link
               href={`/create-content?preset=${encodeURIComponent(open.id)}`}

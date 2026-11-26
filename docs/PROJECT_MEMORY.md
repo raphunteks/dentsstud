@@ -130,4 +130,45 @@ Global prefix `/api/v1`; guards `ThrottlerGuard` (300 req/60s) + global `AuthGua
 - **Web:** `AppShell` ignores `nav` prop (7 pages orphaned from sidebar); `/voices` link to `/editor` 404s; `settings/production` strips `,` & `\n`; wrong query keys on Claude model change; VoiceStudio tab-switch stale `sel`; `Editor.tsx` drag double-translate; Open Redirect `?next=//...`; `vercel.json` missing `motion-schema`/`content-schema` build; `/callback` `useSession()` race condition; `typeof null === 'object'` blocks null settings; dark mode `dark:*` / `.lit` / `Toaster` out of sync.
 - **Desktop:** `HasilView` calls nonexistent `POST /results/:id/mark-uploaded` & crashes on `FAILED` tab clicks; `OfflineProjectsView` has no JSX for cached projects; `App.tsx` offline error screen locks out offline mode; `AdminWorkflowsView` skill upload is a fake `alert()` stub; `AdminSystemView` fakes green `/health` on failure; `AdminVoicesView` audio stop broken; 6 IPC channels unwired; `import-folder` visible to Member; `LocalRenderView` corrupts relative URLs (`https:///...`); OAuth listener emits double events on all interfaces `:3000`; `BerandaView` & `BuatKontenView` missing hooks/uploads/style images.
 - **Backend/Infra:** BullMQ render retry #2 always aborted (`status === 'FAILED'`) & cancel overwrites `CANCELLING`->`FAILED`; SSE sends duplicate events (ms vs µs); Gemini TTS uses nonexistent model & wrong JSON field; expired licenses report `ACTIVE`; license `grant()` breaks existing desktop activations; `api.Dockerfile` missing schema package builds; `infrastructure/workflows/ci.yml` misplaced; `MotionComp.tsx` hardcodes `"KITA BONGKAR"`, particle bounds `1080x1920`, ignores `src/presets/` demos.
-- **Dead DB Features:** `feature_flags`, `notifications` reads, `incidents` CRUD, `RESET_PASSWORD`, `retention.trashDays`, `cloudRenderMinutesPerMonth`, `worker_nodes` offline transition, `app_releases` (0 rows on VPS).
+---
+
+## 8. Releases Evolution: v1.0.10 through v1.0.18
+
+### v1.0.10 – v1.0.12 Base Stabilization
+- Master vector branding: `dentsweb-logo.svg` (`viewBox="0 0 1024 1024"`), `build/icon.png` (1024x1024 RGBA), and high-resolution DMG backgrounds (`background.png`, `background@2x.png`, `background.tiff`).
+- Unlimited Skills `.zip` and folder upload UI in `AdminWorkflowsView`, eliminating the previous 15MB limit.
+- Analytics resolved KPI card (`Total Selesai`) and `POST /admin/errors/resolve-all`.
+
+### v1.0.13 Releases & Sidebar Upgrades
+- Vector logo tiles in sidebar branding (`apps/desktop/src/assets/logo.svg`).
+- Superadmin `11 Rilis Desktop`: added `admin:pick-installer` and `admin:upload-release` IPC handlers streaming installers directly from disk via `FormData` in the main process, eliminating renderer memory bloat.
+- Member `Pengaturan → Update & Rilis`: dedicated sub-tab with live update status, `update:check`, `update:apply`, and manual download links for macOS & Windows.
+
+### v1.0.14 Preload Parity, Office & Member Management
+- Preload allowlist parity: automated Vitest regression test in `views.test.tsx` verifying 100% sync between `electron/ipc/channels.ts` and `electron/preload/index.ts`.
+- Reusable `AiProvidersPanel.tsx`: added `Segarkan Model` button (`POST /ai/connections/:id/check`) to refresh all models (500+ from 9Router) and maintain `CONNECTED` status.
+- `AdminOfficeView.tsx` (`15 Kantor & RBAC`): pure SVG + CSS 4-room isometric pixel-art office (`Ruang Kerja`, `Ruang Render & Server`, `Ruang Meeting`, `Lounge Istirahat`) with live presence polling (10s) and Member vs Superadmin RBAC matrix.
+- `SuperadminViews.tsx` (`02 Member & Akses`): KPI cards, license filter, CSV export, `+ Registrasi Member` modal (Argon2id auto-generated password), license expiry badge, password reset with 1-click copy, force logout all sessions, and quick license extend (`+30h`, `+90h`, `+365h`).
+
+### v1.0.15 Native TryPost Social Publisher
+- `SocialView.tsx`: Member `Sosial Media` view with 4 sub-tabs (`Kalender & Antrean`, `Buat Post`, `Ideas Board`, `Akun Terhubung` for all 10 TryPost platforms: TikTok, Instagram, YouTube, Facebook, X, LinkedIn, Threads, Pinterest, Bluesky, Mastodon).
+- `HasilView.tsx`: added 1-click `Publish Sosmed` button passing `resultId` to `SocialView`.
+- `AdminSocialView`: Superadmin `16 Social Publisher` with KPI cards, `Auto-Publish` toggle, 10-platform configuration modal, and global queue monitor.
+
+### v1.0.16 Bulletproof Notification Popover Portal
+- `apps/desktop/src/App.tsx`: rendered notification dropdown via `createPortal(..., document.body)` with `fixed` coordinates anchored to the bell button, `z-[9999]`, backdrop `z-[9998]`, Escape key handler, and resize listener. Header given `z-40` to prevent stacking context clipping from backdrop-blur or page cards.
+
+### v1.0.17 DENTSWEB MOTION LMS & Global Rebrand
+- Rebranded all occurrences of `One Line Motion` / `one-line-motion` → `DENTSWEB MOTION` / `dentsweb-motion` across the codebase, database, and skill ZIP (0 legacy brand occurrences remaining).
+- `LmsView.tsx` (`Kelas & Materi` under `BELAJAR` group): topbar with `⌘K` global search modal, progress ring %, `Lanjut Belajar` CTA, and 8 sub-tabs (`Beranda Kelas`, `Daftar Kelas` & Lesson Player with chapters/checklist/prompt box, 1-click `Kirim ke Buat Konten`, `Racik Prompt` 6-stage builder, `Koleksi Prompt`, `Resep Gaya`, `Kamus Motion`, `Video Efek`, `Update & Download Skill`).
+- Dedicated Member Web `/kelas/*` routing (`/kelas`, `/kelas/login`, `/kelas/register`, `/kelas/materi/[slug]`, `/kelas/racik`, `/kelas/prompt`, `/kelas/gaya`, `/kelas/kamus`, `/kelas/efek`, `/kelas/update`, `/kelas/unduh`).
+- `AdminLmsView`: Superadmin `17 Kelas & LMS` CRUD control center and member progress analytics.
+
+### v1.0.18 88 Gaya Viral DENTSWEB MOTION & Galeri Gaya Enhancements
+- **88 Gaya Viral Full Production**: 88 viral social media motion video styles rendered in vertical 9:16 (1080×1920 60fps) MP4 with Kokoro ONNX neural voiceovers (6 voices: adam, michael, heart, bella, sarah, emma), dynamic audio waveforms, pink noise ambient SFX, and JPG thumbnails.
+- **Database Full Parity**: VPS PostgreSQL `visual_presets` updated so 100% of presets (88/88) point to rendered MP4/JPG assets (`presets_rendered/`), completely eliminating legacy fallback videos. Total active presets: 98.
+- **Superadmin CMS Limit Fix**: Updated presets query in `apps/desktop/src/views/SuperadminExtraViews.tsx` to `GET /admin/styles/presets?limit=100` so all 98 styles display in CMS (previously limited to default 50).
+- **Web Galeri Gaya Optimization**: Lazy image loading (`loading="lazy"`) on 98 cards prevents network rate limits, and modal video preview features unmuted `<video controls autoPlay loop playsInline />` for smooth Kokoro VO + SFX playback.
+- **Desktop Galeri Gaya Audio Unmuted**: Desktop video preview modal includes interactive controls with unmuted playback.
+- **mf.py Automation**: Added Linux headless Chromium flags (`--no-sandbox`, `--disable-dev-shm-usage`, `--disable-gpu`) and added `batch` command for sequential headless project rendering.
+- **Desktop Release Packaging**: Packaged native installers for `darwin-arm64`, `darwin-x64`, and `win32-x64` with strict release cleanup and version parity across the monorepo.

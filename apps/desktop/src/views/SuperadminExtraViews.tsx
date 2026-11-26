@@ -115,7 +115,7 @@ export function AdminContentView() {
 
   const presetsQ = useQuery({
     queryKey: ['admin-presets'],
-    queryFn: () => get<unknown>('/admin/styles/presets').then((r) => toArr(r)).catch(() => []),
+    queryFn: () => get<unknown>('/admin/styles/presets?limit=100').then((r) => toArr(r)).catch(() => []),
   });
 
   const catsQ = useQuery({

@@ -189,8 +189,8 @@ export function GaleriGayaView({ onNavigate }: GaleriGayaViewProps) {
               {selectedPreset.previewUrl ? (
                 <video
                   src={toMediaUrl(selectedPreset.previewUrl)}
+                  controls
                   autoPlay
-                  muted
                   loop
                   playsInline
                   className="size-full object-cover"
