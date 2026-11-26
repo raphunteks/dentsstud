@@ -172,3 +172,9 @@ Global prefix `/api/v1`; guards `ThrottlerGuard` (300 req/60s) + global `AuthGua
 - **Desktop Galeri Gaya Audio Unmuted**: Desktop video preview modal includes interactive controls with unmuted playback.
 - **mf.py Automation**: Added Linux headless Chromium flags (`--no-sandbox`, `--disable-dev-shm-usage`, `--disable-gpu`) and added `batch` command for sequential headless project rendering.
 - **Desktop Release Packaging**: Packaged native installers for `darwin-arm64`, `darwin-x64`, and `win32-x64` with strict release cleanup and version parity across the monorepo.
+
+### v1.0.19 Zero-Delay Playback & Diverse Full-Screen Motion Renders
+- **Desktop Zero-Delay Grid**: Removed `<video autoPlay>` from 98-card grid in `GaleriGayaView.tsx`, replacing it with lazy/async images (`<img loading="lazy" decoding="async" />`) and pure monochrome SVG play badge on hover. Completely eliminates the 6 concurrent media connection exhaustion in Chromium/Electron.
+- **Instant Video Modal Preview**: Video preview modal in Desktop and Web equipped with dynamic `key={id}`, thumbnail `poster`, `preload="auto"`, unmuted interactive `controls`, and `autoPlay loop playsInline`.
+- **DENTSWEB MOTION Authentic Motion Production**: Upgraded render pipeline with 8 official original templates (rendered via Chromium Headless `mf.py`) and 12 distinct full-screen visual motion engines for 80 gallery styles (incorporating `-movflags +faststart` for zero-buffering HTTP 206 streaming, rich animated illustrations, kinetic subtitles, Kokoro neural voiceover, and pink noise ambient SFX).
+- **Monorepo Version Bump**: Unified `@dentweb/api`, `@dentweb/web`, and `@dentweb/desktop` to `1.0.19`.

@@ -402,7 +402,7 @@ export function PengaturanView({ user, dash, offline, info, updateState }: Penga
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="font-display text-base font-semibold text-text">Pembaruan Aplikasi Desktop</h2>
-                <p className="text-xs text-muted">Versi terpasang: v{info?.version ?? '1.0.18'} ({info?.platform}/{info?.arch})</p>
+                <p className="text-xs text-muted">Versi terpasang: v{info?.version ?? '1.0.19'} ({info?.platform}/{info?.arch})</p>
               </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => void invoke('update:check')}>
@@ -639,7 +639,7 @@ export function PengaturanView({ user, dash, offline, info, updateState }: Penga
       )}
 
       {activeTab === 'updates' && (() => {
-        const curVersion = info?.version ?? '1.0.18';
+        const curVersion = info?.version ?? '1.0.19';
         const plat = info?.platform === 'win32' ? 'win32' : 'darwin';
         const archKey = info?.arch === 'x64' ? 'x64' : 'arm64';
         const myLatest =
