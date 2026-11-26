@@ -85,4 +85,43 @@ describe('Desktop Superadmin and Member Views Integrity', () => {
     const missing = CHANNEL_NAMES.filter((ch) => !preloadSrc.includes(`'${ch}'`));
     expect(missing).toEqual([]);
   });
+
+  it('enforces macOS 15–27 compatibility config (entitlements, builder, afterSign, GPU switches)', () => {
+    const builderCfg = readFileSync(resolve(__dirname, '../../electron-builder.yml'), 'utf8');
+    const entitlements = readFileSync(resolve(__dirname, '../../build/entitlements.mac.plist'), 'utf8');
+    const afterSignSrc = readFileSync(resolve(__dirname, '../../scripts/after-sign-mac.mjs'), 'utf8');
+    const mainSrc = readFileSync(resolve(__dirname, '../../electron/main/index.ts'), 'utf8');
+
+    for (const key of [
+      'minimumSystemVersion: "15.0"',
+      'afterSign: scripts/after-sign-mac.mjs',
+      'LSMinimumSystemVersion: "15.0"',
+      'NSLocalNetworkUsageDescription',
+      'NSDocumentsFolderUsageDescription',
+      'NSDownloadsFolderUsageDescription',
+      'NSHighResolutionCapable: true',
+      'NSSupportsAutomaticGraphicsSwitching: true',
+      'format: UDZO',
+      'internetEnabled: false',
+    ]) {
+      expect(builderCfg).toContain(key);
+    }
+
+    for (const ent of [
+      'com.apple.security.cs.allow-jit',
+      'com.apple.security.cs.allow-unsigned-executable-memory',
+      'com.apple.security.cs.disable-library-validation',
+      'com.apple.security.network.client',
+      'com.apple.security.network.server',
+      'com.apple.security.files.user-selected.read-write',
+      'com.apple.security.files.downloads.read-write',
+    ]) {
+      expect(entitlements).toContain(ent);
+    }
+
+    expect(afterSignSrc).toContain('studio.dentsweb.desktop');
+    expect(afterSignSrc).toContain('entitlements.mac.plist');
+    expect(afterSignSrc).toContain('--deep');
+    expect(mainSrc).toContain("process.platform !== 'darwin'");
+  });
 });

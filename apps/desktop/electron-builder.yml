@@ -15,8 +15,10 @@ asarUnpack:
 protocols:
   - name: DENTSWEB STUDIO
     schemes: [dentsweb, dentweb]
+afterSign: scripts/after-sign-mac.mjs
 mac:
   category: public.app-category.video
+  minimumSystemVersion: "15.0"
   target:
     - target: dmg
       arch: [arm64, x64]
@@ -24,10 +26,19 @@ mac:
   gatekeeperAssess: false
   entitlements: build/entitlements.mac.plist
   entitlementsInherit: build/entitlements.mac.plist
+  extendInfo:
+    LSMinimumSystemVersion: "15.0"
+    NSLocalNetworkUsageDescription: "DENTSWEB STUDIO membutuhkan akses jaringan lokal untuk callback login OAuth dan pratinjau render lokal."
+    NSDocumentsFolderUsageDescription: "DENTSWEB STUDIO membutuhkan akses folder Dokumen untuk menyimpan proyek dan aset video Anda."
+    NSDownloadsFolderUsageDescription: "DENTSWEB STUDIO membutuhkan akses folder Unduhan untuk menyimpan hasil render MP4 dan pembaruan aplikasi."
+    NSHighResolutionCapable: true
+    NSSupportsAutomaticGraphicsSwitching: true
   # Signing + notarization: set CSC_LINK/CSC_KEY_PASSWORD and APPLE_ID/APPLE_APP_SPECIFIC_PASSWORD/APPLE_TEAM_ID.
   notarize: false
 dmg:
   artifactName: DENTSWEB-STUDIO-${version}-${arch}.dmg
+  format: UDZO
+  internetEnabled: false
   background: build/background.tiff
   iconSize: 128
   window:

@@ -18,10 +18,12 @@ if (!gotTheLock) {
 app.setAsDefaultProtocolClient('dentsweb');
 app.setAsDefaultProtocolClient('dentweb');
 
-// Performance & GPU rasterization optimizations
+// Performance & GPU rasterization optimizations (keep Metal ANGLE defaults on macOS 15-27)
 app.commandLine.appendSwitch('enable-gpu-rasterization');
-app.commandLine.appendSwitch('enable-zero-copy');
-app.commandLine.appendSwitch('ignore-gpu-blocklist');
+if (process.platform !== 'darwin') {
+  app.commandLine.appendSwitch('enable-zero-copy');
+  app.commandLine.appendSwitch('ignore-gpu-blocklist');
+}
 app.commandLine.appendSwitch('enable-accelerated-video-decode');
 
 // CI containers run as root, where Chromium refuses its sandbox. Honoured only for unpackaged test runs.
