@@ -205,6 +205,9 @@ async function main() {
         slug: item.id,
         title: item.nama || item.id,
         topic: item.topik || item.nama || item.id,
+        visualLayout: item.visualLayout || '',
+        hookTitle: item.hookTitle || '',
+        scenes: Array.isArray(item.scenes) ? item.scenes : [],
       };
     }
   }
@@ -276,9 +279,12 @@ async function main() {
 
       const inputProps = {
         slug,
-        title: metaTitle || cat.title,
-        topic: metaTopic || cat.topic,
+        title: cat.title || metaTitle,
+        topic: cat.topic || metaTopic,
         archetype,
+        visualLayout: cat.visualLayout || undefined,
+        hookTitle: cat.hookTitle || undefined,
+        scenes: cat.scenes?.length ? cat.scenes : undefined,
         words,
         audioUrl: mp3Name ? `http://127.0.0.1:${port}/${encodeURIComponent(mp3Name)}` : '',
         durationInFrames,
@@ -315,8 +321,8 @@ async function main() {
       ], { stdio: 'ignore' });
       try { fs.unlinkSync(rawMp4); } catch {}
 
-      // Capture rich full-screen JPG thumbnail at 2.8s (peak Scene 1/2 visual + hook title)
-      const thumbSec = Math.min(durationSec - 0.5, 2.8);
+      // Capture rich full-screen JPG thumbnail at 3.0s
+      const thumbSec = Math.min(durationSec - 0.5, 3.0);
       execFileSync('ffmpeg', [
         '-y', '-ss', thumbSec.toFixed(3),
         '-i', finalMp4,

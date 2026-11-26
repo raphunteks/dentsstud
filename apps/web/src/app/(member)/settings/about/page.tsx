@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api, fmtBytes, fmtDate } from '@/lib/api';
 import { Button, Card, ErrorNote, PageHead, Skeleton, Status } from '@/components/ui';
 
-const VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? '1.0.20';
+const VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? '1.0.21';
 
 interface ReleaseInfo {
   id: string;

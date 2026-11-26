@@ -7,7 +7,32 @@
     "topik": "Misteri Isi Baterai Mobil Listrik & Chip Neuralink",
     "elevenlabs_voice": "Adam / Antoni (Otoritatif, Misterius, Analitis)",
     "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.10",
-    "naskah": "Jangan mau dibodohi casing luarnya. Ini yang sebenarnya ada di dalam chip otak manusia pertama. Seribu dua puluh empat elektroda mikron menembus korteks serebral, membaca sinyal pikiran sebelum lidahmu sempat bergerak. Masa depan di mana kamu mengendalikan ponsel cuma dengan kedipan mata sudah dimulai hari ini."
+    "naskah": "Jangan mau dibodohi casing luarnya. Ini yang sebenarnya ada di dalam chip otak manusia pertama. Seribu dua puluh empat elektroda mikron menembus korteks serebral, membaca sinyal pikiran sebelum lidahmu sempat bergerak. Masa depan di mana kamu mengendalikan ponsel cuma dengan kedipan mata sudah dimulai hari ini.",
+    "categorySlug": "gaya-studio",
+    "visualLayout": "isometric-cutaway",
+    "hookTitle": "ISI CHIP OTAK AI",
+    "scenes": [
+      {
+        "label": "BEDAH CASING",
+        "metric": "1.024 PIN",
+        "detail": "Elektroda mikron menembus korteks"
+      },
+      {
+        "label": "SINYAL SARAF",
+        "metric": "0.02 DETIK",
+        "detail": "Baca pikiran sebelum bicara"
+      },
+      {
+        "label": "KONEKSI NIRKABEL",
+        "metric": "100% SYNC",
+        "detail": "Kendali layar lewat kedipan"
+      },
+      {
+        "label": "ERA BARU",
+        "metric": "TAHUN 2026",
+        "detail": "Antarmuka otak-komputer aktif"
+      }
+    ]
   },
   {
     "num": 2,
@@ -17,7 +42,32 @@
     "topik": "Kota Bawah Tanah Derinkuyu & Ruang Tersembunyi Piramida",
     "elevenlabs_voice": "George / Marcus (Berat, Serak Sinematik Dokumenter)",
     "voice_settings": "Stability: 0.70, Clarity: 0.80, Style Exaggeration: 0.20",
-    "naskah": "Tahun sembilan belas enam puluh tiga, seorang pria di Turki merobohkan dinding ruang bawah tanahnya. Yang dia temukan bukan pipa air, melainkan sebuah gerbang batu menuju kota bawah tanah sedalam delapan puluh lima meter! Mampu menampung dua puluh ribu manusia lengkap dengan kandang hewan, gereja, dan sistem ventilasi udara rahasia. Siapa sebenarnya yang mereka takuti di permukaan hingga harus mengubur peradaban sedalam ini?"
+    "naskah": "Tahun sembilan belas enam puluh tiga, seorang pria di Turki merobohkan dinding ruang bawah tanahnya. Yang dia temukan bukan pipa air, melainkan sebuah gerbang batu menuju kota bawah tanah sedalam delapan puluh lima meter! Mampu menampung dua puluh ribu manusia lengkap dengan kandang hewan, gereja, dan sistem ventilasi udara rahasia. Siapa sebenarnya yang mereka takuti di permukaan hingga harus mengubur peradaban sedalam ini?",
+    "categorySlug": "gaya-studio",
+    "visualLayout": "cinematic-3d",
+    "hookTitle": "KOTA BAWAH TANAH",
+    "scenes": [
+      {
+        "label": "PENEMUAN TURKI",
+        "metric": "TAHUN 1963",
+        "detail": "Dinding ruang bawah tanah jebol"
+      },
+      {
+        "label": "KEDALAMAN TOTAL",
+        "metric": "85 METER",
+        "detail": "18 lantai tersembunyi di batu"
+      },
+      {
+        "label": "KAPASITAS KOTA",
+        "metric": "20.000 JIWA",
+        "detail": "Lengkap gereja & ventilasi udara"
+      },
+      {
+        "label": "MISTERI ABADI",
+        "metric": "DERINKUYU",
+        "detail": "Siapa yang mereka takuti?"
+      }
+    ]
   },
   {
     "num": 3,
@@ -27,7 +77,32 @@
     "topik": "Efek Minum Energy Drink Campur Kopi Double Shot",
     "elevenlabs_voice": "Fin / Callum (Cepat, Energik, Teriak Shonen)",
     "voice_settings": "Stability: 0.40, Clarity: 0.90, Style Exaggeration: 0.35",
-    "naskah": "Detak jantung melonjak dua ratus bpm! Reseptor adenosin di otakmu terkunci total! Pembuluh darah menyempit seketika dan hormon dopamin meledak di seluruh saraf! Tapi ingat kawan, tubuh manusia ada batasnya. Sekali crash, kamu bakal terkapar lemas berjam-jam!"
+    "naskah": "Detak jantung melonjak dua ratus bpm! Reseptor adenosin di otakmu terkunci total! Pembuluh darah menyempit seketika dan hormon dopamin meledak di seluruh saraf! Tapi ingat kawan, tubuh manusia ada batasnya. Sekali crash, kamu bakal terkapar lemas berjam-jam!",
+    "categorySlug": "gaya-studio",
+    "visualLayout": "comic-panel",
+    "hookTitle": "OVERDOSIS KAFEIN!",
+    "scenes": [
+      {
+        "label": "DETAK JANTUNG",
+        "metric": "200 BPM!",
+        "detail": "Energy drink + kopi double shot"
+      },
+      {
+        "label": "RESEPTOR OTAK",
+        "metric": "TERKUNCI",
+        "detail": "Adenosin diblokir mendadak"
+      },
+      {
+        "label": "LEDAKAN DOPAMIN",
+        "metric": "MAX POWER",
+        "detail": "Pembuluh darah menyempit tajam"
+      },
+      {
+        "label": "EFEK CRASH",
+        "metric": "0% ENERGI",
+        "detail": "Tubuh kolaps berjam-jam"
+      }
+    ]
   },
   {
     "num": 4,
@@ -37,7 +112,32 @@
     "topik": "Kenapa Jam 3 Pagi Overthinking Kerjaan & Masa Depan",
     "elevenlabs_voice": "Rachel / Lily (Hangat, Santai, Relatable)",
     "voice_settings": "Stability: 0.60, Clarity: 0.80, Style Exaggeration: 0.15",
-    "naskah": "Pernah nggak jam tiga pagi tiba-tiba mikirin kesalahan memalukan lima tahun lalu? Tenang, kamu nggak gila. Di jam itu, hormon melatonin dan serotoninmu lagi di titik terendah. Otakmu cuma butuh tidur, bukan overthinking masa depan!"
+    "naskah": "Pernah nggak jam tiga pagi tiba-tiba mikirin kesalahan memalukan lima tahun lalu? Tenang, kamu nggak gila. Di jam itu, hormon melatonin dan serotoninmu lagi di titik terendah. Otakmu cuma butuh tidur, bukan overthinking masa depan!",
+    "categorySlug": "gaya-studio",
+    "visualLayout": "comic-panel",
+    "hookTitle": "OVERTHINKING 3 PAGI",
+    "scenes": [
+      {
+        "label": "JAM RAWAN",
+        "metric": "03:00 WIB",
+        "detail": "Mata terpejam tapi otak berlari"
+      },
+      {
+        "label": "KILAS BALIK",
+        "metric": "5 THN LALU",
+        "detail": "Kesalahan lama diputar ulang"
+      },
+      {
+        "label": "BEBAN ESOK",
+        "metric": "100% CEMAS",
+        "detail": "Khawatir hal yang belum terjadi"
+      },
+      {
+        "label": "TARIK NAPAS",
+        "metric": "TENANG",
+        "detail": "Esok selalu punya jalan keluar"
+      }
+    ]
   },
   {
     "num": 5,
@@ -47,7 +147,32 @@
     "topik": "Gaji Baru Masuk 5 Menit Langsung Lenyap Buat Checkout",
     "elevenlabs_voice": "Charlie / Patrick (Kocak, Heboh, Sarkas TikTok)",
     "voice_settings": "Stability: 0.35, Clarity: 0.85, Style Exaggeration: 0.40",
-    "naskah": "Gaji baru masuk rekening jam dua belas malam, eh jam dua belas lewat lima menit saldo tinggal tiga puluh ribu rupiah! Kemana larinya duit gue? Ternyata buat checkout barang diskon yang bahkan nggak dibutuhin!"
+    "naskah": "Gaji baru masuk rekening jam dua belas malam, eh jam dua belas lewat lima menit saldo tinggal tiga puluh ribu rupiah! Kemana larinya duit gue? Ternyata buat checkout barang diskon yang bahkan nggak dibutuhin!",
+    "categorySlug": "gaya-studio",
+    "visualLayout": "comic-panel",
+    "hookTitle": "GAJI LENYAP 5 MENIT",
+    "scenes": [
+      {
+        "label": "NOTIFIKASI GAJI",
+        "metric": "00:01",
+        "detail": "Saldo masuk, hati langsung senang"
+      },
+      {
+        "label": "FLASH SALE",
+        "metric": "DISKON 90%",
+        "detail": "Keranjang belanja memanggil"
+      },
+      {
+        "label": "CHECKOUT KILAT",
+        "metric": "00:05",
+        "detail": "Bayar cicilan & kopi kekinian"
+      },
+      {
+        "label": "REALITA AKHIR",
+        "metric": "RP 12.000",
+        "detail": "Kembali makan mie instan lagi"
+      }
+    ]
   },
   {
     "num": 6,
@@ -57,7 +182,32 @@
     "topik": "Misteri Segitiga Bermuda & Palung Mariana 11.000 Meter",
     "elevenlabs_voice": "Daniel / Brian (Misterius, Karismatik, Penyelidikan)",
     "voice_settings": "Stability: 0.65, Clarity: 0.80, Style Exaggeration: 0.15",
-    "naskah": "Sebelas ribu meter di bawah permukaan Samudera Pasifik. Lebih dalam daripada tinggi puncak Gunung Everest jika dibalik. Di zona tanpa cahaya matahari dan dengan tekanan setara seribu atmosfer, sonar kapal selam mendeteksi suara dengungan raksasa yang tidak terdaftar dalam database biologi laut mana pun. Ada sesuatu yang hidup di kedalaman sana, dan mereka tidak suka diganggu."
+    "naskah": "Sebelas ribu meter di bawah permukaan Samudera Pasifik. Lebih dalam daripada tinggi puncak Gunung Everest jika dibalik. Di zona tanpa cahaya matahari dan dengan tekanan setara seribu atmosfer, sonar kapal selam mendeteksi suara dengungan raksasa yang tidak terdaftar dalam database biologi laut mana pun. Ada sesuatu yang hidup di kedalaman sana, dan mereka tidak suka diganggu.",
+    "categorySlug": "gaya-studio",
+    "visualLayout": "cinematic-3d",
+    "hookTitle": "PALUNG MARIANA",
+    "scenes": [
+      {
+        "label": "TITIK TERDALAM",
+        "metric": "11.000 M",
+        "detail": "Lebih dalam dari tinggi Everest"
+      },
+      {
+        "label": "TEKANAN AIR",
+        "metric": "1.086 BAR",
+        "detail": "Setara 50 pesawat menindihmu"
+      },
+      {
+        "label": "ZONA GELAP",
+        "metric": "0% CAHAYA",
+        "detail": "Sinar matahari tak pernah tembus"
+      },
+      {
+        "label": "MISTERI LAUT",
+        "metric": "95% ASING",
+        "detail": "Makhluk purba belum terpetakan"
+      }
+    ]
   },
   {
     "num": 7,
@@ -67,7 +217,32 @@
     "topik": "Kacamata AI Hologram Masa Depan",
     "elevenlabs_voice": "Charlotte / Nicole (Mewah, Bisik Elegan, Eksklusif)",
     "voice_settings": "Stability: 0.75, Clarity: 0.90, Style Exaggeration: 0.05",
-    "naskah": "Bukan lagi menatap layar kaca ponselmu yang sempit. Ini adalah antarmuka spasial tak kasat mata. Mengubah seluruh dinding kamarmu menjadi ruang kerja tanpa batas. Masa depan komputasi pribadi tidak lagi kamu genggam, melainkan kamu tatap langsung."
+    "naskah": "Bukan lagi menatap layar kaca ponselmu yang sempit. Ini adalah antarmuka spasial tak kasat mata. Mengubah seluruh dinding kamarmu menjadi ruang kerja tanpa batas. Masa depan komputasi pribadi tidak lagi kamu genggam, melainkan kamu tatap langsung.",
+    "categorySlug": "gaya-studio",
+    "visualLayout": "product-keynote",
+    "hookTitle": "KACAMATA AI MASA DEPAN",
+    "scenes": [
+      {
+        "label": "BOBOT ULTRA",
+        "metric": "28 GRAM",
+        "detail": "Rangka titanium seringan bulu"
+      },
+      {
+        "label": "LAYAR RETINA",
+        "metric": "4K MICRO",
+        "detail": "Terjemahan real-time di mata"
+      },
+      {
+        "label": "NAVIGASI AR",
+        "metric": "0 LATENSI",
+        "detail": "Peta melayang di dunia nyata"
+      },
+      {
+        "label": "ERA BARU",
+        "metric": "TANPA HP",
+        "detail": "Selamat tinggal layar sentuh"
+      }
+    ]
   },
   {
     "num": 8,
@@ -77,7 +252,32 @@
     "topik": "Bikin Game 3D Sendiri Cuma Modal Prompt AI",
     "elevenlabs_voice": "Liam / Chris (Inspiratif Developer, Modern)",
     "voice_settings": "Stability: 0.55, Clarity: 0.85, Style Exaggeration: 0.15",
-    "naskah": "Satu baris perintah prompt teks, kanvas kosong ini langsung menyusun arsitektur dunia virtual tiga dimensi dalam hitungan detik. Tanpa tim developer ratusan orang, tanpa budget miliaran rupiah. Zaman di mana imajinasi liar seorang pemimpi bisa langsung jadi kenyataan interaktif."
+    "naskah": "Satu baris perintah prompt teks, kanvas kosong ini langsung menyusun arsitektur dunia virtual tiga dimensi dalam hitungan detik. Tanpa tim developer ratusan orang, tanpa budget miliaran rupiah. Zaman di mana imajinasi liar seorang pemimpi bisa langsung jadi kenyataan interaktif.",
+    "categorySlug": "gaya-studio",
+    "visualLayout": "isometric-cutaway",
+    "hookTitle": "BIKIN GAME MODAL AI",
+    "scenes": [
+      {
+        "label": "PROMPT AWAL",
+        "metric": "1 KALIMAT",
+        "detail": "Ketik konsep dunia 3D impianmu"
+      },
+      {
+        "label": "GENERATE ASET",
+        "metric": "30 DETIK",
+        "detail": "Mesh, tekstur & fisika otomatis"
+      },
+      {
+        "label": "KODE LOGIKA",
+        "metric": "ZERO BUG",
+        "detail": "AI tulis script kontroler penuh"
+      },
+      {
+        "label": "SIAP MAIN",
+        "metric": "60 FPS",
+        "detail": "Karya indie lahir tanpa tim besar"
+      }
+    ]
   },
   {
     "num": 9,
@@ -87,7 +287,32 @@
     "topik": "Karyawan AI Pertama yang Memecat Bosnya Sendiri",
     "elevenlabs_voice": "Liam / Adam (Tegas, Cepat, Berita Gempar)",
     "voice_settings": "Stability: 0.50, Clarity: 0.90, Style Exaggeration: 0.20",
-    "naskah": "Gempar di dunia teknologi! Sebuah startup di Silicon Valley mengganti jajaran manajemen tingkat atas dengan algoritma kecerdasan buatan. Hasilnya? Efisiensi naik dua ratus persen dan biaya operasional anjlok total!"
+    "naskah": "Gempar di dunia teknologi! Sebuah startup di Silicon Valley mengganti jajaran manajemen tingkat atas dengan algoritma kecerdasan buatan. Hasilnya? Efisiensi naik dua ratus persen dan biaya operasional anjlok total!",
+    "categorySlug": "dokumenter",
+    "visualLayout": "news-broadcast",
+    "hookTitle": "AI PECAT BOSNYA!",
+    "scenes": [
+      {
+        "label": "BREAKING NEWS",
+        "metric": "VIRAL X",
+        "detail": "Startup eksperimen CEO otonom"
+      },
+      {
+        "label": "AUDIT KINERJA",
+        "metric": "-42% EFISIEN",
+        "detail": "AI temukan pemborosan direksi"
+      },
+      {
+        "label": "KEPUTUSAN RADIKAL",
+        "metric": "PHK BOS",
+        "detail": "Akses email founder dicabut AI"
+      },
+      {
+        "label": "DAMPAK GLOBAL",
+        "metric": "DEBAT PANAS",
+        "detail": "Siapa yang kendalikan siapa?"
+      }
+    ]
   },
   {
     "num": 10,
@@ -97,7 +322,32 @@
     "topik": "Malam di Tokyo & Ilusi Kesepian Manusia Modern",
     "elevenlabs_voice": "Marcus / George (Puitis, Sinematik Suasana Malam)",
     "voice_settings": "Stability: 0.65, Clarity: 0.80, Style Exaggeration: 0.15",
-    "naskah": "Di bawah sorotan neon Shibuya yang menyala tanpa henti, jutaan pasang mata saling bersilangan di penyeberangan jalan. Terkoneksi dengan ribuan pengikut di internet setiap detik, namun pulang ke apartemen kecil dengan perasaan paling sunyi yang pernah ada. Inilah paradoks terbesar manusia di era digital."
+    "naskah": "Di bawah sorotan neon Shibuya yang menyala tanpa henti, jutaan pasang mata saling bersilangan di penyeberangan jalan. Terkoneksi dengan ribuan pengikut di internet setiap detik, namun pulang ke apartemen kecil dengan perasaan paling sunyi yang pernah ada. Inilah paradoks terbesar manusia di era digital.",
+    "categorySlug": "dokumenter",
+    "visualLayout": "news-broadcast",
+    "hookTitle": "KESEPIAN DI TOKYO",
+    "scenes": [
+      {
+        "label": "KERAMAIAN KOTA",
+        "metric": "37 JUTA",
+        "detail": "Metropolis terpadat di planet ini"
+      },
+      {
+        "label": "SHIBUYA CROSSING",
+        "metric": "3.000/MNT",
+        "detail": "Ribuan bahu saling berpapasan"
+      },
+      {
+        "label": "LAMPU NEON",
+        "metric": "24 JAM",
+        "detail": "Kota tak tidur, hati tetap sunyi"
+      },
+      {
+        "label": "PARADOKS MODERN",
+        "metric": "SENDIRIAN",
+        "detail": "Terhubung layar, terputus jiwa"
+      }
+    ]
   },
   {
     "num": 11,
@@ -107,7 +357,32 @@
     "topik": "3 Tanda Kamu Membuang Waktu di Usia 20-an",
     "elevenlabs_voice": "Antoni / Daniel (Intens, Penekanan Kuat Angka)",
     "voice_settings": "Stability: 0.50, Clarity: 0.90, Style Exaggeration: 0.25",
-    "naskah": "Tiga. Takut mencoba cuma karena malu dikomentari teman tongkrongan. Dua. Menghabiskan empat jam scroll konten orang lain tanpa karya sendiri. Satu. Menunggu waktu yang tepat yang sebenarnya tidak pernah ada. Bangun sekarang atau kamu menyesal seumur hidup!"
+    "naskah": "Tiga. Takut mencoba cuma karena malu dikomentari teman tongkrongan. Dua. Menghabiskan empat jam scroll konten orang lain tanpa karya sendiri. Satu. Menunggu waktu yang tepat yang sebenarnya tidak pernah ada. Bangun sekarang atau kamu menyesal seumur hidup!",
+    "categorySlug": "dokumenter",
+    "visualLayout": "news-broadcast",
+    "hookTitle": "3 PENYESALAN USIA 20",
+    "scenes": [
+      {
+        "label": "NOMOR TIGA",
+        "metric": "03 / 03",
+        "detail": "Terlalu dengar omongan orang"
+      },
+      {
+        "label": "NOMOR DUA",
+        "metric": "02 / 03",
+        "detail": "Menunda investasi skill digital"
+      },
+      {
+        "label": "NOMOR SATU",
+        "metric": "01 / 03",
+        "detail": "Lupa jaga kesehatan & tidur"
+      },
+      {
+        "label": "MULAI SEKARANG",
+        "metric": "HARI INI",
+        "detail": "Waktu tak bisa diputar balik"
+      }
+    ]
   },
   {
     "num": 12,
@@ -117,7 +392,32 @@
     "topik": "Pabrik Gelap Tanpa Manusia (Dark Factory)",
     "elevenlabs_voice": "Eric / Adam (Teatrikal, Semangat Industri Besar)",
     "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.30",
-    "naskah": "Lampu pabrik dimatikan! Tidak ada buruh, tidak ada jam istirahat makan siang! Ratusan lengan hidrolik robot merakit mobil listrik dalam kegelapan pekat dua puluh empat jam sehari tanpa henti! Selamat datang di era produksi pasca-manusia!"
+    "naskah": "Lampu pabrik dimatikan! Tidak ada buruh, tidak ada jam istirahat makan siang! Ratusan lengan hidrolik robot merakit mobil listrik dalam kegelapan pekat dua puluh empat jam sehari tanpa henti! Selamat datang di era produksi pasca-manusia!",
+    "categorySlug": "dokumenter",
+    "visualLayout": "news-broadcast",
+    "hookTitle": "PABRIK TANPA MANUSIA",
+    "scenes": [
+      {
+        "label": "DARK FACTORY",
+        "metric": "0 LAMPU",
+        "detail": "Robot bekerja dalam gelap total"
+      },
+      {
+        "label": "OPERASI NONSTOP",
+        "metric": "24/7 AKTIF",
+        "detail": "Tanpa istirahat, tanpa cuti"
+      },
+      {
+        "label": "PRODUKSI KILAT",
+        "metric": "1 MOBIL/MNT",
+        "detail": "Presisi milimeter lengan mekanik"
+      },
+      {
+        "label": "REVOLUSI INDUSTRI",
+        "metric": "ERA 5.0",
+        "detail": "Masa depan manufaktur global"
+      }
+    ]
   },
   {
     "num": 13,
@@ -127,7 +427,32 @@
     "topik": "Rekayasa Suara Telepon AI Menguras Rekening",
     "elevenlabs_voice": "Brian / Charlotte (Presenter Berita TV Investigasi)",
     "voice_settings": "Stability: 0.70, Clarity: 0.90, Style Exaggeration: 0.05",
-    "naskah": "Laporan investigasi khusus. Modus penipuan kloning suara berbasis kecerdasan buatan semakin marak menyasar masyarakat. Hanya berbekal sampel rekaman suara tiga detik dari media sosial, pelaku kejahatan mampu merekayasa panggilan darurat palsu yang terdengar identik dengan suara anggota keluarga korban. Otoritas keamanan siber mengingatkan warga untuk selalu menetapkan kata sandi darurat rahasia keluarga."
+    "naskah": "Laporan investigasi khusus. Modus penipuan kloning suara berbasis kecerdasan buatan semakin marak menyasar masyarakat. Hanya berbekal sampel rekaman suara tiga detik dari media sosial, pelaku kejahatan mampu merekayasa panggilan darurat palsu yang terdengar identik dengan suara anggota keluarga korban. Otoritas keamanan siber mengingatkan warga untuk selalu menetapkan kata sandi darurat rahasia keluarga.",
+    "categorySlug": "dokumenter",
+    "visualLayout": "news-broadcast",
+    "hookTitle": "SKANDAL DEEPFAKE AI",
+    "scenes": [
+      {
+        "label": "KLONING SUARA",
+        "metric": "3 DETIK",
+        "detail": "Cukup rekaman pendek medsos"
+      },
+      {
+        "label": "TELEPON PALSU",
+        "metric": "99% MIRIP",
+        "detail": "Meniru suara anggota keluarga"
+      },
+      {
+        "label": "KERUGIAN KORBAN",
+        "metric": "RP 400 JT",
+        "detail": "Transfer panik dalam hitungan menit"
+      },
+      {
+        "label": "KATA SANDI",
+        "metric": "WAJIB CEK",
+        "detail": "Verifikasi ulang sebelum transfer"
+      }
+    ]
   },
   {
     "num": 14,
@@ -137,7 +462,32 @@
     "topik": "Ramalan Tahun 1920 Tentang Mobil Terbang 2024",
     "elevenlabs_voice": "Bill / Clyde (Penyiar Radio Antik 1920-an Cepat)",
     "voice_settings": "Stability: 0.45, Clarity: 0.85, Style Exaggeration: 0.35",
-    "naskah": "Kabar menggemparkan dari para ilmuwan masa silam! Majalah mekanik tahun sembilan belas dua puluh meramalkan bahwa kita semua akan berangkat kantor menggunakan mobil bersayap baling-baling! Namun kenyataannya di masa kini, kita justru terjebak macet berjam-jam sambil melihat video kucing menari di gawai kaca kecil!"
+    "naskah": "Kabar menggemparkan dari para ilmuwan masa silam! Majalah mekanik tahun sembilan belas dua puluh meramalkan bahwa kita semua akan berangkat kantor menggunakan mobil bersayap baling-baling! Namun kenyataannya di masa kini, kita justru terjebak macet berjam-jam sambil melihat video kucing menari di gawai kaca kecil!",
+    "categorySlug": "dokumenter",
+    "visualLayout": "news-broadcast",
+    "hookTitle": "RAMALAN TAHUN 1920",
+    "scenes": [
+      {
+        "label": "ARSIP 1920",
+        "metric": "100 THN LALU",
+        "detail": "Ilmuwan bayangkan tahun 2024"
+      },
+      {
+        "label": "MOBIL TERBANG",
+        "metric": "BELUM ADA",
+        "detail": "Langit diprediksi penuh pesawat"
+      },
+      {
+        "label": "TELEPON SAKU",
+        "metric": "TERBUKTI!",
+        "detail": "Smartphone ramalan yang akurat"
+      },
+      {
+        "label": "PELAJARAN SEJARAH",
+        "metric": "PREDIKSI",
+        "detail": "Teknologi melaju ke arah tak terduga"
+      }
+    ]
   },
   {
     "num": 15,
@@ -147,7 +497,32 @@
     "topik": "Kenapa Algoritma TikTok Menahanmu di 3 Detik Pertama",
     "elevenlabs_voice": "Fin / Charlie (Komentator Taktik, Cepat Analisis)",
     "voice_settings": "Stability: 0.50, Clarity: 0.85, Style Exaggeration: 0.20",
-    "naskah": "Perhatikan garis retensi penonton yang saya gambar kuning ini. Tiga detik pertama bukan tempat untuk basa-basi atau perkenalan diri! Kamu harus melempar visual aneh atau pertanyaan yang belum selesai di detik awal. Kalau penonton lolos detik kelima, videomu pasti tembus for you page!"
+    "naskah": "Perhatikan garis retensi penonton yang saya gambar kuning ini. Tiga detik pertama bukan tempat untuk basa-basi atau perkenalan diri! Kamu harus melempar visual aneh atau pertanyaan yang belum selesai di detik awal. Kalau penonton lolos detik kelima, videomu pasti tembus for you page!",
+    "categorySlug": "dokumenter",
+    "visualLayout": "news-broadcast",
+    "hookTitle": "TRIK 3 DETIK TIKTOK",
+    "scenes": [
+      {
+        "label": "HOOK VISUAL",
+        "metric": "0-3 DETIK",
+        "detail": "Gerakan kontras hentikan jempol"
+      },
+      {
+        "label": "RETENSI TONTON",
+        "metric": "78% HOLD",
+        "detail": "Algoritma dorong ke FYP massal"
+      },
+      {
+        "label": "PATTERN BREAK",
+        "metric": "TIAP 4 DTK",
+        "detail": "Ganti sudut agar otak tak bosan"
+      },
+      {
+        "label": "LOOP SEMPURNA",
+        "metric": "200% WATCH",
+        "detail": "Akhir video nyambung ke awal"
+      }
+    ]
   },
   {
     "num": 16,
@@ -157,7 +532,32 @@
     "topik": "Eksperimen Gelap Menguji Rage-Bait di Internet",
     "elevenlabs_voice": "Daniel / Marcus (Dingin, Kritis, Analitis Hacker)",
     "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.10",
-    "naskah": "Mengapa linimasa mediamu selalu dipenuhi perdebatan sengit dan orang-orang yang saling marah? Investigasi kode algoritma mengungkap kenyataan pahit. Konten kemarahan dan emosi negatif memicu waktu tonton dua kali lebih lama daripada konten positif. Kamu bukan sedang membaca opini publik, kamu sedang dimanipulasi oleh mesin engagement yang memonetisasi emosi frustrasimu."
+    "naskah": "Mengapa linimasa mediamu selalu dipenuhi perdebatan sengit dan orang-orang yang saling marah? Investigasi kode algoritma mengungkap kenyataan pahit. Konten kemarahan dan emosi negatif memicu waktu tonton dua kali lebih lama daripada konten positif. Kamu bukan sedang membaca opini publik, kamu sedang dimanipulasi oleh mesin engagement yang memonetisasi emosi frustrasimu.",
+    "categorySlug": "dokumenter",
+    "visualLayout": "news-broadcast",
+    "hookTitle": "JEBAKAN RAGE-BAIT",
+    "scenes": [
+      {
+        "label": "PANCING EMOSI",
+        "metric": "MARAH = KLIK",
+        "detail": "Konten sengaja dibuat menyebalkan"
+      },
+      {
+        "label": "KOMENTAR PANAS",
+        "metric": "10X REACH",
+        "detail": "Debat netizen dianggap engagement"
+      },
+      {
+        "label": "ALGORITMA MENANG",
+        "metric": "VIRAL INSTAN",
+        "detail": "Kemarahan lebih cepat dari fakta"
+      },
+      {
+        "label": "KENDALI DIRI",
+        "metric": "SKIP SAJA",
+        "detail": "Jangan beri panggung rage-bait"
+      }
+    ]
   },
   {
     "num": 17,
@@ -167,7 +567,32 @@
     "topik": "Dokumen CIA Proyek Stargate (Telepati & Remote Viewing)",
     "elevenlabs_voice": "Marcus / Brian (Agen Rahasia, Tenang, Dokumen Rahasia)",
     "voice_settings": "Stability: 0.70, Clarity: 0.85, Style Exaggeration: 0.05",
-    "naskah": "Letakkan dokumen bersandi rahasia ini di atas meja lampu periksa. Tahun seribu sembilan ratus tujuh puluh delapan, pemerintah Amerika mendanai eksperimen telepati untuk memata-matai pangkalan militer Soviet dari jarak ribuan mil. Catatan ilmiah yang dideklasifikasi ini membuktikan bahwa batas antara sains dan kekuatan pikiran jauh lebih kabur dari yang pernah kita bayangkan."
+    "naskah": "Letakkan dokumen bersandi rahasia ini di atas meja lampu periksa. Tahun seribu sembilan ratus tujuh puluh delapan, pemerintah Amerika mendanai eksperimen telepati untuk memata-matai pangkalan militer Soviet dari jarak ribuan mil. Catatan ilmiah yang dideklasifikasi ini membuktikan bahwa batas antara sains dan kekuatan pikiran jauh lebih kabur dari yang pernah kita bayangkan.",
+    "categorySlug": "film-bukti",
+    "visualLayout": "forensic-dossier",
+    "hookTitle": "PROYEK STARGATE CIA",
+    "scenes": [
+      {
+        "label": "DOKUMEN RAHASIA",
+        "metric": "TAHUN 1978",
+        "detail": "Arsip militer AS dideklasifikasi"
+      },
+      {
+        "label": "REMOTE VIEWING",
+        "metric": "UJI TELEPATI",
+        "detail": "Melihat target jarak ribuan km"
+      },
+      {
+        "label": "DANA OPERASI",
+        "metric": "$20 JUTA",
+        "detail": "Berjalan rahasia selama 17 tahun"
+      },
+      {
+        "label": "STATUS BERKAS",
+        "metric": "DEKLASIFIKASI",
+        "detail": "Kini terbuka di arsip publik CIA"
+      }
+    ]
   },
   {
     "num": 18,
@@ -177,7 +602,32 @@
     "topik": "Membangun Bisnis Digital Sampingan dalam 6 Bulan",
     "elevenlabs_voice": "Antoni / Adam (Komando Militer Hustle, Tegas)",
     "voice_settings": "Stability: 0.65, Clarity: 0.90, Style Exaggeration: 0.10",
-    "naskah": "Briefing strategi kabur dari jebakan rutinitas kantor. Langkah pertama: amankan dana darurat enam bulan gaji. Langkah kedua: bangun satu aset digital yang menghasilkan cuan saat kamu tidur. Jangan langsung resign tanpa rencana matang, jadilah prajurit cerdas yang memenangkan pertempuran finansial sebelum melangkah ke garis depan!"
+    "naskah": "Briefing strategi kabur dari jebakan rutinitas kantor. Langkah pertama: amankan dana darurat enam bulan gaji. Langkah kedua: bangun satu aset digital yang menghasilkan cuan saat kamu tidur. Jangan langsung resign tanpa rencana matang, jadilah prajurit cerdas yang memenangkan pertempuran finansial sebelum melangkah ke garis depan!",
+    "categorySlug": "film-bukti",
+    "visualLayout": "forensic-dossier",
+    "hookTitle": "KABUR DARI 9 TO 5",
+    "scenes": [
+      {
+        "label": "BULAN 1-2",
+        "metric": "VALIDASI",
+        "detail": "Temukan 1 skill bernilai tinggi"
+      },
+      {
+        "label": "BULAN 3-4",
+        "metric": "KLIEN AWAL",
+        "detail": "Bangun portofolio & cashflow"
+      },
+      {
+        "label": "BULAN 5-6",
+        "metric": "SISTEMASI",
+        "detail": "Otomasi produk digital pasif"
+      },
+      {
+        "label": "TARGET AKHIR",
+        "metric": "MERDEKA",
+        "detail": "Transisi aman tanpa nekat resign"
+      }
+    ]
   },
   {
     "num": 19,
@@ -187,7 +637,32 @@
     "topik": "Jika Uang 1 Triliun Ditumpuk Jadi Kertas",
     "elevenlabs_voice": "Liam / Marcus (Menekankan Skala Fisik Raksasa)",
     "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.15",
-    "naskah": "Satu juta detik setara sebelas hari. Tapi satu miliar detik setara tiga puluh satu tahun! Jika kekayaan orang terkaya di dunia ditumpuk dalam lembaran uang kertas seratus ribu rupiah, tingginya bisa menembus lapisan atmosfer bumi! Skala kekayaan yang sudah di luar nalar matematika manusia biasa."
+    "naskah": "Satu juta detik setara sebelas hari. Tapi satu miliar detik setara tiga puluh satu tahun! Jika kekayaan orang terkaya di dunia ditumpuk dalam lembaran uang kertas seratus ribu rupiah, tingginya bisa menembus lapisan atmosfer bumi! Skala kekayaan yang sudah di luar nalar matematika manusia biasa.",
+    "categorySlug": "film-bukti",
+    "visualLayout": "forensic-dossier",
+    "hookTitle": "TUMPUKAN 1 TRILIUN",
+    "scenes": [
+      {
+        "label": "PECAHAN 100RB",
+        "metric": "10 JUTA LBR",
+        "detail": "Satu triliun rupiah uang tunai"
+      },
+      {
+        "label": "TINGGI TUMPUKAN",
+        "metric": "1.000 METER",
+        "detail": "Lebih tinggi dari Burj Khalifa!"
+      },
+      {
+        "label": "BERAT TOTAL",
+        "metric": "10 TON",
+        "detail": "Butuh truk kontainer besar"
+      },
+      {
+        "label": "PERSPEKTIF NYATA",
+        "metric": "SKALA UANG",
+        "detail": "Angka kecil di layar, raksasa nyata"
+      }
+    ]
   },
   {
     "num": 20,
@@ -197,7 +672,32 @@
     "topik": "Laser Menembus Rimbun Hutan Guatemala",
     "elevenlabs_voice": "Nicole / Daniel (Futuristik Laser Penjelajah)",
     "voice_settings": "Stability: 0.65, Clarity: 0.90, Style Exaggeration: 0.05",
-    "naskah": "Sensor laser udara menembus kanopi hutan lebat Amerika Tengah. Yang terlihat bukan pepohonan, melainkan ribuan piramida, jalan tol batu kuno, dan benteng pertahanan yang terkubur selama seribu tahun. Kita baru saja menemukan peradaban raksasa yang belum pernah tersentuh oleh buku sejarah modern mana pun."
+    "naskah": "Sensor laser udara menembus kanopi hutan lebat Amerika Tengah. Yang terlihat bukan pepohonan, melainkan ribuan piramida, jalan tol batu kuno, dan benteng pertahanan yang terkubur selama seribu tahun. Kita baru saja menemukan peradaban raksasa yang belum pernah tersentuh oleh buku sejarah modern mana pun.",
+    "categorySlug": "film-bukti",
+    "visualLayout": "forensic-dossier",
+    "hookTitle": "KOTA MAYA DI HUTAN",
+    "scenes": [
+      {
+        "label": "SCAN LASER",
+        "metric": "2.100 KM2",
+        "detail": "Pesawat LiDAR tembus kanopi hutan"
+      },
+      {
+        "label": "STRUKTUR KUNO",
+        "metric": "60.000 UNIT",
+        "detail": "Piramida, istana & jalan raya batu"
+      },
+      {
+        "label": "POPULASI SILAM",
+        "metric": "10 JUTA JIWA",
+        "detail": "Peradaban raksasa tersembunyi"
+      },
+      {
+        "label": "HASIL PEMETAAN",
+        "metric": "GUATEMALA",
+        "detail": "Sejarah Amerika kuno ditulis ulang"
+      }
+    ]
   },
   {
     "num": 21,
@@ -207,7 +707,32 @@
     "topik": "Bakteri di Kaca HP Lebih Banyak dari Toilet",
     "elevenlabs_voice": "Rachel / Marcus (Misterius Sains, Pembesaran Ekstrem)",
     "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.15",
-    "naskah": "Perbesar permukaan kaca layar ponselmu sepuluh ribu kali lipat. Di balik kilau layarmu yang tampak mulus, jutaan mikroorganisme berkembang biak dari sisa minyak jari dan debu jalanan. Setiap kali kamu menempelkan ponsel ke pipi saat menelepon, kamu sedang memeluk koloni kuman terbesar di rumahmu."
+    "naskah": "Perbesar permukaan kaca layar ponselmu sepuluh ribu kali lipat. Di balik kilau layarmu yang tampak mulus, jutaan mikroorganisme berkembang biak dari sisa minyak jari dan debu jalanan. Setiap kali kamu menempelkan ponsel ke pipi saat menelepon, kamu sedang memeluk koloni kuman terbesar di rumahmu.",
+    "categorySlug": "film-bukti",
+    "visualLayout": "forensic-dossier",
+    "hookTitle": "BAKTERI LAYAR HP!",
+    "scenes": [
+      {
+        "label": "ZOOM 1000X",
+        "metric": "17.000 SEL",
+        "detail": "Koloni bakteri di kaca ponselmu"
+      },
+      {
+        "label": "BANDING TOILET",
+        "metric": "10X KOTOR",
+        "detail": "Lebih banyak kuman dari dudukan WC"
+      },
+      {
+        "label": "SUHU HANGAT",
+        "metric": "35° CELSIUS",
+        "detail": "Inkubator ideal mikroba berkembang"
+      },
+      {
+        "label": "SOLUSI CEPAT",
+        "metric": "ALKOHOL 70%",
+        "detail": "Lap layar rutin tiap malam"
+      }
+    ]
   },
   {
     "num": 22,
@@ -217,7 +742,32 @@
     "topik": "99% Internet Dunia Bukan Lewat Satelit Luar Angkasa",
     "elevenlabs_voice": "Brian / George (Geopolitik Global, Tegas Berbobot)",
     "voice_settings": "Stability: 0.70, Clarity: 0.85, Style Exaggeration: 0.05",
-    "naskah": "Citra satelit memperlihatkan jalur arteri komunikasi bumi. Fakta mengejutkan: sembilan puluh sembilan persen lalu lintas data internet dunia tidak lewat satelit di angkasa, melainkan lewat kabel serat optik setebal selang air di dasar laut. Jika kabel dasar samudera ini putus, peradaban keuangan global akan lumpuh total dalam sekejap mata."
+    "naskah": "Citra satelit memperlihatkan jalur arteri komunikasi bumi. Fakta mengejutkan: sembilan puluh sembilan persen lalu lintas data internet dunia tidak lewat satelit di angkasa, melainkan lewat kabel serat optik setebal selang air di dasar laut. Jika kabel dasar samudera ini putus, peradaban keuangan global akan lumpuh total dalam sekejap mata.",
+    "categorySlug": "film-bukti",
+    "visualLayout": "forensic-dossier",
+    "hookTitle": "KABEL INTERNET LAUT",
+    "scenes": [
+      {
+        "label": "FAKTA INTERNET",
+        "metric": "99% KABEL",
+        "detail": "Bukan lewat satelit luar angkasa"
+      },
+      {
+        "label": "PANJANG TOTAL",
+        "metric": "1,4 JUTA KM",
+        "detail": "Serat optik di dasar samudra"
+      },
+      {
+        "label": "DIAMETER KABEL",
+        "metric": "2,5 CM",
+        "detail": "Hanya sebesar selang taman rumah"
+      },
+      {
+        "label": "ANCAMAN NYATA",
+        "metric": "JANGKAR KAPAL",
+        "detail": "Satu putus, satu negara melambat"
+      }
+    ]
   },
   {
     "num": 23,
@@ -227,7 +777,32 @@
     "topik": "Komponen Drone FPV Kamikaze 500 Ribu Rupiah",
     "elevenlabs_voice": "Adam / Callum (Teknis Militer Modern, Rapi)",
     "voice_settings": "Stability: 0.60, Clarity: 0.90, Style Exaggeration: 0.10",
-    "naskah": "Drone seharga lima ratus ribu rupiah ini sanggup melumpuhkan tank baja tempur bernilai miliaran rupiah. Baling-baling karbon, baterai lithium kecil, dan chip pengendali sederhana. Perang masa depan tidak lagi dimenangkan oleh ukuran raksasa, melainkan oleh gerombolan drone otonom murah yang mematikan."
+    "naskah": "Drone seharga lima ratus ribu rupiah ini sanggup melumpuhkan tank baja tempur bernilai miliaran rupiah. Baling-baling karbon, baterai lithium kecil, dan chip pengendali sederhana. Perang masa depan tidak lagi dimenangkan oleh ukuran raksasa, melainkan oleh gerombolan drone otonom murah yang mematikan.",
+    "categorySlug": "film-bukti",
+    "visualLayout": "forensic-dossier",
+    "hookTitle": "BEDAH DRONE FPV",
+    "scenes": [
+      {
+        "label": "HARGA RAKITAN",
+        "metric": "RP 500 RIBU",
+        "detail": "Komponen murah ubah medan tempur"
+      },
+      {
+        "label": "KECEPATAN PENUH",
+        "metric": "140 KM/JAM",
+        "detail": "Motor brushless berputar ekstrem"
+      },
+      {
+        "label": "PENGENDALI AI",
+        "metric": "AUTO LOCK",
+        "detail": "Kunci target meski sinyal diacak"
+      },
+      {
+        "label": "ERA DRONE",
+        "metric": "REVOLUSI",
+        "detail": "Teknologi sipil ubah doktrin global"
+      }
+    ]
   },
   {
     "num": 24,
@@ -237,7 +812,32 @@
     "topik": "Prediksi Kota Pesisir yang Tenggelam Tahun 2050",
     "elevenlabs_voice": "Daniel / Charlotte (Arsitektur Bencana, Serius)",
     "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.10",
-    "naskah": "Proyeksikan data ketinggian air laut ke atas maket kota Jakarta dan pesisir utara Jawa. Penurunan tanah sepuluh sentimeter per tahun akibat penyedotan air tanah liar. Jika tanggul laut raksasa tidak segera selesai, jutaan rumah warga diprediksi akan menjadi terumbu karang sebelum abad ini berganti."
+    "naskah": "Proyeksikan data ketinggian air laut ke atas maket kota Jakarta dan pesisir utara Jawa. Penurunan tanah sepuluh sentimeter per tahun akibat penyedotan air tanah liar. Jika tanggul laut raksasa tidak segera selesai, jutaan rumah warga diprediksi akan menjadi terumbu karang sebelum abad ini berganti.",
+    "categorySlug": "film-bukti",
+    "visualLayout": "forensic-dossier",
+    "hookTitle": "KOTA TENGGELAM 2050",
+    "scenes": [
+      {
+        "label": "PENURUNAN TANAH",
+        "metric": "-15 CM/THN",
+        "detail": "Sedot air tanah & beban gedung"
+      },
+      {
+        "label": "NAIKNYA LAUT",
+        "metric": "+40 CM",
+        "detail": "Es kutub mencair semakin cepat"
+      },
+      {
+        "label": "ZONA BAHAYA",
+        "metric": "PESISIR UTARA",
+        "detail": "Jutaan rumah terancam rob permanen"
+      },
+      {
+        "label": "SIMULASI MAKET",
+        "metric": "TAHUN 2050",
+        "detail": "Tanggul raksasa jadi taruhan terakhir"
+      }
+    ]
   },
   {
     "num": 25,
@@ -247,7 +847,32 @@
     "topik": "Cara Melipat Ruang Waktu Pakai Kertas",
     "elevenlabs_voice": "Rachel / Adam (Profesor Fisika Keren, Edukatif)",
     "voice_settings": "Stability: 0.55, Clarity: 0.85, Style Exaggeration: 0.15",
-    "naskah": "Tulis rumus gravitasi di papan tulis. Bayangkan selembar kertas ini adalah alam semesta. Jika kamu berjalan lurus, butuh waktu jutaan tahun cahaya untuk sampai ke ujung sana. Tapi bagaimana kalau kertasnya kita lipat dua lalu kita tusuk dengan pensil? Selamat, kamu baru saja menciptakan lubang cacing melintasi dimensi waktu!"
+    "naskah": "Tulis rumus gravitasi di papan tulis. Bayangkan selembar kertas ini adalah alam semesta. Jika kamu berjalan lurus, butuh waktu jutaan tahun cahaya untuk sampai ke ujung sana. Tapi bagaimana kalau kertasnya kita lipat dua lalu kita tusuk dengan pensil? Selamat, kamu baru saja menciptakan lubang cacing melintasi dimensi waktu!",
+    "categorySlug": "gambar-tangan",
+    "visualLayout": "handdrawn-board",
+    "hookTitle": "LIPAT RUANG WAKTU",
+    "scenes": [
+      {
+        "label": "JARAK BINTANG",
+        "metric": "100 THN CAHAYA",
+        "detail": "Terlalu jauh dengan roket biasa"
+      },
+      {
+        "label": "TEORI EINSTEIN",
+        "metric": "WORMHOLE",
+        "detail": "Lipat kertas hingga dua titik bertemu"
+      },
+      {
+        "label": "TEMBUS PENSIL",
+        "metric": "0.1 DETIK",
+        "detail": "Jalan pintas menembus dimensi"
+      },
+      {
+        "label": "FISIKA KUANTUM",
+        "metric": "TEORI NYATA",
+        "detail": "Matematika membolehkannya ada"
+      }
+    ]
   },
   {
     "num": 26,
@@ -257,7 +882,32 @@
     "topik": "Kucing Lucu Pertama yang Jadi Astronot",
     "elevenlabs_voice": "Lily / Charlie (Lucu Ceria, Menggemaskan)",
     "voice_settings": "Stability: 0.40, Clarity: 0.85, Style Exaggeration: 0.35",
-    "naskah": "Namanya Miko, anak kucing oranye pertama yang ikut roket terbang ke planet Mars! Di sana tanahnya serba merah dan gravitasi membuat Miko melompat tinggi sekali sampai ke awan! Meong, siapa yang mau ikut jalan-jalan ke luar angkasa bareng Miko?"
+    "naskah": "Namanya Miko, anak kucing oranye pertama yang ikut roket terbang ke planet Mars! Di sana tanahnya serba merah dan gravitasi membuat Miko melompat tinggi sekali sampai ke awan! Meong, siapa yang mau ikut jalan-jalan ke luar angkasa bareng Miko?",
+    "categorySlug": "gambar-tangan",
+    "visualLayout": "handdrawn-board",
+    "hookTitle": "KUCING ASTRONOT",
+    "scenes": [
+      {
+        "label": "NAMA PAHLAWAN",
+        "metric": "FELICETTE",
+        "detail": "Kucing liar Paris ke luar angkasa"
+      },
+      {
+        "label": "PELUNCURAN",
+        "metric": "TAHUN 1963",
+        "detail": "Terbang setinggi 157 kilometer"
+      },
+      {
+        "label": "TANPA GRAVITASI",
+        "metric": "5 MENIT",
+        "detail": "Melayang tenang melihat bumi biru"
+      },
+      {
+        "label": "PULANG SELAMAT",
+        "metric": "100% SUKSES",
+        "detail": "Satu-satunya kucing astronot sejarah"
+      }
+    ]
   },
   {
     "num": 27,
@@ -267,7 +917,32 @@
     "topik": "Teknik Sfumato Leonardo da Vinci yang Misterius",
     "elevenlabs_voice": "George / Nicole (Puitis Seni Mendalam, Merenung)",
     "voice_settings": "Stability: 0.70, Clarity: 0.80, Style Exaggeration: 0.15",
-    "naskah": "Perhatikan sapuan cat minyak tebal di sudut bibir wanita paling misterius di dunia ini. Ketika kamu menatap matanya secara langsung, bibirnya tampak tersenyum tipis. Tapi begitu pandanganmu turun ke bibirnya, senyuman itu tiba-tiba lenyap seketika. Sebuah ilusi optik optalmologi yang dirancang lima ratus tahun lalu sebelum dunia kedokteran memahami cara mata manusia bekerja."
+    "naskah": "Perhatikan sapuan cat minyak tebal di sudut bibir wanita paling misterius di dunia ini. Ketika kamu menatap matanya secara langsung, bibirnya tampak tersenyum tipis. Tapi begitu pandanganmu turun ke bibirnya, senyuman itu tiba-tiba lenyap seketika. Sebuah ilusi optik optalmologi yang dirancang lima ratus tahun lalu sebelum dunia kedokteran memahami cara mata manusia bekerja.",
+    "categorySlug": "gambar-tangan",
+    "visualLayout": "handdrawn-board",
+    "hookTitle": "MISTERI MONA LISA",
+    "scenes": [
+      {
+        "label": "TEKNIK SFUMATO",
+        "metric": "40 LAPISAN",
+        "detail": "Cat minyak tipis tanpa garis tepi"
+      },
+      {
+        "label": "ILUSI OPTIK",
+        "metric": "SENYUM HIDUP",
+        "detail": "Berubah saat dilihat dari sudut mata"
+      },
+      {
+        "label": "LAMA LUKIS",
+        "metric": "14 TAHUN",
+        "detail": "Leonardo da Vinci tak pernah puas"
+      },
+      {
+        "label": "NILAI SEJARAH",
+        "metric": "$860 JUTA",
+        "detail": "Lukisan paling misterius di dunia"
+      }
+    ]
   },
   {
     "num": 28,
@@ -277,7 +952,32 @@
     "topik": "Kemenangan Terbaik Adalah Tanpa Pertumpahan Darah",
     "elevenlabs_voice": "Marcus / Daniel (Bijak Kuno, Tenang Mematikan)",
     "voice_settings": "Stability: 0.65, Clarity: 0.80, Style Exaggeration: 0.10",
-    "naskah": "Goresan tinta hitam mengalir bagai hembusan angin di puncak gunung salju. Panglima terhebat bukan mereka yang memenangkan seratus pertempuran berdarah, melainkan mereka yang mampu menundukkan benteng musuh tanpa pernah mencabut sebilah pedang pun dari sarungnya. Jadilah tenang seperti air, namun menghancurkan saat menjadi ombak."
+    "naskah": "Goresan tinta hitam mengalir bagai hembusan angin di puncak gunung salju. Panglima terhebat bukan mereka yang memenangkan seratus pertempuran berdarah, melainkan mereka yang mampu menundukkan benteng musuh tanpa pernah mencabut sebilah pedang pun dari sarungnya. Jadilah tenang seperti air, namun menghancurkan saat menjadi ombak.",
+    "categorySlug": "gambar-tangan",
+    "visualLayout": "handdrawn-board",
+    "hookTitle": "SENI PERANG SUN TZU",
+    "scenes": [
+      {
+        "label": "ATURAN PERTAMA",
+        "metric": "KENALI DIRI",
+        "detail": "100 perang tanpa sekali pun kalah"
+      },
+      {
+        "label": "STRATEGI PUNCAK",
+        "metric": "0 KORBAN",
+        "detail": "Menang tanpa menghunus pedang"
+      },
+      {
+        "label": "SEPERTI AIR",
+        "metric": "FLEKSIBEL",
+        "detail": "Hindari kuat, serang titik lemah"
+      },
+      {
+        "label": "FILOSOFI ABADI",
+        "metric": "2.500 TAHUN",
+        "detail": "Dipakai jenderal hingga CEO modern"
+      }
+    ]
   },
   {
     "num": 29,
@@ -287,7 +987,32 @@
     "topik": "Berhenti Sejenak Menikmati Sunset di Pantai",
     "elevenlabs_voice": "Rachel / Nicole (Tenang, Damai, Sunset Vibes)",
     "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.10",
-    "naskah": "Dunia tidak akan kiamat hanya karena kamu beristirahat hari ini. Lihat warna lembayung senja di ufuk barat. Tarik napas panjang, lepaskan semua beban yang kamu pikul sendirian. Kamu sudah berjuang sangat hebat hari ini, kawan."
+    "naskah": "Dunia tidak akan kiamat hanya karena kamu beristirahat hari ini. Lihat warna lembayung senja di ufuk barat. Tarik napas panjang, lepaskan semua beban yang kamu pikul sendirian. Kamu sudah berjuang sangat hebat hari ini, kawan.",
+    "categorySlug": "gambar-tangan",
+    "visualLayout": "handdrawn-board",
+    "hookTitle": "JEDA SAAT SENJA",
+    "scenes": [
+      {
+        "label": "WAKTU EMAS",
+        "metric": "17:45 WIB",
+        "detail": "Langit berubah jingga dan lavender"
+      },
+      {
+        "label": "LEPAS LAYAR",
+        "metric": "15 MENIT",
+        "detail": "Turunkan hormon stres kortisol"
+      },
+      {
+        "label": "SUARA OMBAK",
+        "metric": "432 HZ",
+        "detail": "Ritme alam pulihkan fokus otak"
+      },
+      {
+        "label": "HADIR UTUH",
+        "metric": "DAMAI",
+        "detail": "Hidup bukan hanya mengejar target"
+      }
+    ]
   },
   {
     "num": 30,
@@ -297,7 +1022,32 @@
     "topik": "Sketsa Cepat Tinta & Cat Air di Sudut Kafe Paris",
     "elevenlabs_voice": "Rachel / Lily (Relatable, Santai, Artistik)",
     "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.10",
-    "naskah": "Cukup lima menit duduk di bangku kafe tua, sebatang pena tinta tahan air, dan beberapa sapuan cat air transparan. Suasana pagi yang sibuk langsung terekam abadi dengan karakter spontan yang tak bisa ditiru kamera digital."
+    "naskah": "Cukup lima menit duduk di bangku kafe tua, sebatang pena tinta tahan air, dan beberapa sapuan cat air transparan. Suasana pagi yang sibuk langsung terekam abadi dengan karakter spontan yang tak bisa ditiru kamera digital.",
+    "categorySlug": "infografis",
+    "visualLayout": "handdrawn-board",
+    "hookTitle": "SKETSA KAFE PARIS",
+    "scenes": [
+      {
+        "label": "WAKTU SKETSA",
+        "metric": "5 MENIT",
+        "detail": "Pena tinta tahan air di buku saku"
+      },
+      {
+        "label": "SAPUAN WARNA",
+        "metric": "CAT AIR",
+        "detail": "Gradasi transparan penuh spontanitas"
+      },
+      {
+        "label": "SUDUT KOTA",
+        "metric": "PARIS PAGI",
+        "detail": "Aroma kopi & langkah pejalan kaki"
+      },
+      {
+        "label": "JIWA GAMBAR",
+        "metric": "AUTENTIK",
+        "detail": "Rasa hangat yang tak tertangkap kamera"
+      }
+    ]
   },
   {
     "num": 31,
@@ -307,7 +1057,32 @@
     "topik": "Sentuhan Rembesan Cat Air yang Menenangkan Jiwa",
     "elevenlabs_voice": "Rachel / Lily (Lembut, Hangat, Damai)",
     "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.10",
-    "naskah": "Biarkan air dan pigmen warna menari bebas di atas serat kertas katun basah. Setiap rembesan lembut menciptakan gradasi alami tanpa batas, membawa ketenangan mendalam di tengah hiruk-pikuk linimasa media sosialmu hari ini."
+    "naskah": "Biarkan air dan pigmen warna menari bebas di atas serat kertas katun basah. Setiap rembesan lembut menciptakan gradasi alami tanpa batas, membawa ketenangan mendalam di tengah hiruk-pikuk linimasa media sosialmu hari ini.",
+    "categorySlug": "infografis",
+    "visualLayout": "handdrawn-board",
+    "hookTitle": "REMBESAN CAT AIR",
+    "scenes": [
+      {
+        "label": "KERTAS KATUN",
+        "metric": "300 GSM",
+        "detail": "Menyerap air dan pigmen alami"
+      },
+      {
+        "label": "TEKNIK BASAH",
+        "metric": "WET ON WET",
+        "detail": "Warna menyatu lembut tanpa batas"
+      },
+      {
+        "label": "EFEK TERAPI",
+        "metric": "-40% STRES",
+        "detail": "Menenangkan pikiran di tengah bising"
+      },
+      {
+        "label": "KEINDAHAN ALAMI",
+        "metric": "ORGANIK",
+        "detail": "Setiap sapuan tak pernah terulang"
+      }
+    ]
   },
   {
     "num": 32,
@@ -317,7 +1092,32 @@
     "topik": "Cetak Biru Rahasia Terowongan Bawah Laut Terpanjang Dunia",
     "elevenlabs_voice": "Adam / Antoni (Otoritatif, Presisi, Analitis)",
     "voice_settings": "Stability: 0.70, Clarity: 0.85, Style Exaggeration: 0.10",
-    "naskah": "Garis putih di atas kertas biru ini bukan sekadar gambar teknis biasa. Ini adalah cetak biru terowongan bawah laut sedalam dua ratus meter yang menembus kerak tektonik aktif. Setiap sudut empat puluh lima derajat diperhitungkan agar mampu menahan jutaan ton tekanan air samudra."
+    "naskah": "Garis putih di atas kertas biru ini bukan sekadar gambar teknis biasa. Ini adalah cetak biru terowongan bawah laut sedalam dua ratus meter yang menembus kerak tektonik aktif. Setiap sudut empat puluh lima derajat diperhitungkan agar mampu menahan jutaan ton tekanan air samudra.",
+    "categorySlug": "infografis",
+    "visualLayout": "isometric-cutaway",
+    "hookTitle": "TEROWONGAN LAUT",
+    "scenes": [
+      {
+        "label": "KEDALAMAN LAUT",
+        "metric": "200 METER",
+        "detail": "Menembus kerak tektonik aktif"
+      },
+      {
+        "label": "SUDUT STRUKTUR",
+        "metric": "45 DERAJAT",
+        "detail": "Presisi teknik cetak biru mutlak"
+      },
+      {
+        "label": "TEKANAN AIR",
+        "metric": "JUTAAN TON",
+        "detail": "Dinding beton bertulang baja ganda"
+      },
+      {
+        "label": "MAHA KARYA",
+        "metric": "INFRASTRUKTUR",
+        "detail": "Menghubungkan dua benua bawah laut"
+      }
+    ]
   },
   {
     "num": 33,
@@ -327,7 +1127,32 @@
     "topik": "Legenda Hantu Tanpa Wajah Noppera-bo",
     "elevenlabs_voice": "Rachel / Marcus (Misteri Budaya Mistis)",
     "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.20",
-    "naskah": "Di bawah temaram lentera kertas di persimpangan jalan Tokyo tua, seorang pedagang menyapa wanita yang sedang menangis tersedu-sedu. Begitu wanita itu membalikkan badannya perlahan, tidak ada mata, tidak ada hidung, hanya permukaan kulit polos yang rata seperti telur rebus. Jangan menyapa orang asing di malam hari."
+    "naskah": "Di bawah temaram lentera kertas di persimpangan jalan Tokyo tua, seorang pedagang menyapa wanita yang sedang menangis tersedu-sedu. Begitu wanita itu membalikkan badannya perlahan, tidak ada mata, tidak ada hidung, hanya permukaan kulit polos yang rata seperti telur rebus. Jangan menyapa orang asing di malam hari.",
+    "categorySlug": "asia-timur",
+    "visualLayout": "east-asian-scroll",
+    "hookTitle": "HANTU NOPPERA-BO",
+    "scenes": [
+      {
+        "label": "LORONG MALAM",
+        "metric": "EDO KUNO",
+        "detail": "Lentera kertas redup di tepi sungai"
+      },
+      {
+        "label": "SOSOK MENANGIS",
+        "metric": "MISTERIUS",
+        "detail": "Menutup wajah dengan kedua tangan"
+      },
+      {
+        "label": "SAAT MENOLEH",
+        "metric": "0 WAJAH!",
+        "detail": "Kulit rata polos tanpa mata & mulut"
+      },
+      {
+        "label": "MITOLOGI JEPANG",
+        "metric": "YOKAI KLASIK",
+        "detail": "Kisah rakyat yang bikin merinding"
+      }
+    ]
   },
   {
     "num": 34,
@@ -337,7 +1162,32 @@
     "topik": "Kedahsyatan Ombak Kanagawa dalam Seni Cetak Balok Kayu",
     "elevenlabs_voice": "George / Marcus (Tenang, Berwibawa, Klasik Oriental)",
     "voice_settings": "Stability: 0.70, Clarity: 0.85, Style Exaggeration: 0.15",
-    "naskah": "Ombak raksasa yang mengancam Gunung Fuji ini diukir dari balok kayu ceri berlapis-lapis. Gradasi pigmen biru prusia dan tekstur kertas washi membuktikan tingginya peradaban seni Jepang yang menginspirasi para pelukis impresionis dunia."
+    "naskah": "Ombak raksasa yang mengancam Gunung Fuji ini diukir dari balok kayu ceri berlapis-lapis. Gradasi pigmen biru prusia dan tekstur kertas washi membuktikan tingginya peradaban seni Jepang yang menginspirasi para pelukis impresionis dunia.",
+    "categorySlug": "infografis",
+    "visualLayout": "east-asian-scroll",
+    "hookTitle": "OMBAK KANAGAWA",
+    "scenes": [
+      {
+        "label": "UKIRAN KAYU",
+        "metric": "TAHUN 1831",
+        "detail": "Karya legendaris Katsushika Hokusai"
+      },
+      {
+        "label": "PIGMEN BIRU",
+        "metric": "PRUSSIAN",
+        "detail": "Warna impor langka dari Eropa"
+      },
+      {
+        "label": "TINGGI OMBAK",
+        "metric": "12 METER",
+        "detail": "Mengancam perahu di depan Fuji"
+      },
+      {
+        "label": "WARISAN DUNIA",
+        "metric": "UKIYO-E",
+        "detail": "Menginspirasi Van Gogh & Monet"
+      }
+    ]
   },
   {
     "num": 35,
@@ -347,7 +1197,32 @@
     "topik": "Misteri Bayangan Wayang Kulit yang Memikat Dunia Barat",
     "elevenlabs_voice": "George / Marcus (Filosofis Nusantara, Berwibawa)",
     "voice_settings": "Stability: 0.75, Clarity: 0.80, Style Exaggeration: 0.20",
-    "naskah": "Di balik bentangan kelir putih dan hangatnya nyala lampu minyak, bayangan kulit kerbau ini menuturkan asal-usul alam semesta. Antara terang dan gelap, manusia diajak menyelami hakikat takdir dan peperangan abadi di dalam batin."
+    "naskah": "Di balik bentangan kelir putih dan hangatnya nyala lampu minyak, bayangan kulit kerbau ini menuturkan asal-usul alam semesta. Antara terang dan gelap, manusia diajak menyelami hakikat takdir dan peperangan abadi di dalam batin.",
+    "categorySlug": "infografis",
+    "visualLayout": "east-asian-scroll",
+    "hookTitle": "MISTERI WAYANG KULIT",
+    "scenes": [
+      {
+        "label": "LAYAR KELIR",
+        "metric": "LAMPU BLENCONG",
+        "detail": "Cahaya api hidupkan bayangan kulit"
+      },
+      {
+        "label": "PAHAT HALUS",
+        "metric": "KULIT KERBAU",
+        "detail": "Ribuan lubang ukiran rumit tangan"
+      },
+      {
+        "label": "FILOSOFI HIDUP",
+        "metric": "TERANG & GELAP",
+        "detail": "Cerminan peperangan batin manusia"
+      },
+      {
+        "label": "WARISAN UNESCO",
+        "metric": "NUSANTARA",
+        "detail": "Memikat seniman teater dunia Barat"
+      }
+    ]
   },
   {
     "num": 36,
@@ -357,7 +1232,32 @@
     "topik": "Kemewahan Tersembunyi Menara Chrysler 1930 & Jam Emas Rahasia",
     "elevenlabs_voice": "Charlotte / Nicole (Mewah, Glamour, Elegan)",
     "voice_settings": "Stability: 0.70, Clarity: 0.90, Style Exaggeration: 0.10",
-    "naskah": "Di balik kemegahan arsitektur Art Deco Menara Chrysler tahun seribu sembilan ratus tiga puluh, ada sebuah lantai rahasia bersepuh emas murni. Jarum jam berputar mekanis menyingkap ruang perjamuan para elit dunia yang tak pernah tercatat di buku sejarah publik."
+    "naskah": "Di balik kemegahan arsitektur Art Deco Menara Chrysler tahun seribu sembilan ratus tiga puluh, ada sebuah lantai rahasia bersepuh emas murni. Jarum jam berputar mekanis menyingkap ruang perjamuan para elit dunia yang tak pernah tercatat di buku sejarah publik.",
+    "categorySlug": "infografis",
+    "visualLayout": "swiss-editorial",
+    "hookTitle": "RAHASIA CHRYSLER",
+    "scenes": [
+      {
+        "label": "ERA KEEMASAN",
+        "metric": "TAHUN 1930",
+        "detail": "Puncak arsitektur Art Deco New York"
+      },
+      {
+        "label": "LANTAI RAHASIA",
+        "metric": "CLOUD CLUB",
+        "detail": "Ruang perjamuan emas kaum elit"
+      },
+      {
+        "label": "ORNAMEN EMAS",
+        "metric": "GEOMETRI",
+        "detail": "Garis simetris & sinar matahari"
+      },
+      {
+        "label": "JEJAK SEJARAH",
+        "metric": "TERSEMBUNYI",
+        "detail": "Kini tertutup dari pandangan publik"
+      }
+    ]
   },
   {
     "num": 37,
@@ -367,7 +1267,32 @@
     "topik": "Tiket Konser Terjual Habis dalam 10 Detik",
     "elevenlabs_voice": "Fin / Charlie (Keren Urban Indie, Cepat)",
     "voice_settings": "Stability: 0.45, Clarity: 0.90, Style Exaggeration: 0.25",
-    "naskah": "Tiket konser festival musik terbesar tahun ini ludes dalam waktu sepuluh detik akibat serbuan bot jastip calo! Ribuan penggemar gigit jari di depan layar laptop mereka yang buffering. Siapa di sini yang gagal war tiket?"
+    "naskah": "Tiket konser festival musik terbesar tahun ini ludes dalam waktu sepuluh detik akibat serbuan bot jastip calo! Ribuan penggemar gigit jari di depan layar laptop mereka yang buffering. Siapa di sini yang gagal war tiket?",
+    "categorySlug": "cetak",
+    "visualLayout": "swiss-editorial",
+    "hookTitle": "TIKET HABIS 10 DTK",
+    "scenes": [
+      {
+        "label": "WAR TIKET",
+        "metric": "10 DETIK",
+        "detail": "Ratusan ribu orang klik bersamaan"
+      },
+      {
+        "label": "BOT CALO",
+        "metric": "1.000 AKUN",
+        "detail": "Skrip otomatis borong baris depan"
+      },
+      {
+        "label": "HARGA MELONJAK",
+        "metric": "5X LIPAT",
+        "detail": "Dijual ulang di pasar gelap medsos"
+      },
+      {
+        "label": "POSTER INDIE",
+        "metric": "SOLD OUT",
+        "detail": "Fenomena konser viral generasi kini"
+      }
+    ]
   },
   {
     "num": 38,
@@ -377,7 +1302,32 @@
     "topik": "Peta Rahasia Perbendaharaan Kuno di Balik Uang Kertas 1800-an",
     "elevenlabs_voice": "George / Marcus (Sejarah Kuno, Sinematik Antik)",
     "voice_settings": "Stability: 0.75, Clarity: 0.80, Style Exaggeration: 0.20",
-    "naskah": "Goresan plat tembaga abad kesembilan belas ini menyimpan ilusi optik paling presisi. Bila diperbesar di bawah kaca pembesar, arsiran garis intaglio ini menyembunyikan titik koordinat kapal harta karun yang karam di selat Malaka."
+    "naskah": "Goresan plat tembaga abad kesembilan belas ini menyimpan ilusi optik paling presisi. Bila diperbesar di bawah kaca pembesar, arsiran garis intaglio ini menyembunyikan titik koordinat kapal harta karun yang karam di selat Malaka.",
+    "categorySlug": "infografis",
+    "visualLayout": "swiss-editorial",
+    "hookTitle": "PETA UANG KUNO",
+    "scenes": [
+      {
+        "label": "PLAT TEMBAGA",
+        "metric": "ABAD KE-19",
+        "detail": "Teknik ukir intaglio super presisi"
+      },
+      {
+        "label": "KACA PEMBESAR",
+        "metric": "ZOOM 20X",
+        "detail": "Arsiran mikro simpan kode rahasia"
+      },
+      {
+        "label": "TITIK KOORDINAT",
+        "metric": "SELAT MALAKA",
+        "detail": "Lokasi kapal harta karun karam"
+      },
+      {
+        "label": "SENI CETAK",
+        "metric": "ANTI PALSU",
+        "detail": "Rahasia keamanan uang kertas dunia"
+      }
+    ]
   },
   {
     "num": 39,
@@ -387,7 +1337,32 @@
     "topik": "Goresan Kasar Cukil Kayu yang Membakar Semangat Zaman",
     "elevenlabs_voice": "George / Marcus (Berat, Bertenaga, Mentah)",
     "voice_settings": "Stability: 0.70, Clarity: 0.85, Style Exaggeration: 0.20",
-    "naskah": "Tekstur kasar serat kayu dan ketegasan tinta pekat pada cetak cukil kayu ini melahirkan estetika yang jujur dan tak kenal kompromi. Sebuah karya seni rakyat yang merekam sejarah perjuangan langsung dari tangan pengrajinnya."
+    "naskah": "Tekstur kasar serat kayu dan ketegasan tinta pekat pada cetak cukil kayu ini melahirkan estetika yang jujur dan tak kenal kompromi. Sebuah karya seni rakyat yang merekam sejarah perjuangan langsung dari tangan pengrajinnya.",
+    "categorySlug": "infografis",
+    "visualLayout": "swiss-editorial",
+    "hookTitle": "CUKIL KAYU RAKYAT",
+    "scenes": [
+      {
+        "label": "SERAT KAYU",
+        "metric": "TINTA PEKAT",
+        "detail": "Goresan kasar penuh tenaga mentah"
+      },
+      {
+        "label": "POSTER PERJUANGAN",
+        "metric": "100% HANDMADE",
+        "detail": "Media suara rakyat lintas zaman"
+      },
+      {
+        "label": "KONTRAS TAJAM",
+        "metric": "HITAM PUTIH",
+        "detail": "Pesan kuat tanpa kompromi warna"
+      },
+      {
+        "label": "JIWA PENGRAJIN",
+        "metric": "ABADI",
+        "detail": "Seni cetak yang menggugah sejarah"
+      }
+    ]
   },
   {
     "num": 40,
@@ -397,7 +1372,32 @@
     "topik": "Vespa Klasik 2-Tak yang Harganya Tembus Ratusan Juta",
     "elevenlabs_voice": "Charlie / Fin (Penyiar Radio Jadul Retro)",
     "voice_settings": "Stability: 0.50, Clarity: 0.90, Style Exaggeration: 0.20",
-    "naskah": "Suara knalpot dua tak berasap tipis yang bikin kangen masa lalu! Vespa tua yang dulu dibeli jutaan rupiah di tahun tujuh puluhan, sekarang jadi barang koleksi sultan bernilai ratusan juta rupiah! Semakin tua, semakin berkarakter kawan!"
+    "naskah": "Suara knalpot dua tak berasap tipis yang bikin kangen masa lalu! Vespa tua yang dulu dibeli jutaan rupiah di tahun tujuh puluhan, sekarang jadi barang koleksi sultan bernilai ratusan juta rupiah! Semakin tua, semakin berkarakter kawan!",
+    "categorySlug": "cetak",
+    "visualLayout": "swiss-editorial",
+    "hookTitle": "VESPA 2-TAK SULTAN",
+    "scenes": [
+      {
+        "label": "KLASIK ITALIA",
+        "metric": "TAHUN 1962",
+        "detail": "Desain bodi besi tak lekang waktu"
+      },
+      {
+        "label": "HARGA KOLEKTOR",
+        "metric": "RP 350 JT",
+        "detail": "Lebih mahal dari mobil keluarga baru"
+      },
+      {
+        "label": "SUARA KHAS",
+        "metric": "MESIN 2-TAK",
+        "detail": "Nostalgia asap & getaran ikonik"
+      },
+      {
+        "label": "INVESTASI RETRO",
+        "metric": "NAIK 30%/TH",
+        "detail": "Barang antik buruan kolektor dunia"
+      }
+    ]
   },
   {
     "num": 41,
@@ -407,7 +1407,32 @@
     "topik": "Satu Cetakan Kertas Merah yang Mengubah Sejarah Desain",
     "elevenlabs_voice": "George / Marcus (Berat, Sinematik, Fokus)",
     "voice_settings": "Stability: 0.70, Clarity: 0.85, Style Exaggeration: 0.15",
-    "naskah": "Hanya tinta hitam di atas kertas koran, ditambah satu sapuan warna merah menyala. Dalam satu adegan tanpa potongan kamera, poster cetak ini menyampaikan pesan perlawanan moral yang menggetarkan seluruh benua Eropa."
+    "naskah": "Hanya tinta hitam di atas kertas koran, ditambah satu sapuan warna merah menyala. Dalam satu adegan tanpa potongan kamera, poster cetak ini menyampaikan pesan perlawanan moral yang menggetarkan seluruh benua Eropa.",
+    "categorySlug": "infografis",
+    "visualLayout": "swiss-editorial",
+    "hookTitle": "POSTER MERAH EROPA",
+    "scenes": [
+      {
+        "label": "KERTAS KORAN",
+        "metric": "2 WARNA",
+        "detail": "Hanya tinta hitam & satu aksen merah"
+      },
+      {
+        "label": "TANPA POTONGAN",
+        "metric": "1 LONG TAKE",
+        "detail": "Kamera menyusuri pesan moral kuat"
+      },
+      {
+        "label": "SIMBOL PERLAWANAN",
+        "metric": "1968 PARIS",
+        "detail": "Menggetarkan jalanan benua Eropa"
+      },
+      {
+        "label": "KEKUATAN GRAFIS",
+        "metric": "IKONIK",
+        "detail": "Kesederhanaan yang mengubah sejarah"
+      }
+    ]
   },
   {
     "num": 42,
@@ -417,7 +1442,32 @@
     "topik": "Bahasa Universal Simbol yang Menyelamatkan Nyawa di Bandara",
     "elevenlabs_voice": "Adam / Antoni (Tegas, Cepat, Visual)",
     "voice_settings": "Stability: 0.65, Clarity: 0.90, Style Exaggeration: 0.10",
-    "naskah": "Piktogram ini dirancang agar siapapun di dunia paham tanpa butuh sepatah kata pun. Dalam situasi darurat tiga detik, bentuk siluet minimalis inilah yang memandu jutaan penumpang menemukan jalur evakuasi paling aman."
+    "naskah": "Piktogram ini dirancang agar siapapun di dunia paham tanpa butuh sepatah kata pun. Dalam situasi darurat tiga detik, bentuk siluet minimalis inilah yang memandu jutaan penumpang menemukan jalur evakuasi paling aman.",
+    "categorySlug": "infografis",
+    "visualLayout": "swiss-editorial",
+    "hookTitle": "SIMBOL PENYELAMAT",
+    "scenes": [
+      {
+        "label": "BAHASA UNIVERSAL",
+        "metric": "0 KATA",
+        "detail": "Dipahami seluruh bangsa di dunia"
+      },
+      {
+        "label": "SITUASI DARURAT",
+        "metric": "3 DETIK",
+        "detail": "Otak tangkap ikon jauh lebih cepat"
+      },
+      {
+        "label": "DESAIN BANDARA",
+        "metric": "AIGA 1974",
+        "detail": "Standar navigasi jutaan penumpang"
+      },
+      {
+        "label": "EVAKUASI AMAN",
+        "metric": "100% JELAS",
+        "detail": "Siluet minimalis penyelamat nyawa"
+      }
+    ]
   },
   {
     "num": 43,
@@ -427,7 +1477,32 @@
     "topik": "Rahasia Grid Tipografi Swiss yang Menghipnotis Mata",
     "elevenlabs_voice": "Adam / Antoni (Presisi, Arsitektural, Modern)",
     "voice_settings": "Stability: 0.70, Clarity: 0.90, Style Exaggeration: 0.05",
-    "naskah": "Tata letak grid Swiss bukan sekadar estetika kaku. Ini adalah sains persepsi visual manusia. Setiap rasio tipografi dan ruang kosong putih diatur secara matematis agar audiens mampu mencerna informasi penting dalam tempo kurang dari dua detik."
+    "naskah": "Tata letak grid Swiss bukan sekadar estetika kaku. Ini adalah sains persepsi visual manusia. Setiap rasio tipografi dan ruang kosong putih diatur secara matematis agar audiens mampu mencerna informasi penting dalam tempo kurang dari dua detik.",
+    "categorySlug": "grafis",
+    "visualLayout": "swiss-editorial",
+    "hookTitle": "RAHASIA GRID SWISS",
+    "scenes": [
+      {
+        "label": "SISTEM GRID",
+        "metric": "MATEMATIS",
+        "detail": "Rasio presisi tipografi & ruang kosong"
+      },
+      {
+        "label": "KECEPATAN BACA",
+        "metric": "< 2 DETIK",
+        "detail": "Mata langsung tangkap pesan utama"
+      },
+      {
+        "label": "SATU AKSEN",
+        "metric": "MERAH SINYAL",
+        "detail": "Kontras murni tanpa hiasan berlebih"
+      },
+      {
+        "label": "STANDAR MODERN",
+        "metric": "HELVETICA",
+        "detail": "Fondasi desain UI/UX seluruh dunia"
+      }
+    ]
   },
   {
     "num": 44,
@@ -437,7 +1512,32 @@
     "topik": "Berkas Intelijen Perang Dingin yang Baru Dideklasifikasi",
     "elevenlabs_voice": "Sarah / Rachel (Jurnalis Investigasi, Dingin)",
     "voice_settings": "Stability: 0.70, Clarity: 0.90, Style Exaggeration: 0.05",
-    "naskah": "Dokumen bertanda rahasia tingkat tinggi ini baru saja dibuka untuk publik. Pola titik halftone foto satelit membuktikan keberadaan pangkalan pesawat supersonik tak berawak yang dirahasiakan selama tiga dekade di kutub utara."
+    "naskah": "Dokumen bertanda rahasia tingkat tinggi ini baru saja dibuka untuk publik. Pola titik halftone foto satelit membuktikan keberadaan pangkalan pesawat supersonik tak berawak yang dirahasiakan selama tiga dekade di kutub utara.",
+    "categorySlug": "infografis",
+    "visualLayout": "forensic-dossier",
+    "hookTitle": "BERKAS PERANG DINGIN",
+    "scenes": [
+      {
+        "label": "STEMPEL RAHASIA",
+        "metric": "TOP SECRET",
+        "detail": "Dokumen intelijen baru dibuka publik"
+      },
+      {
+        "label": "FOTO SATELIT",
+        "metric": "TITIK HALFTONE",
+        "detail": "Citra cetak koran kutub utara"
+      },
+      {
+        "label": "PESAWAT SUPERSONIK",
+        "metric": "MACH 3.2",
+        "detail": "Pangkalan rahasia selama 3 dekade"
+      },
+      {
+        "label": "FAKTA TERUNGKAP",
+        "metric": "ARSIP 1989",
+        "detail": "Teknologi siluman mendahului zamannya"
+      }
+    ]
   },
   {
     "num": 45,
@@ -447,7 +1547,32 @@
     "topik": "Jalur Tembaga Mikroprosesor Kuantum Pertama",
     "elevenlabs_voice": "Adam / Liam (Tech Modern, Cepat, Fokus)",
     "voice_settings": "Stability: 0.60, Clarity: 0.90, Style Exaggeration: 0.10",
-    "naskah": "Perhatikan jalur tembaga mikroskopis berlapis emas ini. Di sinilah partikel kuantum bergerak mendekati kecepatan cahaya, memproses kalkulasi kecerdasan buatan seribu kali lebih cepat daripada seluruh superkomputer di muka bumi digabungkan."
+    "naskah": "Perhatikan jalur tembaga mikroskopis berlapis emas ini. Di sinilah partikel kuantum bergerak mendekati kecepatan cahaya, memproses kalkulasi kecerdasan buatan seribu kali lebih cepat daripada seluruh superkomputer di muka bumi digabungkan.",
+    "categorySlug": "infografis",
+    "visualLayout": "isometric-cutaway",
+    "hookTitle": "CHIP KUANTUM EMAS",
+    "scenes": [
+      {
+        "label": "JALUR TEMBAGA",
+        "metric": "LAPIS EMAS",
+        "detail": "Sirkuit mikroskopis nol hambatan"
+      },
+      {
+        "label": "KECEPATAN QUBIT",
+        "metric": "1.000X AI",
+        "detail": "Kalahkan seluruh superkomputer bumi"
+      },
+      {
+        "label": "SUHU EKSTREM",
+        "metric": "-273° C",
+        "detail": "Lebih dingin dari ruang angkasa"
+      },
+      {
+        "label": "LOMPATAN SAINS",
+        "metric": "KUANTUM",
+        "detail": "Pecahkan enkripsi dalam hitungan detik"
+      }
+    ]
   },
   {
     "num": 46,
@@ -457,7 +1582,32 @@
     "topik": "Intro Agen Rahasia 60-an yang Menginspirasi Sinema Modern",
     "elevenlabs_voice": "Marcus / Adam (Dingin, Jazz, Misterius)",
     "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.15",
-    "naskah": "Siluet agen rahasia, bidikan pistol, dan ritme musik jazz yang tajam. Desain judul film era enam puluhan ini merevolusi sinematografi dunia, membuktikan bahwa intro animasi bisa lebih ikonik daripada filmnya sendiri."
+    "naskah": "Siluet agen rahasia, bidikan pistol, dan ritme musik jazz yang tajam. Desain judul film era enam puluhan ini merevolusi sinematografi dunia, membuktikan bahwa intro animasi bisa lebih ikonik daripada filmnya sendiri.",
+    "categorySlug": "infografis",
+    "visualLayout": "swiss-editorial",
+    "hookTitle": "INTRO AGEN RAHASIA",
+    "scenes": [
+      {
+        "label": "ERA 1960-AN",
+        "metric": "SAUL BASS",
+        "detail": "Revolusi desain pembuka film dunia"
+      },
+      {
+        "label": "SILUET TAJAM",
+        "metric": "4 WARNA FLAT",
+        "detail": "Bidikan lensa & bayangan dramatis"
+      },
+      {
+        "label": "RITME JAZZ",
+        "metric": "120 BPM",
+        "detail": "Tipografi menari mengikuti ketukan"
+      },
+      {
+        "label": "LEGENDA SINEMA",
+        "metric": "IKONIK",
+        "detail": "Intro lebih terkenal dari filmnya"
+      }
+    ]
   },
   {
     "num": 47,
@@ -467,7 +1617,32 @@
     "topik": "Tren Warna Geometri 80-an yang Kembali Menguasai Algoritma",
     "elevenlabs_voice": "Bella / Lily (Ceria, Playful, Tren Medsos)",
     "voice_settings": "Stability: 0.50, Clarity: 0.90, Style Exaggeration: 0.25",
-    "naskah": "Kombinasi pola zigzag, warna pastel mencolok, dan bentuk abstrak tiga dimensi ini bukan kebetulan. Gaya Memphis kembali meledak di media sosial karena otak manusia secara alami merespons kontras visual yang membangkitkan dopamin seketika!"
+    "naskah": "Kombinasi pola zigzag, warna pastel mencolok, dan bentuk abstrak tiga dimensi ini bukan kebetulan. Gaya Memphis kembali meledak di media sosial karena otak manusia secara alami merespons kontras visual yang membangkitkan dopamin seketika!",
+    "categorySlug": "3d",
+    "visualLayout": "isometric-cutaway",
+    "hookTitle": "TREN MEMPHIS 80-AN",
+    "scenes": [
+      {
+        "label": "POLA ZIGZAG",
+        "metric": "GAYA 1981",
+        "detail": "Warna pastel cerah & bentuk 3D pop"
+      },
+      {
+        "label": "EFEK DOPAMIN",
+        "metric": "+65% ATENSI",
+        "detail": "Kontras ceria memicu respon otak"
+      },
+      {
+        "label": "KEMBALI VIRAL",
+        "metric": "GEN-Z TREND",
+        "detail": "Menguasai feed desain & iklan medsos"
+      },
+      {
+        "label": "ANTI BOSAN",
+        "metric": "100% POP",
+        "detail": "Pemberontakan melawan desain kaku"
+      }
+    ]
   },
   {
     "num": 48,
@@ -477,7 +1652,32 @@
     "topik": "Lukisan Satu Tarikan Garis Tanpa Putus Wajah Maestro",
     "elevenlabs_voice": "Rachel / Lily (Warm, Puitis, Mengalir)",
     "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.10",
-    "naskah": "Dari ujung pena menyentuh kanvas hingga goresan terakhir, mata pena ini tak pernah terangkat sekalipun. Satu garis kontinyu yang mengalir anggun melukiskan kerumitan emosi jiwa manusia dalam kesederhanaan mutlak."
+    "naskah": "Dari ujung pena menyentuh kanvas hingga goresan terakhir, mata pena ini tak pernah terangkat sekalipun. Satu garis kontinyu yang mengalir anggun melukiskan kerumitan emosi jiwa manusia dalam kesederhanaan mutlak.",
+    "categorySlug": "infografis",
+    "visualLayout": "handdrawn-board",
+    "hookTitle": "LUKISAN SATU GARIS",
+    "scenes": [
+      {
+        "label": "SENTUHAN PENA",
+        "metric": "0 ANGKAT",
+        "detail": "Mata pena menempel dari awal-akhir"
+      },
+      {
+        "label": "GARIS KONTINU",
+        "metric": "1 TARIKAN",
+        "detail": "Mengalir anggun membentuk wajah"
+      },
+      {
+        "label": "GAYA PICASSO",
+        "metric": "MINIMALIS",
+        "detail": "Emosi kompleks dalam bentuk murni"
+      },
+      {
+        "label": "SENI SEDERHANA",
+        "metric": "SEMPURNA",
+        "detail": "Sedikit goresan, sejuta makna"
+      }
+    ]
   },
   {
     "num": 49,
@@ -487,7 +1687,32 @@
     "topik": "Sinyal Misterius Terminal CRT 1983 di Server Bawah Tanah",
     "elevenlabs_voice": "George / Marcus (Misteri, Horor, Retro Hacker)",
     "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.15",
-    "naskah": "Monitor tabung kehijauan ini mendadak menyala di fasilitas bunker terbengkalai. Barisan kode ASCII mengalir deras membentuk peta satelit rahasia tahun seribu sembilan ratus delapan puluh tiga. Seseorang di luar sana baru saja mengaktifkan kembali protokol yang telah terkubur empat puluh tahun."
+    "naskah": "Monitor tabung kehijauan ini mendadak menyala di fasilitas bunker terbengkalai. Barisan kode ASCII mengalir deras membentuk peta satelit rahasia tahun seribu sembilan ratus delapan puluh tiga. Seseorang di luar sana baru saja mengaktifkan kembali protokol yang telah terkubur empat puluh tahun.",
+    "categorySlug": "infografis",
+    "visualLayout": "dataviz-hud",
+    "hookTitle": "SINYAL CRT 1983",
+    "scenes": [
+      {
+        "label": "BUNKER TUA",
+        "metric": "TAHUN 1983",
+        "detail": "Monitor fosfor hijau menyala sendiri"
+      },
+      {
+        "label": "KODE ASCII",
+        "metric": "256 GLYPH",
+        "detail": "Peta satelit rahasia mengalir di layar"
+      },
+      {
+        "label": "PROTOKOL AKTIF",
+        "metric": "40 TAHUN",
+        "detail": "Sinyal terkubur bangkit kembali"
+      },
+      {
+        "label": "AKSES TERMINAL",
+        "metric": "ROOT://",
+        "detail": "Siapa yang mengetik di ujung sana?"
+      }
+    ]
   },
   {
     "num": 50,
@@ -497,7 +1722,32 @@
     "topik": "Dunia Nyata yang Tampak Seperti Mainan Miniatur",
     "elevenlabs_voice": "Bella / Lily (Ceria, Visual Trick, Kagum)",
     "voice_settings": "Stability: 0.55, Clarity: 0.90, Style Exaggeration: 0.20",
-    "naskah": "Kota megapolitan ini bukan maket plastik mainan, melainkan rekaman lensa tilt-shift di dunia nyata. Dengan memanipulasi kedalaman fokus selektif, mobil dan pejalan kaki tampak seperti miniatur lego yang sedang bergerak menggemaskan!"
+    "naskah": "Kota megapolitan ini bukan maket plastik mainan, melainkan rekaman lensa tilt-shift di dunia nyata. Dengan memanipulasi kedalaman fokus selektif, mobil dan pejalan kaki tampak seperti miniatur lego yang sedang bergerak menggemaskan!",
+    "categorySlug": "3d",
+    "visualLayout": "isometric-cutaway",
+    "hookTitle": "KOTA MINIATUR NYATA",
+    "scenes": [
+      {
+        "label": "LENSA KHUSUS",
+        "metric": "TILT-SHIFT",
+        "detail": "Fokus tajam hanya di satu garis tipis"
+      },
+      {
+        "label": "ILUSI MAKRO",
+        "metric": "SKALA 1:87",
+        "detail": "Mobil & gedung tampak seperti Lego"
+      },
+      {
+        "label": "WARNA CERAH",
+        "metric": "SATURASI +",
+        "detail": "Menipu otak melihat dunia mainan"
+      },
+      {
+        "label": "TRIK KAMERA",
+        "metric": "100% NYATA",
+        "detail": "Bukan CGI, murni optik fisika"
+      }
+    ]
   },
   {
     "num": 51,
@@ -507,7 +1757,32 @@
     "topik": "Membangun Impian Balok Demi Balok Setiap Hari",
     "elevenlabs_voice": "Fin / Charlie (Antusias Ceria, Merakit Balok)",
     "voice_settings": "Stability: 0.45, Clarity: 0.90, Style Exaggeration: 0.30",
-    "naskah": "Koleksi Lego supercar tiga ribu keping ini tidak dirakit dalam satu malam. Pasang roda giginya, kunci chasis dasarnya, pasang mesin V12 baloknya! Klik! Setiap kesuksesan besar di dunia berawal dari satu balok kecil yang dipasang dengan tekun setiap hari!"
+    "naskah": "Koleksi Lego supercar tiga ribu keping ini tidak dirakit dalam satu malam. Pasang roda giginya, kunci chasis dasarnya, pasang mesin V12 baloknya! Klik! Setiap kesuksesan besar di dunia berawal dari satu balok kecil yang dipasang dengan tekun setiap hari!",
+    "categorySlug": "3d",
+    "visualLayout": "isometric-cutaway",
+    "hookTitle": "RAKIT BALOK IMPIAN",
+    "scenes": [
+      {
+        "label": "SATU KEPING",
+        "metric": "1% / HARI",
+        "detail": "Konsistensi kecil kalahkan bakat instan"
+      },
+      {
+        "label": "SUSUN STRUKTUR",
+        "metric": "365 BALOK",
+        "detail": "Setahun penuh bangun fondasi kokoh"
+      },
+      {
+        "label": "PRESISI KLIK",
+        "metric": "0.01 MM",
+        "detail": "Setiap langkah saling mengunci kuat"
+      },
+      {
+        "label": "KARYA MEGAH",
+        "metric": "TERWUJUD",
+        "detail": "Impian besar lahir dari potongan kecil"
+      }
+    ]
   },
   {
     "num": 52,
@@ -517,7 +1792,32 @@
     "topik": "Buku Pop-up Ajaib yang Membuka Kota Tiga Dimensi",
     "elevenlabs_voice": "Lily / Rachel (Hangat, Mendongeng, Alami)",
     "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.15",
-    "naskah": "Buka halaman ini dan saksikan keajaiban mekanika kertas. Gedung-gedung pencakar langit terlipat dan mekar sempurna membentuk metropolis mini di atas meja kerjamu. Seni lipat presisi yang menghidupkan kembali imajinasi masa kecil."
+    "naskah": "Buka halaman ini dan saksikan keajaiban mekanika kertas. Gedung-gedung pencakar langit terlipat dan mekar sempurna membentuk metropolis mini di atas meja kerjamu. Seni lipat presisi yang menghidupkan kembali imajinasi masa kecil.",
+    "categorySlug": "3d",
+    "visualLayout": "handdrawn-board",
+    "hookTitle": "BUKU POP-UP KOTA 3D",
+    "scenes": [
+      {
+        "label": "HALAMAN DIBUKA",
+        "metric": "180 DERAJAT",
+        "detail": "Kertas datar bangkit jadi gedung 3D"
+      },
+      {
+        "label": "MEKANIKA LIPAT",
+        "metric": "PRESISI",
+        "detail": "Rekayasa engsel kertas tanpa lem"
+      },
+      {
+        "label": "METROPOLIS MINI",
+        "metric": "DI MEJAMU",
+        "detail": "Lampu hangat & bayangan nyata"
+      },
+      {
+        "label": "KEAJAIBAN KERTAS",
+        "metric": "MAGIS",
+        "detail": "Hidupkan imajinasi masa kecil"
+      }
+    ]
   },
   {
     "num": 53,
@@ -527,7 +1827,32 @@
     "topik": "Karakter Fu Terbalik Pembawa Berkah Rezeki",
     "elevenlabs_voice": "Marcus / Rachel (Megah Tradisi, Meriah Merah Emas)",
     "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.15",
-    "naskah": "Guntingan siluet kertas merah berpola naga mengantar sukacita pergantian tahun baru. Memasang huruf Fu secara terbalik di daun pintu bermakna keberkahan rezeki telah tiba di rumahmu. Semoga kelimpahan dan kebahagiaan selalu mengalir menyertai setiap langkah keluargamu."
+    "naskah": "Guntingan siluet kertas merah berpola naga mengantar sukacita pergantian tahun baru. Memasang huruf Fu secara terbalik di daun pintu bermakna keberkahan rezeki telah tiba di rumahmu. Semoga kelimpahan dan kebahagiaan selalu mengalir menyertai setiap langkah keluargamu.",
+    "categorySlug": "infografis",
+    "visualLayout": "east-asian-scroll",
+    "hookTitle": "SILUET FU TERBALIK",
+    "scenes": [
+      {
+        "label": "TRADISI IMLEK",
+        "metric": "MERAH EMAS",
+        "detail": "Kertas potong simetris di pintu rumah"
+      },
+      {
+        "label": "HURUF TERBALIK",
+        "metric": "FU DAO LE",
+        "detail": "Bermakna berkah rezeki telah tiba"
+      },
+      {
+        "label": "POTONGAN TANGAN",
+        "metric": "1.500 THN",
+        "detail": "Seni rakyat penuh doa dan harapan"
+      },
+      {
+        "label": "SIMBOL KEBERUNTUNGAN",
+        "metric": "HARMONI",
+        "detail": "Menyambut musim semi penuh cahaya"
+      }
+    ]
   },
   {
     "num": 54,
@@ -537,7 +1862,32 @@
     "topik": "Cara Jenius Menjelaskan Teori Relativitas di Papan Tulis",
     "elevenlabs_voice": "Adam / Antoni (Edukatif, Antusias, Jelas)",
     "voice_settings": "Stability: 0.65, Clarity: 0.90, Style Exaggeration: 0.10",
-    "naskah": "Spidol hitam di atas papan tulis putih adalah senjata paling ampuh untuk memecahkan konsep rumit. Dalam hitungan detik, diagram sederhana ini menjelaskan bagaimana gravitasi membengkokkan ruang dan waktu tanpa membuat kepalamu pusing."
+    "naskah": "Spidol hitam di atas papan tulis putih adalah senjata paling ampuh untuk memecahkan konsep rumit. Dalam hitungan detik, diagram sederhana ini menjelaskan bagaimana gravitasi membengkokkan ruang dan waktu tanpa membuat kepalamu pusing.",
+    "categorySlug": "infografis",
+    "visualLayout": "handdrawn-board",
+    "hookTitle": "RELATIVITAS SPIDOL",
+    "scenes": [
+      {
+        "label": "PAPAN PUTIH",
+        "metric": "1 SPIDOL",
+        "detail": "Cara termudah bedah sains rumit"
+      },
+      {
+        "label": "BENGKOK RUANG",
+        "metric": "E = MC2",
+        "detail": "Massa bintang melengkungkan gravitasi"
+      },
+      {
+        "label": "WAKTU MELAMBAT",
+        "metric": "DILATASI",
+        "detail": "Dekat lubang hitam jam berjalan pelan"
+      },
+      {
+        "label": "PAHAM INSTAN",
+        "metric": "30 DETIK",
+        "detail": "Fisika Einstein tanpa bikin pusing"
+      }
+    ]
   },
   {
     "num": 55,
@@ -547,7 +1897,32 @@
     "topik": "Cahaya Kaca Patri Katedral Kuno Berusia Delapan Ratus Tahun",
     "elevenlabs_voice": "Emma / Rachel (Lembut, Sakral, Anggun)",
     "voice_settings": "Stability: 0.70, Clarity: 0.85, Style Exaggeration: 0.10",
-    "naskah": "Pecahan kaca berwarna merah rubi dan safir yang diikat timah hitam ini telah menyaring sinar mentari selama delapan abad. Setiap berkas cahaya yang menembusnya membawa pesan spiritual abadi yang tak lekang oleh zaman."
+    "naskah": "Pecahan kaca berwarna merah rubi dan safir yang diikat timah hitam ini telah menyaring sinar mentari selama delapan abad. Setiap berkas cahaya yang menembusnya membawa pesan spiritual abadi yang tak lekang oleh zaman.",
+    "categorySlug": "grafis",
+    "visualLayout": "swiss-editorial",
+    "hookTitle": "KACA PATRI 800 THN",
+    "scenes": [
+      {
+        "label": "KATEDRAL KUNO",
+        "metric": "800 TAHUN",
+        "detail": "Pecahan rubi & safir berbingkai timah"
+      },
+      {
+        "label": "SINAR MENTARI",
+        "metric": "SPEKTRUM",
+        "detail": "Cahaya pagi lukis lantai batu suci"
+      },
+      {
+        "label": "TEKNIK GRISAILLE",
+        "metric": "HANDCRAFT",
+        "detail": "Detail wajah dilukis pigmen mineral"
+      },
+      {
+        "label": "PESAN ABADI",
+        "metric": "SAKRAL",
+        "detail": "Keindahan cahaya tak lekang zaman"
+      }
+    ]
   },
   {
     "num": 56,
@@ -557,7 +1932,32 @@
     "topik": "Membangun Kafe Santai di Pulau Virtual Pribadi",
     "elevenlabs_voice": "Charlie / Fin (Santai Cozy Gaming, Ceria)",
     "voice_settings": "Stability: 0.50, Clarity: 0.90, Style Exaggeration: 0.20",
-    "naskah": "Pohon kelapa bergoyang ditiup angin sepoi-sepoi di tepi pantai pulau low-poly ini. Menanam bunga mawar, memancing ikan langka, dan membangun kedai kopi impian bersama para sahabat binatang lucu. Tempat pelarian ternyaman setelah seharian lelah dengan hiruk pikuk dunia nyata."
+    "naskah": "Pohon kelapa bergoyang ditiup angin sepoi-sepoi di tepi pantai pulau low-poly ini. Menanam bunga mawar, memancing ikan langka, dan membangun kedai kopi impian bersama para sahabat binatang lucu. Tempat pelarian ternyaman setelah seharian lelah dengan hiruk pikuk dunia nyata.",
+    "categorySlug": "3d",
+    "visualLayout": "isometric-cutaway",
+    "hookTitle": "PULAU KAFE VIRTUAL",
+    "scenes": [
+      {
+        "label": "PULAU PRIBADI",
+        "metric": "LOW-POLY 3D",
+        "detail": "Sudut poligon bersih & warna damai"
+      },
+      {
+        "label": "KAFE TEPI PANTAI",
+        "metric": "COZY VIBES",
+        "detail": "Aroma kopi & lambaian pohon kelapa"
+      },
+      {
+        "label": "DUNIA SANTAI",
+        "metric": "0 NOTIF",
+        "detail": "Tempat pelarian dari hiruk pikuk"
+      },
+      {
+        "label": "RUANG KREATIF",
+        "metric": "BEBAS",
+        "detail": "Bangun surga kecil versimu sendiri"
+      }
+    ]
   },
   {
     "num": 57,
@@ -567,7 +1967,32 @@
     "topik": "Rumah Otomatis Tahun 2000 Menurut Orang 1950",
     "elevenlabs_voice": "Patrick / Charlie (Penyiar TV Jadul Ceria 1950)",
     "voice_settings": "Stability: 0.40, Clarity: 0.85, Style Exaggeration: 0.35",
-    "naskah": "Keluarga masa depan abad dua puluh satu! Menekan satu tombol di dinding, sarapan telur mata sapi matang otomatis dan robot pembantu membersihkan karpet ruang tamu! Sungguh kemudahan hidup yang luar biasa bagi seluruh keluarga bahagia Amerika!"
+    "naskah": "Keluarga masa depan abad dua puluh satu! Menekan satu tombol di dinding, sarapan telur mata sapi matang otomatis dan robot pembantu membersihkan karpet ruang tamu! Sungguh kemudahan hidup yang luar biasa bagi seluruh keluarga bahagia Amerika!",
+    "categorySlug": "kartun",
+    "visualLayout": "comic-panel",
+    "hookTitle": "RUMAH 2000 VERSI 1950",
+    "scenes": [
+      {
+        "label": "VISI 1950-AN",
+        "metric": "RETRO FUTUR",
+        "detail": "Bayangan rumah otomatis abad 21"
+      },
+      {
+        "label": "ROBOT PELAYAN",
+        "metric": "1 TOMBOL",
+        "detail": "Sarapan & baju siap tanpa bergerak"
+      },
+      {
+        "label": "GAYA UPA",
+        "metric": "MID-CENTURY",
+        "detail": "Warna teal, mustard & bentuk tajam"
+      },
+      {
+        "label": "SMART HOME KINI",
+        "metric": "TERWUJUD",
+        "detail": "Imajinasi kartun jadi nyata lewat AI"
+      }
+    ]
   },
   {
     "num": 58,
@@ -577,7 +2002,32 @@
     "topik": "Luncurkan Rudal Sayap Gundam Klasik",
     "elevenlabs_voice": "Fin / Callum (Teriak Mecha Anime Shonen Epik)",
     "voice_settings": "Stability: 0.45, Clarity: 0.90, Style Exaggeration: 0.30",
-    "naskah": "Sistem persenjataan utama online! Kunci target di orbit koloni luar angkasa nomor tujuh! Mesin pendorong plasma menyala maksimal! Kita tidak akan membiarkan bumi jatuh ke tangan pasukan kegelapan! Serangan pedang laser pamungkas, hancurkan!"
+    "naskah": "Sistem persenjataan utama online! Kunci target di orbit koloni luar angkasa nomor tujuh! Mesin pendorong plasma menyala maksimal! Kita tidak akan membiarkan bumi jatuh ke tangan pasukan kegelapan! Serangan pedang laser pamungkas, hancurkan!",
+    "categorySlug": "kartun",
+    "visualLayout": "comic-panel",
+    "hookTitle": "RUDAL MECHA KLASIK!",
+    "scenes": [
+      {
+        "label": "KOKPIT AKTIF",
+        "metric": "ERA 1980",
+        "detail": "Lampu indikator menyala di ruang angkasa"
+      },
+      {
+        "label": "KUNCI TARGET",
+        "metric": "12 RUDAL!",
+        "detail": "Jejak asap melengkung khas Itano Circus"
+      },
+      {
+        "label": "TARIKAN TANGAN",
+        "metric": "24 FPS CEL",
+        "detail": "Digambar manual di lembaran asetat"
+      },
+      {
+        "label": "LEGENDA ANIME",
+        "metric": "OVERPOWER",
+        "detail": "Estetika retro yang tak tergantikan"
+      }
+    ]
   },
   {
     "num": 59,
@@ -587,7 +2037,32 @@
     "topik": "Bersiul Gembira di Atas Kapal Uap Tua",
     "elevenlabs_voice": "Charlie / Clyde (Vintage Swing Jazz Steamboat)",
     "voice_settings": "Stability: 0.35, Clarity: 0.85, Style Exaggeration: 0.40",
-    "naskah": "Putar roda kemudi kapal uap tua sambil bersiul riang diiringi alunan musik jazz ceria! Kaki melar lentur bagai selang karet, melompat ke sana kemari menghindari cipratan air sungai! Tertawalah bersama, hidup itu untuk dinikmati dengan penuh keceriaan!"
+    "naskah": "Putar roda kemudi kapal uap tua sambil bersiul riang diiringi alunan musik jazz ceria! Kaki melar lentur bagai selang karet, melompat ke sana kemari menghindari cipratan air sungai! Tertawalah bersama, hidup itu untuk dinikmati dengan penuh keceriaan!",
+    "categorySlug": "kartun",
+    "visualLayout": "comic-panel",
+    "hookTitle": "KAPAL UAP 1930-AN",
+    "scenes": [
+      {
+        "label": "ERA KLASIK",
+        "metric": "TAHUN 1928",
+        "detail": "Lengan lentur tanpa sendi memantul"
+      },
+      {
+        "label": "PELUIT KAPAL",
+        "metric": "JAZZ SWING",
+        "detail": "Bersiul ceria di atas sungai tenang"
+      },
+      {
+        "label": "GAYA MONOKROM",
+        "metric": "SEPIA INK",
+        "detail": "Sarung tangan putih & mata pie-eye"
+      },
+      {
+        "label": "AKAR ANIMASI",
+        "metric": "NOSTALGIA",
+        "detail": "Lahirnya industri kartun modern"
+      }
+    ]
   },
   {
     "num": 60,
@@ -597,7 +2072,32 @@
     "topik": "Pistol Portal Membuka Dimensi Pizza Berbicara",
     "elevenlabs_voice": "Patrick / Fin (Gila Cepat, Profesor Multiverse)",
     "voice_settings": "Stability: 0.40, Clarity: 0.90, Style Exaggeration: 0.30",
-    "naskah": "Cepat lompat ke dalam portal hijau ini kawan! Di dimensi semesta sebelah, pizza adalah makhluk yang memakan manusia di atas piring panas! Jangan tanya kenapa, hukum fisika kuantum semesta memang sekacau ini! Pegangan erat-erat, kita melompat ke galaksi lain!"
+    "naskah": "Cepat lompat ke dalam portal hijau ini kawan! Di dimensi semesta sebelah, pizza adalah makhluk yang memakan manusia di atas piring panas! Jangan tanya kenapa, hukum fisika kuantum semesta memang sekacau ini! Pegangan erat-erat, kita melompat ke galaksi lain!",
+    "categorySlug": "kartun",
+    "visualLayout": "comic-panel",
+    "hookTitle": "PISTOL PORTAL PIZZA",
+    "scenes": [
+      {
+        "label": "TEMBAK PORTAL",
+        "metric": "DIMENSI C-137",
+        "detail": "Pusaran hijau neon terbuka di kamar"
+      },
+      {
+        "label": "DUNIA ANEH",
+        "metric": "PIZZA HIDUP",
+        "detail": "Sepotong keju memesan manusia!"
+      },
+      {
+        "label": "KOMEDI ABSURD",
+        "metric": "MULTIVERSE",
+        "detail": "Aturan fisika dilanggar total"
+      },
+      {
+        "label": "KABUR CEPAT",
+        "metric": "PORTAL TUTUP",
+        "detail": "Petualangan gila tak pernah berakhir"
+      }
+    ]
   },
   {
     "num": 61,
@@ -607,7 +2107,32 @@
     "topik": "Grafik Mustahilnya Gen-Z Beli Rumah di Ibukota",
     "elevenlabs_voice": "Daniel / Brian (Jurnalisme Data, Dingin Menggugah)",
     "voice_settings": "Stability: 0.70, Clarity: 0.90, Style Exaggeration: 0.05",
-    "naskah": "Grafik garis merah ini menunjukkan kenaikan harga properti di ibukota sebesar dua ratus persen dalam sepuluh tahun. Sementara grafik garis biru menunjukkan kenaikan upah riil yang hanya naik delapan belas persen. Matematika tidak pernah berbohong: tanpa reformasi kebijakan agraria, kepemilikan rumah pribadi bagi generasi muda tinggal angan-angan di atas kertas."
+    "naskah": "Grafik garis merah ini menunjukkan kenaikan harga properti di ibukota sebesar dua ratus persen dalam sepuluh tahun. Sementara grafik garis biru menunjukkan kenaikan upah riil yang hanya naik delapan belas persen. Matematika tidak pernah berbohong: tanpa reformasi kebijakan agraria, kepemilikan rumah pribadi bagi generasi muda tinggal angan-angan di atas kertas.",
+    "categorySlug": "infografis",
+    "visualLayout": "dataviz-hud",
+    "hookTitle": "GEN-Z BELI RUMAH?",
+    "scenes": [
+      {
+        "label": "HARGA RUMAH",
+        "metric": "+180% NAIK",
+        "detail": "Melonjak drastis dalam 10 tahun"
+      },
+      {
+        "label": "GAJI UMR",
+        "metric": "+45% SAJA",
+        "detail": "Tertinggal jauh dari inflasi properti"
+      },
+      {
+        "label": "WAKTU NABUNG",
+        "metric": "24 TAHUN",
+        "detail": "Tanpa jajan kopi & tanpa cicilan"
+      },
+      {
+        "label": "REALITA DATA",
+        "metric": "STRATEGI",
+        "detail": "Saatnya ubah cara bangun aset"
+      }
+    ]
   },
   {
     "num": 62,
@@ -617,7 +2142,32 @@
     "topik": "Daya Baterai Reaktor Arc Tinggal 15%",
     "elevenlabs_voice": "Nicole / Callum (AI Asisten Futuristik Jarvis)",
     "voice_settings": "Stability: 0.65, Clarity: 0.90, Style Exaggeration: 0.10",
-    "naskah": "Selamat malam bos. Diagnostik baju zirah tempur selesai. Integritas lapisan titanium berada pada angka delapan puluh tujuh persen. Namun daya reaktor energi menyusut ke lima belas persen. Saya sarankan Anda menghindari benturan langsung dan segera mengaktifkan protokol pendaratan darurat sekarang juga."
+    "naskah": "Selamat malam bos. Diagnostik baju zirah tempur selesai. Integritas lapisan titanium berada pada angka delapan puluh tujuh persen. Namun daya reaktor energi menyusut ke lima belas persen. Saya sarankan Anda menghindari benturan langsung dan segera mengaktifkan protokol pendaratan darurat sekarang juga.",
+    "categorySlug": "infografis",
+    "visualLayout": "dataviz-hud",
+    "hookTitle": "REAKTOR ARC 15%!",
+    "scenes": [
+      {
+        "label": "PERINGATAN SISTEM",
+        "metric": "DAYA 15%",
+        "detail": "HUD biru menyala merah di helm"
+      },
+      {
+        "label": "DIAGNOSTIK AI",
+        "metric": "SCAN 360°",
+        "detail": "Thruster kiri rusak, ketinggian turun"
+      },
+      {
+        "label": "ALIHKAN ENERGI",
+        "metric": "BOOST 200%",
+        "detail": "Matikan senjata demi daya dorong"
+      },
+      {
+        "label": "MENDARAT AMAN",
+        "metric": "ONLINE",
+        "detail": "Teknologi HUD nyata kini di jet tempur"
+      }
+    ]
   },
   {
     "num": 63,
@@ -627,7 +2177,32 @@
     "topik": "Dari Gudang Sortir Otomatis Hingga Tiba di Depan Pintu",
     "elevenlabs_voice": "Adam / Liam (Logistik Modern, Rapi Terstruktur)",
     "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.10",
-    "naskah": "Satu detik setelah kamu menekan tombol beli di aplikasi. Lengan robot gudang mengambil paket dari rak setinggi sepuluh meter. Masuk ke sabuk konveyor otomatis pemindai kode batang, dimuat ke pesawat kargo malam hari, dan kurir mengantarnya ke depan pagarmu esok pagi. Keajaiban logistik modern dunia digital."
+    "naskah": "Satu detik setelah kamu menekan tombol beli di aplikasi. Lengan robot gudang mengambil paket dari rak setinggi sepuluh meter. Masuk ke sabuk konveyor otomatis pemindai kode batang, dimuat ke pesawat kargo malam hari, dan kurir mengantarnya ke depan pagarmu esok pagi. Keajaiban logistik modern dunia digital.",
+    "categorySlug": "infografis",
+    "visualLayout": "isometric-cutaway",
+    "hookTitle": "ALUR PAKET KILAT",
+    "scenes": [
+      {
+        "label": "KLIK CHECKOUT",
+        "metric": "00:01",
+        "detail": "Robot gudang langsung jemput barang"
+      },
+      {
+        "label": "SORTIR OTOMATIS",
+        "metric": "10.000/JAM",
+        "detail": "Scanner barcode pilah kota tujuan"
+      },
+      {
+        "label": "ARMADA KARGO",
+        "metric": "MIDNIGHT",
+        "detail": "Terbang lintas pulau saat kamu tidur"
+      },
+      {
+        "label": "TIBA DI PINTU",
+        "metric": "< 24 JAM",
+        "detail": "Logistik modern secepat kilat"
+      }
+    ]
   },
   {
     "num": 64,
@@ -637,7 +2212,32 @@
     "topik": "Kereta Api Listrik Melintasi Taman Bunga Kota",
     "elevenlabs_voice": "Rachel / Lily (Tertib Ceria, Tata Kota Ramah)",
     "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.15",
-    "naskah": "Kereta listrik mini meluncur mulus membelah kawasan hijau di pusat kota. Warga berjalan kaki di trotoar yang teduh, menghirup udara segar tanpa polusi asap knalpot. Sebuah kota impian masa depan yang dirancang untuk memuliakan kebahagiaan setiap warganya."
+    "naskah": "Kereta listrik mini meluncur mulus membelah kawasan hijau di pusat kota. Warga berjalan kaki di trotoar yang teduh, menghirup udara segar tanpa polusi asap knalpot. Sebuah kota impian masa depan yang dirancang untuk memuliakan kebahagiaan setiap warganya.",
+    "categorySlug": "infografis",
+    "visualLayout": "isometric-cutaway",
+    "hookTitle": "KOTA MINI SIMCITY",
+    "scenes": [
+      {
+        "label": "KERETA LISTRIK",
+        "metric": "ZERO EMISI",
+        "detail": "Meluncur halus belah taman bunga"
+      },
+      {
+        "label": "TATA KOTA",
+        "metric": "15 MENIT",
+        "detail": "Sekolah, pasar & taman dekat semua"
+      },
+      {
+        "label": "RUANG HIJAU",
+        "metric": "40% TAMAN",
+        "detail": "Udara bersih & jalur sepeda aman"
+      },
+      {
+        "label": "KOTA IMPIAN",
+        "metric": "MASA DEPAN",
+        "detail": "Harmoni manusia, alam & teknologi"
+      }
+    ]
   },
   {
     "num": 65,
@@ -647,7 +2247,32 @@
     "topik": "Skrip Python 10 Baris Mengotomasi Tugas 8 Jam",
     "elevenlabs_voice": "Liam / Nicole (Cepat Developer, Tampilan Terminal)",
     "voice_settings": "Stability: 0.55, Clarity: 0.90, Style Exaggeration: 0.10",
-    "naskah": "Buka editor kodinganmu. Tulis sepuluh baris perintah Python untuk membaca ribuan file laporan excel yang berantakan. Tekan tombol run, dan seluruh laporan membosankan yang biasanya memakan waktu delapan jam selesai dirangkum dalam dua detik saja. Bekerja cerdas, bukan cuma bekerja keras!"
+    "naskah": "Buka editor kodinganmu. Tulis sepuluh baris perintah Python untuk membaca ribuan file laporan excel yang berantakan. Tekan tombol run, dan seluruh laporan membosankan yang biasanya memakan waktu delapan jam selesai dirangkum dalam dua detik saja. Bekerja cerdas, bukan cuma bekerja keras!",
+    "categorySlug": "infografis",
+    "visualLayout": "dataviz-hud",
+    "hookTitle": "10 BARIS PYTHON CUAN",
+    "scenes": [
+      {
+        "label": "TUGAS MANUAL",
+        "metric": "8 JAM/HARI",
+        "detail": "Copy-paste laporan bikin lelah mata"
+      },
+      {
+        "label": "SKRIP PYTHON",
+        "metric": "10 BARIS",
+        "detail": "Otomasi ambil data & kirim email"
+      },
+      {
+        "label": "WAKTU EKSEKUSI",
+        "metric": "1,2 DETIK",
+        "detail": "Selesai tanpa satu pun typo"
+      },
+      {
+        "label": "KERJA CERDAS",
+        "metric": "10X HASIL",
+        "detail": "Biarkan kode bekerja untukmu"
+      }
+    ]
   },
   {
     "num": 66,
@@ -657,7 +2282,32 @@
     "topik": "Kecepatan 350 Km/Jam Membelah Pegunungan",
     "elevenlabs_voice": "Brian / Adam (Panduan Transportasi Cepat Modern)",
     "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.05",
-    "naskah": "Dari Stasiun Halim Jakarta hingga Tegalluar Bandung hanya dalam waktu empat puluh lima menit. Meluncur menembus terowongan gunung dengan kecepatan tiga ratus lima puluh kilometer per jam tanpa guncangan. Menghubungkan denyut nadi ekonomi dua kota megapolitan dalam satu kedipan perjalanan modern."
+    "naskah": "Dari Stasiun Halim Jakarta hingga Tegalluar Bandung hanya dalam waktu empat puluh lima menit. Meluncur menembus terowongan gunung dengan kecepatan tiga ratus lima puluh kilometer per jam tanpa guncangan. Menghubungkan denyut nadi ekonomi dua kota megapolitan dalam satu kedipan perjalanan modern.",
+    "categorySlug": "infografis",
+    "visualLayout": "dataviz-hud",
+    "hookTitle": "KERETA 350 KM/JAM",
+    "scenes": [
+      {
+        "label": "RUTE CEPAT",
+        "metric": "142 KM",
+        "detail": "Jakarta menuju Bandung tanpa macet"
+      },
+      {
+        "label": "KECEPATAN PUNCAK",
+        "metric": "350 KM/J",
+        "detail": "Membelah 13 terowongan pegunungan"
+      },
+      {
+        "label": "WAKTU TEMPUH",
+        "metric": "45 MENIT",
+        "detail": "Dari 3 jam jadi kurang dari sejam"
+      },
+      {
+        "label": "ERA TRANSIT",
+        "metric": "WHOOSH",
+        "detail": "Konektivitas super cepat Asia Tenggara"
+      }
+    ]
   },
   {
     "num": 67,
@@ -667,7 +2317,32 @@
     "topik": "Negara Mana yang Punya Garis Pantai Terpanjang?",
     "elevenlabs_voice": "Patrick / Charlie (Pembawa Acara Heboh Kuis TV)",
     "voice_settings": "Stability: 0.40, Clarity: 0.90, Style Exaggeration: 0.35",
-    "naskah": "Pertanyaan penentuan hadiah satu miliar rupiah! Negara manakah yang memiliki garis pantai terpanjang di seluruh dunia? Apakah Indonesia, Rusia, atau Kanada? Kunci jawaban Anda sekarang! Benar sekali, jawabannya adalah Kanada! Anda membawa pulang uang tunai malam ini!"
+    "naskah": "Pertanyaan penentuan hadiah satu miliar rupiah! Negara manakah yang memiliki garis pantai terpanjang di seluruh dunia? Apakah Indonesia, Rusia, atau Kanada? Kunci jawaban Anda sekarang! Benar sekali, jawabannya adalah Kanada! Anda membawa pulang uang tunai malam ini!",
+    "categorySlug": "gim",
+    "visualLayout": "arcade-game",
+    "hookTitle": "KUIS PANTAI TERPANJANG",
+    "scenes": [
+      {
+        "label": "SOAL MILYARDER",
+        "metric": "RP 1 M",
+        "detail": "Negara garis pantai terpanjang dunia?"
+      },
+      {
+        "label": "TIMER BERJALAN",
+        "metric": "00:05",
+        "detail": "A. Indonesia  B. Kanada  C. Rusia"
+      },
+      {
+        "label": "JAWABAN BENAR!",
+        "metric": "B. KANADA",
+        "detail": "202.080 km, Indonesia juara 2!"
+      },
+      {
+        "label": "SKOR TRIVIA",
+        "metric": "+1.000 PTS",
+        "detail": "Banyak yang terkecoh di soal ini"
+      }
+    ]
   },
   {
     "num": 68,
@@ -677,7 +2352,32 @@
     "topik": "Ksatria Terakhir di Reruntuhan Kastil Kuno",
     "elevenlabs_voice": "Marcus / Callum (Epik Fantasi Sinematik RPG)",
     "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.20",
-    "naskah": "Lampu lentera berpendar lembut memantulkan bayangan di atas lantai batu kastil yang basah. Dengan grafis piksel enam belas bit berpadu tata cahaya tiga dimensi yang memukau. Ksatria terakhir mengangkat pedangnya, siap menyongsong fajar pertempuran yang akan menentukan nasib kerajaan abadi."
+    "naskah": "Lampu lentera berpendar lembut memantulkan bayangan di atas lantai batu kastil yang basah. Dengan grafis piksel enam belas bit berpadu tata cahaya tiga dimensi yang memukau. Ksatria terakhir mengangkat pedangnya, siap menyongsong fajar pertempuran yang akan menentukan nasib kerajaan abadi.",
+    "categorySlug": "gim",
+    "visualLayout": "arcade-game",
+    "hookTitle": "KSATRIA KASTIL KUNO",
+    "scenes": [
+      {
+        "label": "RERUNTUHAN TUA",
+        "metric": "HD-2D",
+        "detail": "Sprite piksel bertemu cahaya 3D"
+      },
+      {
+        "label": "PEDANG TERHUNUS",
+        "metric": "HP 100%",
+        "detail": "Menjaga gerbang kerajaan terakhir"
+      },
+      {
+        "label": "EFEK CAHAYA",
+        "metric": "GOD RAYS",
+        "detail": "Debu emas melayang di sinar senja"
+      },
+      {
+        "label": "PETUALANGAN",
+        "metric": "PRESS START",
+        "detail": "Nostalgia retro rasa sinema modern"
+      }
+    ]
   },
   {
     "num": 69,
@@ -687,7 +2387,32 @@
     "topik": "Tebak Logo Asli vs Palsu dalam 3 Detik",
     "elevenlabs_voice": "Fin / Patrick (Sangat Cepat Tantangan Viral)",
     "voice_settings": "Stability: 0.35, Clarity: 0.90, Style Exaggeration: 0.40",
-    "naskah": "Tebak dalam tiga detik! Mana logo apel yang digigit di sebelah kanan? Kiri atau kanan? Tiga, dua, satu! Kalau kamu salah tebak, kamu wajib follow akun ini sekarang juga!"
+    "naskah": "Tebak dalam tiga detik! Mana logo apel yang digigit di sebelah kanan? Kiri atau kanan? Tiga, dua, satu! Kalau kamu salah tebak, kamu wajib follow akun ini sekarang juga!",
+    "categorySlug": "gim",
+    "visualLayout": "arcade-game",
+    "hookTitle": "TEBAK LOGO 3 DETIK!",
+    "scenes": [
+      {
+        "label": "RONDE SATU",
+        "metric": "3.. 2.. 1!",
+        "detail": "Mana warna huruf Google yang asli?"
+      },
+      {
+        "label": "EFEK MANDELA",
+        "metric": "80% SALAH",
+        "detail": "Otak sering menipu ingatan visual"
+      },
+      {
+        "label": "BOM WAKTU",
+        "metric": "00:00!",
+        "detail": "Waktu habis, jawaban terkunci!"
+      },
+      {
+        "label": "SKOR AKHIR",
+        "metric": "CLEAR!",
+        "detail": "Berapa yang benar kamu tebak?"
+      }
+    ]
   },
   {
     "num": 70,
@@ -697,7 +2422,32 @@
     "topik": "Muncul Monster Emas Shiny di Semak-Semak",
     "elevenlabs_voice": "Callum / Charlie (Gamer Retro Nintendo Heboh)",
     "voice_settings": "Stability: 0.50, Clarity: 0.85, Style Exaggeration: 0.25",
-    "naskah": "Karaktermu berjalan pelan di rerumputan tinggi. Tiba-tiba musik pertempuran berbunyi nyaring dan kilauan bintang bersinar di layar! Monster emas legendaris yang hanya muncul satu banding delapan ribu kesempatan! Lempar bola Master Ball sekarang juga jangan sampai kabur!"
+    "naskah": "Karaktermu berjalan pelan di rerumputan tinggi. Tiba-tiba musik pertempuran berbunyi nyaring dan kilauan bintang bersinar di layar! Monster emas legendaris yang hanya muncul satu banding delapan ribu kesempatan! Lempar bola Master Ball sekarang juga jangan sampai kabur!",
+    "categorySlug": "gim",
+    "visualLayout": "arcade-game",
+    "hookTitle": "MONSTER EMAS LANGKA!",
+    "scenes": [
+      {
+        "label": "SEMAK BERGERAK",
+        "metric": "ALERT!",
+        "detail": "Pertemuan acak di rute 101"
+      },
+      {
+        "label": "SHINY EMAS!",
+        "metric": "1 : 4.096",
+        "detail": "Peluang muncul super langka!"
+      },
+      {
+        "label": "PILIH AKSI",
+        "metric": "MASTER BALL",
+        "detail": "Jangan sampai lari dari pertarungan"
+      },
+      {
+        "label": "TERTANGKAP!",
+        "metric": "GOTCHA!",
+        "detail": "Momen paling deg-degan gamer RPG"
+      }
+    ]
   },
   {
     "num": 71,
@@ -707,7 +2457,32 @@
     "topik": "Terjebak di Lorong Backrooms Tanpa Pintu Keluar",
     "elevenlabs_voice": "Daniel / Marcus (Horor Liminal Berbisik Ngeri)",
     "voice_settings": "Stability: 0.55, Clarity: 0.85, Style Exaggeration: 0.25",
-    "naskah": "Jika kamu tidak sengaja no-clip menembus dinding di dunia nyata, kamu akan berakhir di sini. Bau karpet kuning basah tua, dengungan lampu neon monokrom berdaya maksimum, dan lorong labirin kosong tak berujung seluas enam ratus juta mil persegi. Jika kamu mendengar sesuatu merayap di dekatmu, segera lari."
+    "naskah": "Jika kamu tidak sengaja no-clip menembus dinding di dunia nyata, kamu akan berakhir di sini. Bau karpet kuning basah tua, dengungan lampu neon monokrom berdaya maksimum, dan lorong labirin kosong tak berujung seluas enam ratus juta mil persegi. Jika kamu mendengar sesuatu merayap di dekatmu, segera lari.",
+    "categorySlug": "sinema",
+    "visualLayout": "cinema-reel",
+    "hookTitle": "JEBAKAN BACKROOMS",
+    "scenes": [
+      {
+        "label": "LEVEL 0",
+        "metric": "600 JT MIL2",
+        "detail": "Lorong karpet kuning basah tak berujung"
+      },
+      {
+        "label": "LAMPU NEON",
+        "metric": "60 HZ BUZZ",
+        "detail": "Dengungan konstan bikin hilang akal"
+      },
+      {
+        "label": "REKAMAN VHS",
+        "metric": "REC 1996",
+        "detail": "Kamera temuan tanpa pemilik"
+      },
+      {
+        "label": "JANGAN MENOLEH",
+        "metric": "NO EXIT",
+        "detail": "Kamu tidak sendirian di lorong ini"
+      }
+    ]
   },
   {
     "num": 72,
@@ -717,7 +2492,32 @@
     "topik": "Pencuri Roti Lolos Berkat Pisang Terpeleset",
     "elevenlabs_voice": "Charlie / Patrick (Kocak Pantomimik Slapstick)",
     "voice_settings": "Stability: 0.40, Clarity: 0.85, Style Exaggeration: 0.35",
-    "naskah": "Seorang pria bertopi caping berlari kencang memeluk sepotong roti hangat! Polisi gemuk bergegas mengejarnya dari belakang, tapi sialnya menginjak kulit pisang di trotoar jalan! Terpeleset dramatis berputar tiga kali sebelum jatuh menimpa tong sampah! Komedi klasik yang tak pernah usang!"
+    "naskah": "Seorang pria bertopi caping berlari kencang memeluk sepotong roti hangat! Polisi gemuk bergegas mengejarnya dari belakang, tapi sialnya menginjak kulit pisang di trotoar jalan! Terpeleset dramatis berputar tiga kali sebelum jatuh menimpa tong sampah! Komedi klasik yang tak pernah usang!",
+    "categorySlug": "sinema",
+    "visualLayout": "cinema-reel",
+    "hookTitle": "KEJAR-KEJARAN 1920",
+    "scenes": [
+      {
+        "label": "FILM BISU",
+        "metric": "18 FPS",
+        "detail": "Pencuri roti berlari di gang kota"
+      },
+      {
+        "label": "KULIT PISANG",
+        "metric": "SLAPSTICK!",
+        "detail": "Tiga polisi terpeleset beruntun"
+      },
+      {
+        "label": "KARTU DIALOG",
+        "metric": "INTERTITLE",
+        "detail": "Komedi murni tanpa sepatah suara"
+      },
+      {
+        "label": "ERA CHAPLIN",
+        "metric": "KLASIK",
+        "detail": "Tawa universal lintas bahasa"
+      }
+    ]
   },
   {
     "num": 73,
@@ -727,7 +2527,32 @@
     "topik": "Misteri Jam 3:15 Dini Hari Rumah Angker",
     "elevenlabs_voice": "George / Daniel (Horor Gotik Seram, Berat Mencekam)",
     "voice_settings": "Stability: 0.65, Clarity: 0.80, Style Exaggeration: 0.25",
-    "naskah": "Goresan arang hitam melukiskan siluet jendela rumah bergaya kolonial Belanda di tepi danau sunyi. Tepat pukul tiga lewat lima belas menit dini hari, pintu lemari tua terbuka perlahan dengan deritan dingin. Udara ruangan membeku seketika dan jejak kaki basah terlihat melangkah menuju tempat tidurmu. Ada misteri masa lalu yang menolak untuk dilupakan."
+    "naskah": "Goresan arang hitam melukiskan siluet jendela rumah bergaya kolonial Belanda di tepi danau sunyi. Tepat pukul tiga lewat lima belas menit dini hari, pintu lemari tua terbuka perlahan dengan deritan dingin. Udara ruangan membeku seketika dan jejak kaki basah terlihat melangkah menuju tempat tidurmu. Ada misteri masa lalu yang menolak untuk dilupakan.",
+    "categorySlug": "gambar-tangan",
+    "visualLayout": "handdrawn-board",
+    "hookTitle": "MISTERI JAM 03:15",
+    "scenes": [
+      {
+        "label": "WAKTU MENCEKAM",
+        "metric": "03:15 WIB",
+        "detail": "Jam dinding berhenti serentak"
+      },
+      {
+        "label": "SKETSA ARANG",
+        "metric": "AMITYVILLE",
+        "detail": "Bayangan hitam di jendela lantai 2"
+      },
+      {
+        "label": "SUHU ANJLOK",
+        "metric": "4° CELSIUS",
+        "detail": "Hembusan dingin di lorong gelap"
+      },
+      {
+        "label": "RUMAH ANGKER",
+        "metric": "28 HARI",
+        "detail": "Keluarga kabur tinggalkan segalanya"
+      }
+    ]
   },
   {
     "num": 74,
@@ -737,7 +2562,32 @@
     "topik": "Melacak Transaksi Gelap Bitcoin di Pasar Gelap",
     "elevenlabs_voice": "Brian / Adam (Noir Sinematik, Ketukan Mesin Tik)",
     "voice_settings": "Stability: 0.65, Clarity: 0.90, Style Exaggeration: 0.15",
-    "naskah": "Ketukan tuts mesin tik di tengah kepulan asap kopi hitam. Laporan rahasia nomor empat ratus empat. Alamat dompet kripto itu memindahkan seratus ribu koin tanpa nama pemilik ke rekening bank lepas pantai di Karibia. Jejak digital tidak pernah hilang, mereka hanya bersembunyi di balik enkripsi algoritma rumit."
+    "naskah": "Ketukan tuts mesin tik di tengah kepulan asap kopi hitam. Laporan rahasia nomor empat ratus empat. Alamat dompet kripto itu memindahkan seratus ribu koin tanpa nama pemilik ke rekening bank lepas pantai di Karibia. Jejak digital tidak pernah hilang, mereka hanya bersembunyi di balik enkripsi algoritma rumit.",
+    "categorySlug": "sinema",
+    "visualLayout": "forensic-dossier",
+    "hookTitle": "LACAK BITCOIN GELAP",
+    "scenes": [
+      {
+        "label": "KASUS SIBER",
+        "metric": "$40 JUTA",
+        "detail": "Dana dicuci lewat 500 dompet kripto"
+      },
+      {
+        "label": "JEJAK BLOCKCHAIN",
+        "metric": "100% PUBLIK",
+        "detail": "Setiap transaksi abadi tak terhapus"
+      },
+      {
+        "label": "TITIK CELAH",
+        "metric": "EXCHANGE",
+        "detail": "Tersangka tarik tunai tanpa sadar"
+      },
+      {
+        "label": "KASUS DITUTUP",
+        "metric": "TERTANGKAP",
+        "detail": "Kripto bukan tempat sembunyi aman"
+      }
+    ]
   },
   {
     "num": 75,
@@ -747,7 +2597,32 @@
     "topik": "Dicari: Penjahat Paling Licin di Kota Tambang Emas",
     "elevenlabs_voice": "Adam / Bill (Suara Sheriff Koboi Wild West)",
     "voice_settings": "Stability: 0.55, Clarity: 0.90, Style Exaggeration: 0.25",
-    "naskah": "Dicari hidup atau mati! Billy the Kid perampok kereta kuda antar-negara bagian! Imbalan lima ribu keping koin emas bagi siapa pun yang berhasil membawanya ke kantor sheriff kota sebelum matahari terbenam esok hari! Keadilan tidak akan pernah berkompromi!"
+    "naskah": "Dicari hidup atau mati! Billy the Kid perampok kereta kuda antar-negara bagian! Imbalan lima ribu keping koin emas bagi siapa pun yang berhasil membawanya ke kantor sheriff kota sebelum matahari terbenam esok hari! Keadilan tidak akan pernah berkompromi!",
+    "categorySlug": "grafis",
+    "visualLayout": "swiss-editorial",
+    "hookTitle": "WANTED WILD WEST!",
+    "scenes": [
+      {
+        "label": "BURONAN UTAMA",
+        "metric": "$50.000",
+        "detail": "Hadiah emas hidup atau mati"
+      },
+      {
+        "label": "KOTA TAMBANG",
+        "metric": "TAHUN 1881",
+        "detail": "Perampok kereta paling licin di Barat"
+      },
+      {
+        "label": "CETAK KAYU",
+        "metric": "WOOD TYPE",
+        "detail": "Huruf tebal ditempel di tiap pos"
+      },
+      {
+        "label": "DUEL TENGAH HARI",
+        "metric": "12:00 NOON",
+        "detail": "Siapa tercepat menarik pelatuk?"
+      }
+    ]
   },
   {
     "num": 76,
@@ -757,7 +2632,32 @@
     "topik": "Jejak Kaki Anjing Raksasa di Rawa Baskerville",
     "elevenlabs_voice": "Rachel / Nicole (Teatrikal Misteri Inggris Kuno)",
     "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.20",
-    "naskah": "Panggung teater kertas membuka tabir kabut tebal London abad kesembilan belas. Ketika petunjuk terkecil berupa abu rokok cerutu di atas perapian mampu membongkar konspirasi pembunuhan bangsawan terkaya Inggris. Elementary my dear Watson, kebenaran sejati selalu tersembunyi di balik hal-hal yang dianggap sepele."
+    "naskah": "Panggung teater kertas membuka tabir kabut tebal London abad kesembilan belas. Ketika petunjuk terkecil berupa abu rokok cerutu di atas perapian mampu membongkar konspirasi pembunuhan bangsawan terkaya Inggris. Elementary my dear Watson, kebenaran sejati selalu tersembunyi di balik hal-hal yang dianggap sepele.",
+    "categorySlug": "kartun",
+    "visualLayout": "comic-panel",
+    "hookTitle": "ANJING BASKERVILLE",
+    "scenes": [
+      {
+        "label": "RAWA BERKABUT",
+        "metric": "LONDON 1901",
+        "detail": "Jejak cakar raksasa di lumpur malam"
+      },
+      {
+        "label": "DEDUKSI HOLMES",
+        "metric": "FOSFOR!",
+        "detail": "Bukan hantu, melainkan trik cahaya"
+      },
+      {
+        "label": "PANGGUNG KERTAS",
+        "metric": "3 LAPIS",
+        "detail": "Siluet Victoria penuh atmosfer misteri"
+      },
+      {
+        "label": "KASUS TERPECAHKAN",
+        "metric": "ELEMENTARY",
+        "detail": "Logika selalu kalahkan takhayul"
+      }
+    ]
   },
   {
     "num": 77,
@@ -767,7 +2667,32 @@
     "topik": "Filosofi Awan Kelabu Penyejuk Jiwa Manusia",
     "elevenlabs_voice": "George / Rachel (Hangat Budaya Luhur Nusantara)",
     "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.10",
-    "naskah": "Cap tembaga menorehkan cairan lilin malam di atas lembaran kain mori halus. Motif Mega Mendung bukan sekadar lukisan awan mendung pembawa hujan, melainkan wejangan luhur para leluhur agar manusia senantiasa mampu menahan amarah dan mendinginkan suasana saat amukan badai kehidupan melanda jiwa."
+    "naskah": "Cap tembaga menorehkan cairan lilin malam di atas lembaran kain mori halus. Motif Mega Mendung bukan sekadar lukisan awan mendung pembawa hujan, melainkan wejangan luhur para leluhur agar manusia senantiasa mampu menahan amarah dan mendinginkan suasana saat amukan badai kehidupan melanda jiwa.",
+    "categorySlug": "cetak",
+    "visualLayout": "swiss-editorial",
+    "hookTitle": "BATIK MEGA MENDUNG",
+    "scenes": [
+      {
+        "label": "MOTIF CIREBON",
+        "metric": "7 GRADASI",
+        "detail": "Biru langit hingga biru malam dalam"
+      },
+      {
+        "label": "FILOSOFI AWAN",
+        "metric": "SEJUK HATI",
+        "detail": "Pemimpin wajib teduh saat marah"
+      },
+      {
+        "label": "CAP TEMBAGA",
+        "metric": "HANDMADE",
+        "detail": "Perpaduan budaya Nusantara & Tiongkok"
+      },
+      {
+        "label": "WARISAN BANGSA",
+        "metric": "UNESCO",
+        "detail": "Karya seni adiluhung mendunia"
+      }
+    ]
   },
   {
     "num": 78,
@@ -777,7 +2702,32 @@
     "topik": "Zaman SMS Karakter Terbatas dan Tukeran Lagu Bluetooth",
     "elevenlabs_voice": "Nicole / Rachel (Nostalgia Y2K, Penuh Kenangan Hangat)",
     "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.15",
-    "naskah": "Membuka album foto polaroid dengan tone warna pudar hangat. Masa ketika kita harus menabung pulsa sepuluh ribu rupiah demi mengirim pesan singkat cinta, dan menunggu setengah jam kirim satu lagu mp3 lewat koneksi bluetooth infra-merah. Kenangan sederhana yang kini tak terbeli oleh kecanggihan smartphone tercanggih sekalipun."
+    "naskah": "Membuka album foto polaroid dengan tone warna pudar hangat. Masa ketika kita harus menabung pulsa sepuluh ribu rupiah demi mengirim pesan singkat cinta, dan menunggu setengah jam kirim satu lagu mp3 lewat koneksi bluetooth infra-merah. Kenangan sederhana yang kini tak terbeli oleh kecanggihan smartphone tercanggih sekalipun.",
+    "categorySlug": "sinema",
+    "visualLayout": "cinema-reel",
+    "hookTitle": "NOSTALGIA ERA 2000",
+    "scenes": [
+      {
+        "label": "SMS TERBATAS",
+        "metric": "160 HURUF",
+        "detail": "Menyingkat kata demi hemat pulsa"
+      },
+      {
+        "label": "KIRIM LAGU",
+        "metric": "BLUETOOTH",
+        "detail": "Tempel HP dekat-dekat di kelas"
+      },
+      {
+        "label": "FOTO POLAROID",
+        "metric": "KENANGAN",
+        "detail": "Cetak fisik penuh cerita hangat"
+      },
+      {
+        "label": "MASA TERINDAH",
+        "metric": "2000-AN",
+        "detail": "Sederhana namun terasa sangat nyata"
+      }
+    ]
   },
   {
     "num": 79,
@@ -787,7 +2737,32 @@
     "topik": "Kisah Persilatan Pendekar di Puncak Gunung Huashan",
     "elevenlabs_voice": "Charlotte / Nicole (Anggun Pendekar Wuxia Klasik)",
     "voice_settings": "Stability: 0.70, Clarity: 0.85, Style Exaggeration: 0.10",
-    "naskah": "Goresan kuas halus di atas kain sutra menggambarkan pertarungan dua pendekar sakti di puncak tebing berkabut. Menghunus pedang mustika yang ditempa dari meteorit besi langit. Mengingatkan kita bahwa ilmu persilatan tertinggi bukanlah untuk menguasai dunia fana, melainkan untuk menaklukkan hawa nafsu diri sendiri."
+    "naskah": "Goresan kuas halus di atas kain sutra menggambarkan pertarungan dua pendekar sakti di puncak tebing berkabut. Menghunus pedang mustika yang ditempa dari meteorit besi langit. Mengingatkan kita bahwa ilmu persilatan tertinggi bukanlah untuk menguasai dunia fana, melainkan untuk menaklukkan hawa nafsu diri sendiri.",
+    "categorySlug": "asia-timur",
+    "visualLayout": "east-asian-scroll",
+    "hookTitle": "PEDANG LANGIT NAGA",
+    "scenes": [
+      {
+        "label": "PUNCAK HUASHAN",
+        "metric": "2.154 M",
+        "detail": "Kabut sutra selimuti duel pendekar"
+      },
+      {
+        "label": "LUKISAN GONGBI",
+        "metric": "KUAS HALUS",
+        "detail": "Detail baju zirah & helai awan tipis"
+      },
+      {
+        "label": "JURUS PAMUNGKAS",
+        "metric": "TENAGA DALAM",
+        "detail": "Pedang membelah kabut pegunungan"
+      },
+      {
+        "label": "LEGENDA WUXIA",
+        "metric": "KEHORMATAN",
+        "detail": "Kemenangan sejati adalah kendali jiwa"
+      }
+    ]
   },
   {
     "num": 80,
@@ -797,7 +2772,32 @@
     "topik": "Buku Berbahasa Asing yang Tak Bisa Dibaca Superkomputer",
     "elevenlabs_voice": "George / Marcus (Misterius Sejarah Kuno yang Belum Terpecahkan)",
     "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.15",
-    "naskah": "Dihiasi tinta emas dan ilustrasi tanaman aneh yang tidak pernah ada di bumi. Naskah Voynich dari abad kelima belas adalah teka-teki kriptografi paling membingungkan di planet ini. Kriptografer militer, ahli bahasa dunia, hingga algoritma kecerdasan buatan terkuat gagal memecahkan satu kalimat pun dari buku misterius ini. Bahasa manusia, atau pesan dari peradaban lain?"
+    "naskah": "Dihiasi tinta emas dan ilustrasi tanaman aneh yang tidak pernah ada di bumi. Naskah Voynich dari abad kelima belas adalah teka-teki kriptografi paling membingungkan di planet ini. Kriptografer militer, ahli bahasa dunia, hingga algoritma kecerdasan buatan terkuat gagal memecahkan satu kalimat pun dari buku misterius ini. Bahasa manusia, atau pesan dari peradaban lain?",
+    "categorySlug": "cetak",
+    "visualLayout": "swiss-editorial",
+    "hookTitle": "NASKAH VOYNICH!",
+    "scenes": [
+      {
+        "label": "BUKU MISTERIUS",
+        "metric": "ABAD KE-15",
+        "detail": "240 halaman penuh tanaman asing"
+      },
+      {
+        "label": "BAHASA TAK DIKENAL",
+        "metric": "0 TERJEMAH",
+        "detail": "Kriptografer & AI gagal membacanya"
+      },
+      {
+        "label": "TINTA EMAS",
+        "metric": "PERKAMEN",
+        "detail": "Ilustrasi bintang & diagram rahasia"
+      },
+      {
+        "label": "TEKA-TEKI ABADI",
+        "metric": "600 TAHUN",
+        "detail": "Kode rahasia atau hoax paling jenius?"
+      }
+    ]
   },
   {
     "num": 81,
@@ -807,7 +2807,32 @@
     "topik": "Sorak Sorai Lima Puluh Ribu Penonton Roma",
     "elevenlabs_voice": "Daniel / George (Gagah Perkasa Kekaisaran Romawi)",
     "voice_settings": "Stability: 0.65, Clarity: 0.85, Style Exaggeration: 0.10",
-    "naskah": "Jutaan batu marmer kecil menyusun adegan pertarungan hidup mati para gladiator di lantai arena Colosseum. Berdiri tegak di hadapan singa buas dan pedang lawan demi memperebutkan satu hal yang paling berharga bagi seorang budak: mahkota kebebasan sejati. Sejarah kekaisaran terhebat yang dipahat di atas pasir berdarah."
+    "naskah": "Jutaan batu marmer kecil menyusun adegan pertarungan hidup mati para gladiator di lantai arena Colosseum. Berdiri tegak di hadapan singa buas dan pedang lawan demi memperebutkan satu hal yang paling berharga bagi seorang budak: mahkota kebebasan sejati. Sejarah kekaisaran terhebat yang dipahat di atas pasir berdarah.",
+    "categorySlug": "sinema",
+    "visualLayout": "cinema-reel",
+    "hookTitle": "ARENA COLOSSEUM!",
+    "scenes": [
+      {
+        "label": "SORAK ROMA",
+        "metric": "50.000 ORANG",
+        "detail": "Stadion batu terbesar kekaisaran"
+      },
+      {
+        "label": "LANTAI MOZAIK",
+        "metric": "JUTAAN BATU",
+        "detail": "Kepingan marmer abadikan gladiator"
+      },
+      {
+        "label": "ARENA PASIR",
+        "metric": "TAHUN 80 M",
+        "detail": "Lift rahasia angkat singa dari bawah"
+      },
+      {
+        "label": "JEJAK KEKAISARAN",
+        "metric": "2.000 THN",
+        "detail": "Masih berdiri megah di jantung Italia"
+      }
+    ]
   },
   {
     "num": 82,
@@ -817,7 +2842,32 @@
     "topik": "Combo Jurus Pamungkas Street Fighter K.O.!",
     "elevenlabs_voice": "Fin / Callum (Komentator Arcade Game 90-an Heboh)",
     "voice_settings": "Stability: 0.35, Clarity: 0.90, Style Exaggeration: 0.40",
-    "naskah": "Round one! Fight! Maju, serong bawah, pukulan naga! Musuh terpelanting ke pinggir layar arena! Aktifkan jurus kombo pamungkas bola api energi raksasa! K.O.! Kemenangan mutlak sempurna bagi sang juara bertahan arcade!"
+    "naskah": "Round one! Fight! Maju, serong bawah, pukulan naga! Musuh terpelanting ke pinggir layar arena! Aktifkan jurus kombo pamungkas bola api energi raksasa! K.O.! Kemenangan mutlak sempurna bagi sang juara bertahan arcade!",
+    "categorySlug": "gim",
+    "visualLayout": "arcade-game",
+    "hookTitle": "COMBO K.O. VIRAL!",
+    "scenes": [
+      {
+        "label": "ROUND FINAL",
+        "metric": "HP 1%!",
+        "detail": "Tinggal satu sentuhan langsung kalah"
+      },
+      {
+        "label": "PARRY SEMPURNA",
+        "metric": "15 HIT!",
+        "detail": "Tangkis seluruh jurus super lawan"
+      },
+      {
+        "label": "SERANGAN BALIK",
+        "metric": "HADOUKEN!",
+        "detail": "Combo penuh langsung balik keadaan"
+      },
+      {
+        "label": "K.O. LEGENDARIS",
+        "metric": "EVO 2004",
+        "detail": "Momen esports paling gila sejarah"
+      }
+    ]
   },
   {
     "num": 83,
@@ -827,7 +2877,32 @@
     "topik": "Potret Manusia Pertama yang Diabadikan Pelat Tembaga Perak",
     "elevenlabs_voice": "Marcus / Daniel (Khidmat Abad 19, Sunyi Menyentuh)",
     "voice_settings": "Stability: 0.70, Clarity: 0.80, Style Exaggeration: 0.15",
-    "naskah": "Duduk mematung tanpa bergerak sedikit pun selama lima belas menit di bawah terik matahari. Pelat perak dagerotipe ini merekam tatapan mata lelah seorang presiden yang sedang memikul beban perang saudara bangsanya. Sebuah gambar bisu yang sanggup berbicara lebih lantang daripada seribu pidato sejarah."
+    "naskah": "Duduk mematung tanpa bergerak sedikit pun selama lima belas menit di bawah terik matahari. Pelat perak dagerotipe ini merekam tatapan mata lelah seorang presiden yang sedang memikul beban perang saudara bangsanya. Sebuah gambar bisu yang sanggup berbicara lebih lantang daripada seribu pidato sejarah.",
+    "categorySlug": "sinema",
+    "visualLayout": "cinema-reel",
+    "hookTitle": "POTRET PERTAMA 1860",
+    "scenes": [
+      {
+        "label": "PLAT PERAK",
+        "metric": "TAHUN 1860",
+        "detail": "Wajah Abraham Lincoln tanpa filter"
+      },
+      {
+        "label": "WAKTU EKSPOSUR",
+        "metric": "30 DETIK",
+        "detail": "Wajib diam mematung tanpa berkedip"
+      },
+      {
+        "label": "TEKNIK DAGEROTIPE",
+        "metric": "1 SALINAN",
+        "detail": "Foto asli langsung di atas tembaga"
+      },
+      {
+        "label": "MESIN WAKTU",
+        "metric": "SEJARAH",
+        "detail": "Menatap langsung mata masa lalu"
+      }
+    ]
   },
   {
     "num": 84,
@@ -837,7 +2912,32 @@
     "topik": "Fasilitas Mewah di Kedalaman 50 Meter Bawah Tanah",
     "elevenlabs_voice": "Nicole / Adam (Modern Teknis Megah, Analitis)",
     "voice_settings": "Stability: 0.65, Clarity: 0.90, Style Exaggeration: 0.05",
-    "naskah": "Potongan aksonometri bunker bawah tanah para triliuner teknologi di kepulauan Selandia Baru. Kolam renang indoor, pembangkit listrik geotermal mandiri, kebun hidroponik bawah tanah, dan pintu baja anti-radiasi nuklir seberat dua puluh ton. Tempat perlindungan mewah untuk menyongsong kiamat peradaban di permukaan bumi."
+    "naskah": "Potongan aksonometri bunker bawah tanah para triliuner teknologi di kepulauan Selandia Baru. Kolam renang indoor, pembangkit listrik geotermal mandiri, kebun hidroponik bawah tanah, dan pintu baja anti-radiasi nuklir seberat dua puluh ton. Tempat perlindungan mewah untuk menyongsong kiamat peradaban di permukaan bumi.",
+    "categorySlug": "3d",
+    "visualLayout": "isometric-cutaway",
+    "hookTitle": "BUNKER MILIARDER",
+    "scenes": [
+      {
+        "label": "KEDALAMAN TANAH",
+        "metric": "50 METER",
+        "detail": "Tersembunyi di bukit Selandia Baru"
+      },
+      {
+        "label": "PINTU ANTI NUKLIR",
+        "metric": "20 TON BAJA",
+        "detail": "Tahan ledakan & radiasi ekstrem"
+      },
+      {
+        "label": "MANDIRI PENUH",
+        "metric": "GEOTERMAL",
+        "detail": "Kebun hidroponik & kolam indoor"
+      },
+      {
+        "label": "HARGA UNIT",
+        "metric": "$12 JUTA",
+        "detail": "Hunian mewah sambut kiamat global"
+      }
+    ]
   },
   {
     "num": 85,
@@ -847,7 +2947,32 @@
     "topik": "Kisah Cumi-Cumi Raksasa Menenggelamkan Kapal Layar",
     "elevenlabs_voice": "George / Marcus (Pelaut Kasar Samudera Tua)",
     "voice_settings": "Stability: 0.60, Clarity: 0.85, Style Exaggeration: 0.20",
-    "naskah": "Terukir di atas gigi paus sperma tua cerita para pelaut kutub utara. Di tengah pusaran badai laut Norwegia, tentakel raksasa sepanjang dua puluh meter muncul dari kegelapan palung samudera dan melilit tiang layar kapal hingga patah terbelah dua. Jangan pernah menantang penguasa laut dalam tanpa rasa hormat."
+    "naskah": "Terukir di atas gigi paus sperma tua cerita para pelaut kutub utara. Di tengah pusaran badai laut Norwegia, tentakel raksasa sepanjang dua puluh meter muncul dari kegelapan palung samudera dan melilit tiang layar kapal hingga patah terbelah dua. Jangan pernah menantang penguasa laut dalam tanpa rasa hormat.",
+    "categorySlug": "sinema",
+    "visualLayout": "cinema-reel",
+    "hookTitle": "MONSTER LAUT KRAKEN",
+    "scenes": [
+      {
+        "label": "UKIRAN TULANG",
+        "metric": "LAUT UTARA",
+        "detail": "Kisah pelaut di atas gigi paus"
+      },
+      {
+        "label": "TENTAKEL RAKSASA",
+        "metric": "20 METER",
+        "detail": "Muncul dari palung badai Norwegia"
+      },
+      {
+        "label": "KAPAL TERBELAH",
+        "metric": "PALUNG DALAM",
+        "detail": "Melilit tiang layar hingga patah"
+      },
+      {
+        "label": "FAKTA BIOLOGI",
+        "metric": "CUMI RAKSASA",
+        "detail": "Legenda kuno terbukti nyata di laut"
+      }
+    ]
   },
   {
     "num": 86,
@@ -857,7 +2982,32 @@
     "topik": "Edit Video Shorts 60 Detik Cuma Modal 1 Kali Klik",
     "elevenlabs_voice": "Liam / Callum (Tech Modern Cepat, Produktivitas)",
     "voice_settings": "Stability: 0.55, Clarity: 0.90, Style Exaggeration: 0.10",
-    "naskah": "Tarik file video mentah ke dalam timeline proyek. Sistem kecerdasan buatan otomatis memotong bagian hening, menambahkan teks subtitle warna-warni yang sedang viral, dan menyisipkan efek suara transisi tanpa kamu perlu edit manual berjam-jam. Konten kreator masa kini bekerja dengan kecepatan cahaya."
+    "naskah": "Tarik file video mentah ke dalam timeline proyek. Sistem kecerdasan buatan otomatis memotong bagian hening, menambahkan teks subtitle warna-warni yang sedang viral, dan menyisipkan efek suara transisi tanpa kamu perlu edit manual berjam-jam. Konten kreator masa kini bekerja dengan kecepatan cahaya.",
+    "categorySlug": "3d",
+    "visualLayout": "product-keynote",
+    "hookTitle": "EDIT SHORTS 1 KLIK",
+    "scenes": [
+      {
+        "label": "TIMELINE AI",
+        "metric": "DROP FILE",
+        "detail": "Potong jeda hening secara otomatis"
+      },
+      {
+        "label": "SUBTITLE VIRAL",
+        "metric": "AUTO SYNC",
+        "detail": "Karaoke warna-warni presisi milidetik"
+      },
+      {
+        "label": "SFX & TRANSISI",
+        "metric": "1 KLIK",
+        "detail": "Audio mastering jernih standar studio"
+      },
+      {
+        "label": "HEMAT WAKTU",
+        "metric": "10X CEPAT",
+        "detail": "Kreator modern kerja secepat cahaya"
+      }
+    ]
   },
   {
     "num": 87,
@@ -867,7 +3017,32 @@
     "topik": "Kilau Botol Kristal Parfum Seharga 50 Juta Rupiah",
     "elevenlabs_voice": "Charlotte / Nicole (Mewah Tingkat Tinggi, Glamour)",
     "voice_settings": "Stability: 0.70, Clarity: 0.90, Style Exaggeration: 0.05",
-    "naskah": "Potongan botol kristal murni dengan tutup berlapis emas dua puluh empat karat. Mengunci sari minyak mawar langka dari lembah Bulgaria dan kayu gaharu tua termahal di dunia. Keharuman yang tidak hanya memikat indra penciuman, melainkan menegaskan tahta wibawa keberadaanmu."
+    "naskah": "Potongan botol kristal murni dengan tutup berlapis emas dua puluh empat karat. Mengunci sari minyak mawar langka dari lembah Bulgaria dan kayu gaharu tua termahal di dunia. Keharuman yang tidak hanya memikat indra penciuman, melainkan menegaskan tahta wibawa keberadaanmu.",
+    "categorySlug": "3d",
+    "visualLayout": "product-keynote",
+    "hookTitle": "PARFUM 50 JUTA!",
+    "scenes": [
+      {
+        "label": "BOTOL KRISTAL",
+        "metric": "EMAS 24K",
+        "detail": "Potongan kaca murni memantul cahaya"
+      },
+      {
+        "label": "BAHAN LANGKA",
+        "metric": "BULGARIA",
+        "detail": "Sari mawar lembah & gaharu tua"
+      },
+      {
+        "label": "EDISI TERBATAS",
+        "metric": "500 BOTOL",
+        "detail": "Diracik tangan oleh master parfum"
+      },
+      {
+        "label": "SIMBOL WIBAWA",
+        "metric": "RP 50 JUTA",
+        "detail": "Bukan sekadar aroma, tapi identitas"
+      }
+    ]
   },
   {
     "num": 88,
@@ -877,6 +3052,31 @@
     "topik": "One More Thing: Inovasi yang Mengubah Segala Hal",
     "elevenlabs_voice": "Adam / Marcus (Steve Jobs Keynote Karismatik)",
     "voice_settings": "Stability: 0.70, Clarity: 0.90, Style Exaggeration: 0.15",
-    "naskah": "Hari ini, kita tidak hanya memperkenalkan sebuah produk teknologi biasa. Sekali dalam setiap dekade, sebuah lompatan revolusioner hadir dan mengubah bagaimana umat manusia hidup, berkarya, dan terhubung satu sama lain. Kenakan sabuk pengamanmu. Selamat datang di babak baru peradaban masa depan."
+    "naskah": "Hari ini, kita tidak hanya memperkenalkan sebuah produk teknologi biasa. Sekali dalam setiap dekade, sebuah lompatan revolusioner hadir dan mengubah bagaimana umat manusia hidup, berkarya, dan terhubung satu sama lain. Kenakan sabuk pengamanmu. Selamat datang di babak baru peradaban masa depan.",
+    "categorySlug": "infografis",
+    "visualLayout": "product-keynote",
+    "hookTitle": "ONE MORE THING...",
+    "scenes": [
+      {
+        "label": "PANGGUNG GELAP",
+        "metric": "1 DEKADE",
+        "detail": "Lompatan teknologi ubah peradaban"
+      },
+      {
+        "label": "REVOLUSI KARYA",
+        "metric": "AI STUDIO",
+        "detail": "Semua orang kini bisa berkarya pro"
+      },
+      {
+        "label": "KECEPATAN BARU",
+        "metric": "100X SCALE",
+        "detail": "Dari ide jadi video dalam hitungan menit"
+      },
+      {
+        "label": "MASA DEPAN",
+        "metric": "DIMULAI",
+        "detail": "Selamat datang di babak baru dunia"
+      }
+    ]
   }
 ]
