@@ -80,17 +80,18 @@ export default async function afterSign(context) {
   // 1. Strip any quarantine/resource-fork extended attributes before signing
   execFileSync('xattr', ['-cr', appPath], { stdio: 'inherit' });
 
-  // 2. Inside-out signing: raw Mach-O binaries -> nested .framework -> nested Helper .app
+  // 2. Inside-out signing: deepest Mach-O binaries first -> nested .framework -> nested Helper .app
+  const byDepthDesc = (a, b) => b.split('/').length - a.split('/').length;
   const { binaries, frameworks, helperApps } = collectInsideOut(join(contentsDir, 'Frameworks'));
   const unpacked = collectInsideOut(join(contentsDir, 'Resources', 'app.asar.unpacked'));
 
-  for (const bin of [...unpacked.binaries, ...binaries]) {
+  for (const bin of [...unpacked.binaries, ...binaries].sort(byDepthDesc)) {
     signTarget(bin, false);
   }
-  for (const fw of [...unpacked.frameworks, ...frameworks]) {
+  for (const fw of [...unpacked.frameworks, ...frameworks].sort(byDepthDesc)) {
     signTarget(fw, false);
   }
-  for (const helper of [...unpacked.helperApps, ...helperApps]) {
+  for (const helper of [...unpacked.helperApps, ...helperApps].sort(byDepthDesc)) {
     signTarget(helper, true);
   }
 
