@@ -86,16 +86,17 @@ describe('Desktop Superadmin and Member Views Integrity', () => {
     expect(missing).toEqual([]);
   });
 
-  it('enforces macOS 15–27 compatibility config (entitlements, builder, afterSign, GPU switches)', () => {
+  it('enforces macOS 13–27 compatibility config (entitlements, builder, inside-out afterSign, GPU switches)', () => {
     const builderCfg = readFileSync(resolve(__dirname, '../../electron-builder.yml'), 'utf8');
     const entitlements = readFileSync(resolve(__dirname, '../../build/entitlements.mac.plist'), 'utf8');
     const afterSignSrc = readFileSync(resolve(__dirname, '../../scripts/after-sign-mac.mjs'), 'utf8');
     const mainSrc = readFileSync(resolve(__dirname, '../../electron/main/index.ts'), 'utf8');
 
     for (const key of [
-      'minimumSystemVersion: "15.0"',
+      'minimumSystemVersion: "13.0"',
+      'hardenedRuntime: false',
       'afterSign: scripts/after-sign-mac.mjs',
-      'LSMinimumSystemVersion: "15.0"',
+      'LSMinimumSystemVersion: "13.0"',
       'NSLocalNetworkUsageDescription',
       'NSDocumentsFolderUsageDescription',
       'NSDownloadsFolderUsageDescription',
@@ -119,9 +120,10 @@ describe('Desktop Superadmin and Member Views Integrity', () => {
       expect(entitlements).toContain(ent);
     }
 
-    expect(afterSignSrc).toContain('studio.dentsweb.desktop');
     expect(afterSignSrc).toContain('entitlements.mac.plist');
-    expect(afterSignSrc).toContain('--deep');
+    expect(afterSignSrc).toContain('xattr');
+    expect(afterSignSrc).not.toContain("'--deep'");
+    expect(afterSignSrc).not.toContain("'--identifier'");
     expect(mainSrc).toContain("process.platform !== 'darwin'");
   });
 });

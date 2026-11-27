@@ -18,16 +18,16 @@ protocols:
 afterSign: scripts/after-sign-mac.mjs
 mac:
   category: public.app-category.video
-  minimumSystemVersion: "15.0"
+  minimumSystemVersion: "13.0"
   target:
     - target: dmg
       arch: [arm64, x64]
-  hardenedRuntime: true
+  hardenedRuntime: false
   gatekeeperAssess: false
   entitlements: build/entitlements.mac.plist
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
-    LSMinimumSystemVersion: "15.0"
+    LSMinimumSystemVersion: "13.0"
     NSLocalNetworkUsageDescription: "DENTSWEB STUDIO membutuhkan akses jaringan lokal untuk callback login OAuth dan pratinjau render lokal."
     NSDocumentsFolderUsageDescription: "DENTSWEB STUDIO membutuhkan akses folder Dokumen untuk menyimpan proyek dan aset video Anda."
     NSDownloadsFolderUsageDescription: "DENTSWEB STUDIO membutuhkan akses folder Unduhan untuk menyimpan hasil render MP4 dan pembaruan aplikasi."

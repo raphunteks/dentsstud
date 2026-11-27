@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
 import { AbsoluteFill, Audio, useCurrentFrame, useVideoConfig } from 'remotion';
+import { BESPOKE_SCENES } from './bespoke-scenes';
+import { SfxTrack, type SfxCue } from './SfxTrack';
 import { LAYOUT_COMPONENTS } from './viral-layouts';
 
 export interface ViralWord {
@@ -53,6 +55,8 @@ export interface ViralStyleProps {
   scenes?: ViralSceneSpec[];
   words: ViralWord[];
   audioUrl: string;
+  sfxCues?: SfxCue[];
+  sfxBaseUrl?: string;
   durationInFrames: number;
 }
 
@@ -383,12 +387,13 @@ export function buildSubtitleChunks(words: ViralWord[], maxPerChunk = 4): Subtit
   return chunks;
 }
 
-/** Determine whether the bottom subtitle strip sits on a light background for a given layout. */
-function isLightBottomArea(layout: VisualLayoutId, palette: ArchetypePalette): boolean {
+/** Determine whether the bottom subtitle strip sits on a light background for a given layout/slug. */
+function isLightBottomArea(slug: string, layout: VisualLayoutId, palette: ArchetypePalette): boolean {
+  if (slug === 'kartun-cel') return true;
+  if (BESPOKE_SCENES[slug]) return false;
   if (layout === 'swiss-editorial') return true;
   if (layout === 'comic-panel') return true;
   if (layout === 'handdrawn-board') return palette.id !== 'chalkboard';
-  if (layout === 'east-asian-scroll') return palette.isLight;
   return false;
 }
 
@@ -402,6 +407,8 @@ export const ViralStyleComp: React.FC<ViralStyleProps> = ({
   scenes,
   words,
   audioUrl,
+  sfxCues,
+  sfxBaseUrl,
   durationInFrames,
 }) => {
   const frame = useCurrentFrame();
@@ -422,7 +429,8 @@ export const ViralStyleComp: React.FC<ViralStyleProps> = ({
 
   const sceneIdx = progress < 0.25 ? 0 : progress < 0.55 ? 1 : progress < 0.82 ? 2 : 3;
   const activeScene = normalizedScenes[sceneIdx] ?? normalizedScenes[0];
-  const LayoutComponent = LAYOUT_COMPONENTS[layoutId];
+  const BespokeComp = BESPOKE_SCENES[slug];
+  const StageComponent = BespokeComp ?? LAYOUT_COMPONENTS[layoutId];
 
   const activeChunk = useMemo(() => {
     if (!chunks.length) return null;
@@ -434,7 +442,7 @@ export const ViralStyleComp: React.FC<ViralStyleProps> = ({
     return chunks[0];
   }, [chunks, currentTimeSec]);
 
-  const lightBottom = isLightBottomArea(layoutId, palette);
+  const lightBottom = isLightBottomArea(slug, layoutId, palette);
   const subColor = lightBottom ? '#0f172a' : '#ffffff';
   const subActive = lightBottom ? '#dc2626' : palette.subtitleActive;
   const subShadow = lightBottom
@@ -451,9 +459,10 @@ export const ViralStyleComp: React.FC<ViralStyleProps> = ({
       }}
     >
       {audioUrl ? <Audio src={audioUrl} /> : null}
+      <SfxTrack cues={sfxCues} sfxBaseUrl={sfxBaseUrl} />
 
-      {/* 12 Category-Specific Visual Layout Engine */}
-      <LayoutComponent
+      {/* 8 Bespoke Core Scenes + 12 Anti-Slop Category Visual Worlds */}
+      <StageComponent
         slug={slug}
         hookTitle={safeHook}
         kicker={cleanKicker}

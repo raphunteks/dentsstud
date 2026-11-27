@@ -1904,7 +1904,7 @@ export function AdminQuotasView() {
 /** 11. Rilis Desktop (Upload .dmg/.exe, Dynamic version from app:info, Toggle Active, Download Links) */
 export function AdminReleasesView({ info }: { info?: Info }) {
   const qc = useQueryClient();
-  const curVer = info?.version ?? '1.0.22';
+  const curVer = info?.version ?? '1.0.23';
 
   const [platform, setPlatform] = useState<'darwin' | 'win32'>('darwin');
   const [arch, setArch] = useState<'arm64' | 'x64' | 'universal'>('arm64');
